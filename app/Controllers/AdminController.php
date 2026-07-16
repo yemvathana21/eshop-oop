@@ -32,6 +32,7 @@ class AdminController extends Controller {
         $recentOrders = $this->orderModel->getRecentOrders(5);
         $lowStockProducts = $this->productModel->getLowStockProducts(10);
         $totalProducts = count($this->productModel->all());
+        $totalUsers = count($this->userModel->all());
 
         $this->render('admin/dashboard', [
             'title' => 'Admin Dashboard - E-Shop',
@@ -39,7 +40,8 @@ class AdminController extends Controller {
             'ordersCount' => $ordersCount,
             'recentOrders' => $recentOrders,
             'lowStockProducts' => $lowStockProducts,
-            'totalProducts' => $totalProducts
+            'totalProducts' => $totalProducts,
+            'totalUsers' => $totalUsers
         ], 'admin');
     }
 

@@ -14,6 +14,7 @@ return [
     'total_sales' => 'Total Sales',
     'total_orders' => 'Total Orders',
     'total_products' => 'Total Products',
+    'total_users' => 'Total Users',
     'low_stock_items' => 'Low Stock Items',
     'recent_orders' => 'Recent Orders',
     'low_stock_alert' => 'Low Stock Alert',

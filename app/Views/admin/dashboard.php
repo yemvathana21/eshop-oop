@@ -1,5 +1,5 @@
 <div class="space-y-6">
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5 transition-colors">
             <div class="flex items-center justify-between">
                 <div>
@@ -30,6 +30,17 @@
                 </div>
                 <div class="w-12 h-12 bg-purple-100 dark:bg-purple-900/50 rounded-xl flex items-center justify-center">
                     <i class="fas fa-box text-purple-600 dark:text-purple-400 text-xl"></i>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5 transition-colors">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-500 dark:text-gray-400"><?= t('total_users') ?></p>
+                    <p class="text-2xl font-bold text-gray-900 dark:text-white mt-1"><?= $totalUsers ?></p>
+                </div>
+                <div class="w-12 h-12 bg-cyan-100 dark:bg-cyan-900/50 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-users text-cyan-600 dark:text-cyan-400 text-xl"></i>
                 </div>
             </div>
         </div>

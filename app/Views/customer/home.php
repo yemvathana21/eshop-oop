@@ -184,9 +184,14 @@
 <!-- All Products -->
 <section class="bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800 transition-colors">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div class="text-center mb-10">
-            <h2 class="text-3xl font-bold text-gray-900 dark:text-white"><?= t('all_products_title') ?></h2>
-            <p class="text-gray-500 dark:text-gray-400 mt-1"><?= t('browse_complete_collection') ?></p>
+        <div class="flex items-center justify-between mb-10">
+            <div>
+                <h2 class="text-3xl font-bold text-gray-900 dark:text-white"><?= t('all_products_title') ?></h2>
+                <p class="text-gray-500 dark:text-gray-400 mt-1"><?= t('browse_complete_collection') ?></p>
+            </div>
+            <a href="<?= BASE_URL ?>shop" class="hidden sm:inline-flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-semibold text-sm transition">
+                <?= t('view_all_products') ?> <i class="fas fa-arrow-right ml-2"></i>
+            </a>
         </div>
         <?php if (!empty($allProducts)): ?>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -237,6 +242,11 @@
             <p class="text-gray-400 dark:text-gray-500 text-lg"><?= t('no_products_found') ?></p>
         </div>
         <?php endif; ?>
+        <div class="sm:hidden mt-8 text-center">
+            <a href="<?= BASE_URL ?>shop" class="inline-flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-semibold transition">
+                <?= t('view_all_products') ?> <i class="fas fa-arrow-right ml-2"></i>
+            </a>
+        </div>
     </div>
 </section>
 

@@ -14,6 +14,7 @@ return [
     'total_sales' => 'ការលក់សរុប',
     'total_orders' => 'ការបញ្ជាទិញសរុប',
     'total_products' => 'ផលិតផលសរុប',
+    'total_users' => 'អ្នកប្រើប្រាស់សរុប',
     'low_stock_items' => 'ទំនិញជិតអស់ពីស្តុក',
     'recent_orders' => 'ការបញ្ជាទិញថ្មីៗ',
     'low_stock_alert' => 'ការដាស់តឿនស្តុកទាប',

@@ -128,3 +128,4 @@ e-shop/
 ## License
 
 MIT
+opencode -s ses_09924e9e2ffeWJqAUIA3MXa5gh

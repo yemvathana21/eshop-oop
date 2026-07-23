@@ -115,7 +115,7 @@ e-shop/
 
 | Role | Email | Password |
 |------|-------|----------|
-| Admin | admin@eshop.com | admin123 |
+| Admin | admin@gmail.com | admin@gmail.com |
 
 ## Database Tables
 

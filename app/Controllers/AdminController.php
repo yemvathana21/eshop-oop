@@ -255,11 +255,20 @@ class AdminController extends Controller {
 
     // Inventory
     public function inventory() {
-        $products = $this->productModel->all();
+        $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+        if ($page < 1) $page = 1;
+        $limit = 10;
+
+        $products = $this->productModel->paginate($page, $limit);
+        $totalProducts = $this->productModel->count();
+        $totalPages = ceil($totalProducts / $limit);
+
+        // Stats should still be based on all products for accuracy
+        $allProducts = $this->productModel->all();
         $lowStock = $this->productModel->getLowStockProducts(10);
         $outOfStock = $this->productModel->getLowStockProducts(0);
-        $totalStock = array_sum(array_column($products, 'stock'));
-        $totalValue = array_sum(array_map(fn($p) => $p['price'] * $p['stock'], $products));
+        $totalStock = array_sum(array_column($allProducts, 'stock'));
+        $totalValue = array_sum(array_map(fn($p) => $p['price'] * $p['stock'], $allProducts));
 
         $this->render('admin/inventory', [
             'title' => 'Inventory Management - E-Shop',
@@ -267,7 +276,10 @@ class AdminController extends Controller {
             'lowStock' => $lowStock,
             'outOfStock' => $outOfStock,
             'totalStock' => $totalStock,
-            'totalValue' => $totalValue
+            'totalValue' => $totalValue,
+            'currentPage' => $page,
+            'totalPages' => $totalPages,
+            'totalProducts' => $totalProducts
         ], 'admin');
     }
 
@@ -329,8 +341,9 @@ class AdminController extends Controller {
         $this->render('customer/invoice', [
             'title' => 'Invoice ' . $invoiceNumber . ' - E-Shop',
             'order' => $order,
-            'items' => $items
-        ]);
+            'items' => $items,
+            'isAdmin' => true
+        ], 'admin');
     }
 
     // Categories

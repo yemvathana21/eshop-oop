@@ -73,9 +73,6 @@
         <button onclick="window.print()" class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-lg font-medium transition text-sm">
             <i class="fas fa-print mr-2"></i>Print
         </button>
-        <a href="<?= BASE_URL ?>" class="inline-block bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-2.5 rounded-lg font-medium transition text-sm">
-            Continue Shopping
-        </a>
     </div>
 </div>
 

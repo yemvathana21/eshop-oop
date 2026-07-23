@@ -1,4 +1,4 @@
-<div class="space-y-6">
+<div class="space-y-6" id="inventory-list">
 
     <!-- Stats Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -194,6 +194,83 @@
                 </tbody>
             </table>
         </div>
+
+        <!-- Pagination -->
+        <?php if ($totalPages > 1): ?>
+        <div class="bg-gray-50 dark:bg-gray-700/50 px-4 py-4 border-t border-gray-100 dark:border-gray-700 flex items-center justify-between">
+            <div class="text-sm text-gray-500 dark:text-gray-400">
+                <?= t('page') ?> <?= $currentPage ?> <?= t('of') ?> <?= $totalPages ?>
+            </div>
+            <div class="flex items-center gap-1">
+                <?php if ($currentPage > 1): ?>
+                <a href="<?= BASE_URL ?>admin/inventory?page=<?= $currentPage - 1 ?>#inventory-list" class="pagination-link px-3 py-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                    <i class="fas fa-chevron-left mr-1 text-xs"></i> <?= t('previous') ?>
+                </a>
+                <?php endif; ?>
+
+                <?php
+                $startPage = max(1, $currentPage - 2);
+                $endPage = min($totalPages, $currentPage + 2);
+
+                if ($startPage > 1): ?>
+                    <a href="<?= BASE_URL ?>admin/inventory?page=1#inventory-list" class="pagination-link px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-md text-sm transition <?= $currentPage == 1 ? 'bg-blue-600 text-white border-blue-600' : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700' ?>">1</a>
+                    <?php if ($startPage > 2): ?><span class="px-2 text-gray-400">...</span><?php endif; ?>
+                <?php endif;
+
+                for ($i = $startPage; $i <= $endPage; $i++): ?>
+                    <a href="<?= BASE_URL ?>admin/inventory?page=<?= $i ?>#inventory-list" class="pagination-link px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-md text-sm transition <?= $currentPage == $i ? 'bg-blue-600 text-white border-blue-600' : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700' ?>">
+                        <?= $i ?>
+                    </a>
+                <?php endfor;
+
+                if ($endPage < $totalPages): ?>
+                    <?php if ($endPage < $totalPages - 1): ?><span class="px-2 text-gray-400">...</span><?php endif; ?>
+                    <a href="<?= BASE_URL ?>admin/inventory?page=<?= $totalPages ?>#inventory-list" class="pagination-link px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-md text-sm transition <?= $currentPage == $totalPages ? 'bg-blue-600 text-white border-blue-600' : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700' ?>"><?= $totalPages ?></a>
+                <?php endif; ?>
+
+                <?php if ($currentPage < $totalPages): ?>
+                <a href="<?= BASE_URL ?>admin/inventory?page=<?= $currentPage + 1 ?>#inventory-list" class="pagination-link px-3 py-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                    <?= t('next') ?> <i class="fas fa-chevron-right ml-1 text-xs"></i>
+                </a>
+                <?php endif; ?>
+            </div>
+        </div>
         <?php endif; ?>
     </div>
+    <?php endif; ?>
 </div>
+
+<script>
+    // AJAX Pagination for Inventory
+    document.addEventListener('click', function(e) {
+        const link = e.target.closest('.pagination-link');
+        if (link && link.href.includes('admin/inventory')) {
+            e.preventDefault();
+            const url = link.href;
+
+            const inventoryList = document.getElementById('inventory-list');
+            inventoryList.style.opacity = '0.5';
+            inventoryList.style.pointerEvents = 'none';
+
+            fetch(url)
+                .then(response => response.text())
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const newContent = doc.getElementById('inventory-list');
+
+                    if (newContent) {
+                        inventoryList.innerHTML = newContent.innerHTML;
+                        window.history.pushState({}, '', url);
+                    }
+
+                    inventoryList.style.opacity = '1';
+                    inventoryList.style.pointerEvents = 'auto';
+                })
+                .catch(err => {
+                    console.error('Pagination error:', err);
+                    window.location.href = url;
+                });
+        }
+    });
+</script>

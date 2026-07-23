@@ -104,7 +104,7 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             <?php foreach ($featured as $product): ?>
             <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 overflow-hidden hover:shadow-lg transition-all duration-300 group">
-                <div class="relative bg-gray-50 dark:bg-gray-700 h-56 flex items-center justify-center overflow-hidden">
+                <a href="<?= BASE_URL ?>product?id=<?= $product['id'] ?>" class="block relative bg-gray-50 dark:bg-gray-700 h-56 flex items-center justify-center overflow-hidden">
                     <?php if (!empty($product['image'])): ?>
                         <img src="<?= BASE_URL . 'uploads/' . rawurlencode($product['image']) ?>"
                              onerror="this.src='<?= BASE_URL . 'images/' . rawurlencode($product['image']) ?>'; this.onerror=null;"
@@ -120,12 +120,11 @@
                     <?php elseif (!empty($product['compare_price']) && $product['compare_price'] > $product['price']): ?>
                         <div class="absolute top-3 left-3 bg-red-500 text-white text-xs px-2.5 py-1 rounded-full font-medium">-<?= round((1 - $product['price'] / $product['compare_price']) * 100) ?>%</div>
                     <?php endif; ?>
-                    <?php if ($product['category_name']): ?>
-                        <div class="absolute top-3 right-3 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm text-gray-700 dark:text-gray-300 text-xs px-2.5 py-1 rounded-full font-medium shadow-sm"><?= htmlspecialchars($product['category_name']) ?></div>
-                    <?php endif; ?>
-                </div>
+                </a>
                 <div class="p-5">
-                    <h3 class="font-semibold text-gray-900 dark:text-white leading-tight mb-2 truncate" title="<?= htmlspecialchars($product['name']) ?>"><?= htmlspecialchars($product['name']) ?></h3>
+                    <a href="<?= BASE_URL ?>product?id=<?= $product['id'] ?>" class="block">
+                        <h3 class="font-semibold text-gray-900 dark:text-white leading-tight mb-2 truncate hover:text-blue-600 transition" title="<?= htmlspecialchars($product['name']) ?>"><?= htmlspecialchars($product['name']) ?></h3>
+                    </a>
                     <p class="text-gray-400 dark:text-gray-500 text-sm mb-4 line-clamp-2"><?= htmlspecialchars($product['description'] ?? '') ?></p>
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-2">
@@ -135,9 +134,6 @@
                             <?php endif; ?>
                         </div>
                         <div class="flex gap-2">
-                            <a href="<?= BASE_URL ?>product?id=<?= $product['id'] ?>" class="text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 w-10 h-10 rounded-xl border border-gray-200 dark:border-gray-600 flex items-center justify-center transition">
-                                <i class="fas fa-eye text-sm"></i>
-                            </a>
                             <?php if ($product['stock'] > 0): ?>
                             <a href="<?= BASE_URL ?>cart/add?id=<?= $product['id'] ?>" class="bg-blue-600 hover:bg-blue-700 text-white w-10 h-10 rounded-xl flex items-center justify-center transition shadow-sm">
                                 <i class="fas fa-cart-plus text-sm"></i>
@@ -203,7 +199,7 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             <?php foreach ($allProducts as $product): ?>
             <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 overflow-hidden hover:shadow-lg transition-all duration-300 group">
-                <div class="relative bg-gray-50 dark:bg-gray-700 h-56 flex items-center justify-center overflow-hidden">
+                <a href="<?= BASE_URL ?>product?id=<?= $product['id'] ?>" class="block relative bg-gray-50 dark:bg-gray-700 h-56 flex items-center justify-center overflow-hidden">
                     <?php if (!empty($product['image'])): ?>
                         <img src="<?= BASE_URL . 'uploads/' . rawurlencode($product['image']) ?>"
                              onerror="this.src='<?= BASE_URL . 'images/' . rawurlencode($product['image']) ?>'; this.onerror=null;"
@@ -219,9 +215,11 @@
                     <?php elseif (!empty($product['compare_price']) && $product['compare_price'] > $product['price']): ?>
                         <div class="absolute top-3 left-3 bg-red-500 text-white text-xs px-2.5 py-1 rounded-full font-medium">-<?= round((1 - $product['price'] / $product['compare_price']) * 100) ?>%</div>
                     <?php endif; ?>
-                </div>
+                </a>
                 <div class="p-5">
-                    <h3 class="font-semibold text-gray-900 dark:text-white leading-tight mb-2 truncate" title="<?= htmlspecialchars($product['name']) ?>"><?= htmlspecialchars($product['name']) ?></h3>
+                    <a href="<?= BASE_URL ?>product?id=<?= $product['id'] ?>" class="block">
+                        <h3 class="font-semibold text-gray-900 dark:text-white leading-tight mb-2 truncate hover:text-blue-600 transition" title="<?= htmlspecialchars($product['name']) ?>"><?= htmlspecialchars($product['name']) ?></h3>
+                    </a>
                     <p class="text-gray-400 dark:text-gray-500 text-sm mb-4 line-clamp-2"><?= htmlspecialchars($product['description'] ?? '') ?></p>
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-2">
@@ -231,9 +229,6 @@
                             <?php endif; ?>
                         </div>
                         <div class="flex gap-2">
-                            <a href="<?= BASE_URL ?>product?id=<?= $product['id'] ?>" class="text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 w-10 h-10 rounded-xl border border-gray-200 dark:border-gray-600 flex items-center justify-center transition">
-                                <i class="fas fa-eye text-sm"></i>
-                            </a>
                             <?php if ($product['stock'] > 0): ?>
                             <a href="<?= BASE_URL ?>cart/add?id=<?= $product['id'] ?>" class="bg-blue-600 hover:bg-blue-700 text-white w-10 h-10 rounded-xl flex items-center justify-center transition shadow-sm">
                                 <i class="fas fa-cart-plus text-sm"></i>

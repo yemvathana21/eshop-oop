@@ -52,15 +52,12 @@
                 <i class="fas fa-users w-5"></i><span><?= t('users') ?></span>
             </a>
             <hr class="border-gray-700 my-3">
-            <a href="<?= BASE_URL ?>" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-700 transition">
-                <i class="fas fa-store w-5"></i><span><?= t('view_store') ?></span>
-            </a>
-            <a href="<?= BASE_URL ?>logout" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-red-600 transition">
+            <a href="<?= BASE_URL ?>admin/logout" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-red-600 transition">
                 <i class="fas fa-sign-out-alt w-5"></i><span><?= t('logout') ?></span>
             </a>
         </nav>
         <div class="p-4 border-t border-gray-700 text-xs text-gray-500">
-            <?= t('logged_in_as') ?> <?= htmlspecialchars(App\Core\Session::get('user_name', '')) ?>
+            <?= t('logged_in_as') ?> <?= htmlspecialchars(App\Core\Session::getUserName('admin')) ?>
         </div>
     </aside>
 

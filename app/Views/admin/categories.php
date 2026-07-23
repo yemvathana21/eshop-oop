@@ -53,9 +53,6 @@
                     </td>
                     <td class="py-3 px-4 text-right">
                         <div class="flex items-center justify-end gap-2">
-                            <a href="<?= BASE_URL ?>shop?category=<?= htmlspecialchars($cat['slug']) ?>" class="text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 w-8 h-8 rounded-lg border border-gray-200 dark:border-gray-600 flex items-center justify-center transition" title="View in store">
-                                <i class="fas fa-external-link-alt text-xs"></i>
-                            </a>
                             <a href="<?= BASE_URL ?>admin/category/edit?id=<?= $cat['id'] ?>" class="text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 w-8 h-8 rounded-lg border border-gray-200 dark:border-gray-600 flex items-center justify-center transition" title="<?= t('edit') ?>">
                                 <i class="fas fa-pen text-xs"></i>
                             </a>

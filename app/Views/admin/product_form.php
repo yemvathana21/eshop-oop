@@ -61,9 +61,19 @@
 
             <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"><?= t('product') ?> Image</label>
-                <?php if ($isEdit && $product['image'] && file_exists(UPLOAD_PATH . $product['image'])): ?>
+                <?php
+                $currentImgPath = '';
+                if ($isEdit && $product['image']) {
+                    if (file_exists(UPLOAD_PATH . $product['image'])) {
+                        $currentImgPath = BASE_URL . 'uploads/' . $product['image'];
+                    } elseif (file_exists(ROOT_PATH . 'images/' . $product['image'])) {
+                        $currentImgPath = BASE_URL . 'images/' . $product['image'];
+                    }
+                }
+                ?>
+                <?php if ($currentImgPath): ?>
                 <div class="mb-3">
-                    <img src="<?= BASE_URL ?>uploads/<?= htmlspecialchars($product['image']) ?>" class="w-24 h-24 object-cover rounded-lg border border-gray-200 dark:border-gray-600" alt="">
+                    <img src="<?= $currentImgPath ?>" class="w-24 h-24 object-cover rounded-lg border border-gray-200 dark:border-gray-600" alt="">
                     <p class="text-xs text-gray-400 dark:text-gray-500 mt-1"><?= t('current_image') ?></p>
                 </div>
                 <?php endif; ?>

@@ -20,9 +20,9 @@ class AdminController extends Controller {
         $this->categoryModel = new Category();
         $this->userModel = new User();
 
-        if (!Session::isLoggedIn() || !Session::isAdmin()) {
+        if (!Session::isAdmin()) {
             Session::setFlash('error', 'Access denied. Admin only.');
-            $this->redirect('login');
+            $this->redirect('admin/login');
         }
     }
 
@@ -47,10 +47,20 @@ class AdminController extends Controller {
 
     // Products
     public function products() {
-        $products = $this->productModel->all();
+        $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+        if ($page < 1) $page = 1;
+        $limit = 10;
+
+        $products = $this->productModel->paginate($page, $limit);
+        $totalProducts = $this->productModel->count();
+        $totalPages = ceil($totalProducts / $limit);
+
         $this->render('admin/products', [
             'title' => 'Manage Products - E-Shop',
-            'products' => $products
+            'products' => $products,
+            'currentPage' => $page,
+            'totalPages' => $totalPages,
+            'totalProducts' => $totalProducts
         ], 'admin');
     }
 
@@ -153,20 +163,29 @@ class AdminController extends Controller {
             if (!is_dir($uploadDir)) {
                 mkdir($uploadDir, 0777, true);
             }
-            chmod($uploadDir, 0777);
-            $fileName = time() . '_' . basename($_FILES['image']['name']);
+
+            $fileName = time() . '_' . str_replace(' ', '_', basename($_FILES['image']['name']));
             $filePath = $uploadDir . $fileName;
             $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
 
             if (in_array($_FILES['image']['type'], $allowedTypes)) {
                 if (move_uploaded_file($_FILES['image']['tmp_name'], $filePath)) {
-                    // Delete old image
+                    // Delete old image if exists
                     $oldProduct = $this->productModel->find($id);
-                    if ($oldProduct && $oldProduct['image'] && file_exists(UPLOAD_PATH . $oldProduct['image'])) {
-                        unlink(UPLOAD_PATH . $oldProduct['image']);
+                    if ($oldProduct && $oldProduct['image']) {
+                        if (file_exists(UPLOAD_PATH . $oldProduct['image'])) {
+                            unlink(UPLOAD_PATH . $oldProduct['image']);
+                        }
+                        if (file_exists(IMAGES_PATH . $oldProduct['image'])) {
+                            unlink(IMAGES_PATH . $oldProduct['image']);
+                        }
                     }
                     $image = $fileName;
+                } else {
+                    Session::setFlash('error', 'Failed to move uploaded file. Check folder permissions.');
                 }
+            } else {
+                Session::setFlash('error', 'Invalid file type. Only JPG, PNG, GIF, and WEBP are allowed.');
             }
         }
 
@@ -187,8 +206,13 @@ class AdminController extends Controller {
 
         $product = $this->productModel->find($id);
         if ($product) {
-            if ($product['image'] && file_exists(UPLOAD_PATH . $product['image'])) {
-                unlink(UPLOAD_PATH . $product['image']);
+            if ($product['image']) {
+                if (file_exists(UPLOAD_PATH . $product['image'])) {
+                    unlink(UPLOAD_PATH . $product['image']);
+                }
+                if (file_exists(IMAGES_PATH . $product['image'])) {
+                    unlink(IMAGES_PATH . $product['image']);
+                }
             }
             $this->productModel->delete($id);
             Session::setFlash('success', 'Product deleted.');

@@ -124,24 +124,19 @@ $currentLang = \App\Core\Lang\Language::current();
                         <?php endif; ?>
                     </a>
 
-                    <?php if (\App\Core\Session::isLoggedIn()): ?>
+                    <?php if (\App\Core\Session::isLoggedIn('customer')): ?>
                         <div class="relative group">
                             <button class="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition">
                                 <div class="w-7 h-7 bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400 rounded-full flex items-center justify-center text-xs font-bold">
-                                    <?= strtoupper(substr(\App\Core\Session::get('user_name', 'U'), 0, 1)) ?>
+                                    <?= strtoupper(substr(\App\Core\Session::getUserName('customer'), 0, 1) ?: 'U') ?>
                                 </div>
-                                <span class="max-w-[100px] truncate"><?= htmlspecialchars(\App\Core\Session::get('user_name', '')) ?></span>
+                                <span class="max-w-[100px] truncate"><?= htmlspecialchars(\App\Core\Session::getUserName('customer')) ?></span>
                                 <i class="fas fa-chevron-down text-xs text-gray-400"></i>
                             </button>
                             <div class="absolute top-full right-0 w-48 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
                                 <a href="<?= BASE_URL ?>my-orders" class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700 hover:text-blue-600 dark:hover:text-blue-400 transition">
                                     <i class="fas fa-receipt w-4 text-center text-gray-400"></i> <?= t('my_orders') ?>
                                 </a>
-                                <?php if (\App\Core\Session::isAdmin()): ?>
-                                <a href="<?= BASE_URL ?>admin/dashboard" class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700 hover:text-blue-600 dark:hover:text-blue-400 transition">
-                                    <i class="fas fa-gauge-high w-4 text-center text-gray-400"></i> <?= t('admin_panel') ?>
-                                </a>
-                                <?php endif; ?>
                                 <hr class="my-1 border-gray-100 dark:border-gray-700">
                                 <a href="<?= BASE_URL ?>logout" class="flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition">
                                     <i class="fas fa-right-from-bracket w-4 text-center"></i> <?= t('logout') ?>
@@ -199,11 +194,8 @@ $currentLang = \App\Core\Lang\Language::current();
                     <span class="bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold"><?= $count ?></span>
                     <?php endif; ?>
                 </a>
-                <?php if (\App\Core\Session::isLoggedIn()): ?>
+                <?php if (\App\Core\Session::isLoggedIn('customer')): ?>
                     <a href="<?= BASE_URL ?>my-orders" class="block py-2.5 px-3 text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-800 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg text-sm font-medium transition"><i class="fas fa-receipt mr-2"></i><?= t('my_orders') ?></a>
-                    <?php if (\App\Core\Session::isAdmin()): ?>
-                    <a href="<?= BASE_URL ?>admin/dashboard" class="block py-2.5 px-3 text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-800 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg text-sm font-medium transition"><i class="fas fa-gauge-high mr-2"></i><?= t('admin_panel') ?></a>
-                    <?php endif; ?>
                     <a href="<?= BASE_URL ?>logout" class="block py-2.5 px-3 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg text-sm font-medium transition"><i class="fas fa-right-from-bracket mr-2"></i><?= t('logout') ?></a>
                 <?php else: ?>
                     <a href="<?= BASE_URL ?>login" class="block py-2.5 px-3 text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-800 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg text-sm font-medium transition"><i class="fas fa-right-to-bracket mr-2"></i><?= t('login') ?></a>
@@ -221,7 +213,7 @@ $currentLang = \App\Core\Lang\Language::current();
     </main>
 
     <!-- Footer -->
-    <footer class="bg-gray-900 dark:bg-gray-950 text-gray-300 mt-12 border-t border-gray-800">
+    <footer class="bg-gray-900 dark:bg-gray-950 text-gray-300 border-t border-gray-800">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
                 <div class="col-span-2 md:col-span-1">

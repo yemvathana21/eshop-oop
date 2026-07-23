@@ -1,4 +1,9 @@
 <?php
+// Enable error reporting for debugging
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 // Custom PSR-4 style autoloader
 spl_autoload_register(function ($class) {
     // Convert namespace to file path
@@ -43,9 +48,12 @@ $router->get('/product', [HomeController::class, 'productDetail']);
 // --- Auth Routes ---
 $router->get('/login', [AuthController::class, 'showLogin']);
 $router->post('/login', [AuthController::class, 'login']);
+$router->get('/admin/login', [AuthController::class, 'showAdminLogin']);
+$router->post('/admin/login', [AuthController::class, 'adminLogin']);
 $router->get('/register', [AuthController::class, 'showRegister']);
 $router->post('/register', [AuthController::class, 'register']);
 $router->get('/logout', [AuthController::class, 'logout']);
+$router->get('/admin/logout', [AuthController::class, 'adminLogout']);
 $router->get('/lang', function() {
     $lang = $_GET['lang'] ?? 'en';
     Language::set($lang);
@@ -69,6 +77,10 @@ $router->get('/invoice', [CheckoutController::class, 'invoice']);
 $router->get('/my-orders', [CheckoutController::class, 'myOrders']);
 
 // --- Admin Routes ---
+$router->get('/admin', function() {
+    header('Location: ' . BASE_URL . 'admin/dashboard');
+    exit;
+});
 $router->get('/admin/dashboard', [AdminController::class, 'dashboard']);
 $router->get('/admin/products', [AdminController::class, 'products']);
 $router->get('/admin/product/create', [AdminController::class, 'productCreate']);

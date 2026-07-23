@@ -57,32 +57,42 @@ class Session {
         return isset($_SESSION['flash'][$key]);
     }
 
-    // Auth specific helpers
+    // Scoped Auth (Independent sessions for admin and customer)
     public static function login($user) {
-        self::set('user_id', $user['id']);
-        self::set('user_name', $user['name']);
-        self::set('user_email', $user['email']);
-        self::set('user_role', $user['role']);
-        self::set('logged_in', true);
+        $scope = ($user['role'] === 'admin') ? 'admin' : 'customer';
+        self::set($scope . '_user_id', $user['id']);
+        self::set($scope . '_user_name', $user['name']);
+        self::set($scope . '_user_email', $user['email']);
+        self::set($scope . '_logged_in', true);
     }
 
-    public static function logout() {
-        self::destroy();
+    public static function logout($scope = 'customer') {
+        self::remove($scope . '_user_id');
+        self::remove($scope . '_user_name');
+        self::remove($scope . '_user_email');
+        self::remove($scope . '_logged_in');
     }
 
-    public static function isLoggedIn() {
-        return self::get('logged_in') === true;
-    }
-
-    public static function getUserId() {
-        return self::get('user_id');
-    }
-
-    public static function getUserRole() {
-        return self::get('user_role', 'customer');
+    public static function isLoggedIn($scope = 'customer') {
+        return self::get($scope . '_logged_in') === true;
     }
 
     public static function isAdmin() {
-        return self::isLoggedIn() && self::getUserRole() === 'admin';
+        return self::isLoggedIn('admin');
+    }
+
+    public static function getUserId($scope = 'customer') {
+        return self::get($scope . '_user_id');
+    }
+
+    public static function getUserName($scope = 'customer') {
+        return self::get($scope . '_user_name', '');
+    }
+
+    public static function getUserRole() {
+        // This is mainly for legacy compatibility or UI checks
+        if (self::isAdmin()) return 'admin';
+        if (self::isLoggedIn('customer')) return 'customer';
+        return 'guest';
     }
 }

@@ -1,7 +1,7 @@
 CREATE DATABASE IF NOT EXISTS `eshop_db` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE `eshop_db`;
 
--- Categories table
+-- 1. Categories
 CREATE TABLE IF NOT EXISTS `categories` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
   `name` VARCHAR(100) NOT NULL,
@@ -11,7 +11,15 @@ CREATE TABLE IF NOT EXISTS `categories` (
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Users table
+INSERT INTO `categories` (`id`, `name`, `slug`, `icon`, `sort_order`) VALUES
+(1, 'Electronics', 'electronics', 'fa-laptop', 1),
+(2, 'Audio', 'audio', 'fa-headphones', 2),
+(3, 'Fashion', 'fashion', 'fa-shirt', 3),
+(4, 'Home & Office', 'home-office', 'fa-couch', 4),
+(5, 'Gaming', 'gaming', 'fa-gamepad', 5),
+(6, 'Accessories', 'accessories', 'fa-bag-shopping', 6);
+
+-- 2. Users
 CREATE TABLE IF NOT EXISTS `users` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
   `name` VARCHAR(100) NOT NULL,
@@ -21,7 +29,11 @@ CREATE TABLE IF NOT EXISTS `users` (
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Products table
+INSERT INTO `users` (`id`, `name`, `email`, `password`, `role`) VALUES
+(1, 'System Admin', 'admin@eshop.com', '$2y$10$EVg9jzPfKLprhFbc3ho6WeRFTtY7ge8gLY4MwuzDUer4Wwku478cK', 'admin'),
+(2, 'John Doe', 'john@gmail.com', '$2y$10$7OoPWE1OZrXsRtKQpB/jdeKEI4cmJhPrc3HeHoOgIrMXERUjY8jau', 'customer');
+
+-- 3. Products
 CREATE TABLE IF NOT EXISTS `products` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
   `name` VARCHAR(255) NOT NULL,
@@ -35,7 +47,23 @@ CREATE TABLE IF NOT EXISTS `products` (
   FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Orders table
+INSERT INTO `products` (`id`, `name`, `description`, `price`, `compare_price`, `stock`, `category_id`, `image`) VALUES
+(1, 'Webcam HD 1080p', 'High definition webcam for video calls.', 49.99, 59.99, 30, 1, 'webcam.jpg'),
+(2, 'Macbook Bag', 'Premium water-repellent laptop bag.', 29.99, 39.99, 50, 6, 'macbag.jpg'),
+(3, 'Professional Headphones', 'High-quality studio monitor headphones.', 149.00, 199.00, 15, 2, 'kas.jpg'),
+(4, 'Studio Monitor Headphones', 'Over-ear studio monitor headphones for professional audio work.', 199.00, 249.00, 10, 2, 'Studio Monitor Headphones.jpg'),
+(5, 'Minimalist Wallet', 'Slim and durable minimalist wallet.', 25.00, 35.00, 100, 6, 'Minimalist Wallet.jpg'),
+(6, 'Classic Sunglasses', 'Stylish sunglasses for all occasions.', 15.00, 25.00, 80, 3, 'Classic Sunglasses.jpg'),
+(7, 'Ergonomic Office Chair', 'Comfortable chair for long work hours.', 189.00, 250.00, 10, 4, 'chair.png'),
+(8, 'LED Desk Lamp', 'Adjustable brightness desk lamp.', 35.00, 45.00, 25, 4, 'LED Desk Lamp.jpg'),
+(9, 'Gaming Controller', 'Wireless controller for PlayStation and PC.', 59.00, 69.00, 20, 5, 'game.jpg'),
+(10, 'Mechanical Keyboard', 'RGB backlit mechanical keyboard.', 79.00, 99.00, 12, 5, 'key.png'),
+(11, 'Wireless Mouse', 'High precision wireless optical mouse.', 19.00, 29.00, 50, 6, 'mouse.jpg'),
+(12, 'USB-C Hub Adapter', '7-in-1 multi-port adapter.', 39.00, 49.00, 35, 6, 'USB-C Hub Adapter.jpg'),
+(13, 'Portable Power Bank', '20000mAh fast charging power bank.', 45.00, 55.00, 60, 1, 'Portable Power Bank 20000mAh.jpg'),
+(14, 'Cable Management Box', 'Keep your desk tidy and organized.', 19.99, 25.00, 50, 6, 'Cable Management Box.jpg');
+
+-- 4. Orders
 CREATE TABLE IF NOT EXISTS `orders` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
   `user_id` INT NOT NULL,
@@ -46,7 +74,7 @@ CREATE TABLE IF NOT EXISTS `orders` (
   FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Order items table
+-- 5. Order Items
 CREATE TABLE IF NOT EXISTS `order_items` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
   `order_id` INT NOT NULL,
@@ -56,16 +84,3 @@ CREATE TABLE IF NOT EXISTS `order_items` (
   FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`) ON DELETE CASCADE,
   FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- Seed Categories
-INSERT INTO `categories` (`name`, `slug`, `icon`, `sort_order`) VALUES
-('Electronics', 'electronics', 'fa-laptop', 1),
-('Audio', 'audio', 'fa-headphones', 2),
-('Fashion', 'fashion', 'fa-shirt', 3),
-('Home & Office', 'home-office', 'fa-couch', 4),
-('Gaming', 'gaming', 'fa-gamepad', 5),
-('Accessories', 'accessories', 'fa-bag-shopping', 6);
-
--- Seed Admin User (password: admin123)
-INSERT INTO `users` (`name`, `email`, `password`, `role`) VALUES
-('System Admin', 'admin@eshop.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin');

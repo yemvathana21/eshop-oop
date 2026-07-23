@@ -24,6 +24,7 @@ define('ROOT_PATH', realpath(dirname(__DIR__)) . DIRECTORY_SEPARATOR);
 define('APP_PATH', ROOT_PATH . 'app' . DIRECTORY_SEPARATOR);
 define('PUBLIC_PATH', ROOT_PATH . 'public' . DIRECTORY_SEPARATOR);
 define('UPLOAD_PATH', PUBLIC_PATH . 'uploads' . DIRECTORY_SEPARATOR);
+define('IMAGES_PATH', ROOT_PATH . 'images' . DIRECTORY_SEPARATOR);
 
 // Session Configuration
 if (session_status() === PHP_SESSION_NONE) {

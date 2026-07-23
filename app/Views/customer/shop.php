@@ -83,8 +83,11 @@
                 <?php foreach ($products as $product): ?>
                 <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 overflow-hidden hover:shadow-lg transition-all duration-300 group">
                     <div class="relative bg-gray-50 dark:bg-gray-700 h-56 flex items-center justify-center overflow-hidden">
-                        <?php if ($product['image'] && file_exists(UPLOAD_PATH . $product['image'])): ?>
-                            <img src="<?= BASE_URL ?>uploads/<?= htmlspecialchars($product['image']) ?>" alt="<?= htmlspecialchars($product['name']) ?>" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
+                        <?php if (!empty($product['image'])): ?>
+                            <img src="<?= BASE_URL . 'uploads/' . rawurlencode($product['image']) ?>"
+                                 onerror="this.src='<?= BASE_URL . 'images/' . rawurlencode($product['image']) ?>'; this.onerror=null;"
+                                 alt="<?= htmlspecialchars($product['name']) ?>"
+                                 class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
                         <?php else: ?>
                             <div class="text-gray-300 dark:text-gray-600"><i class="fas fa-image text-5xl"></i></div>
                         <?php endif; ?>

@@ -5,8 +5,11 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden flex items-center justify-center h-96 transition-colors">
-            <?php if ($product['image'] && file_exists(UPLOAD_PATH . $product['image'])): ?>
-                <img src="<?= BASE_URL ?>uploads/<?= htmlspecialchars($product['image']) ?>" alt="<?= htmlspecialchars($product['name']) ?>" class="w-full h-full object-cover">
+            <?php if (!empty($product['image'])): ?>
+                <img src="<?= BASE_URL . 'uploads/' . rawurlencode($product['image']) ?>"
+                     onerror="this.src='<?= BASE_URL . 'images/' . rawurlencode($product['image']) ?>'; this.onerror=null;"
+                     alt="<?= htmlspecialchars($product['name']) ?>"
+                     class="w-full h-full object-cover">
             <?php else: ?>
                 <div class="text-gray-300 dark:text-gray-600"><i class="fas fa-image text-7xl"></i></div>
             <?php endif; ?>

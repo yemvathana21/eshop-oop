@@ -16,6 +16,24 @@ class Product {
         return $stmt->fetchAll();
     }
 
+    public function paginate($page = 1, $limit = 10) {
+        $offset = ($page - 1) * $limit;
+        $stmt = $this->db->prepare("SELECT p.*, c.name as category_name, c.slug as category_slug
+                                    FROM products p
+                                    LEFT JOIN categories c ON p.category_id = c.id
+                                    ORDER BY p.id DESC
+                                    LIMIT ? OFFSET ?");
+        $stmt->bindParam(1, $limit, PDO::PARAM_INT);
+        $stmt->bindParam(2, $offset, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
+
+    public function count() {
+        $stmt = $this->db->query("SELECT COUNT(*) FROM products");
+        return (int)$stmt->fetchColumn();
+    }
+
     public function find($id) {
         $stmt = $this->db->prepare("SELECT p.*, c.name as category_name, c.slug as category_slug FROM products p LEFT JOIN categories c ON p.category_id = c.id WHERE p.id = ?");
         $stmt->execute([$id]);

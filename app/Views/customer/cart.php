@@ -15,8 +15,10 @@
             <?php foreach ($cart as $productId => $item): ?>
             <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5 flex gap-5 transition-colors">
                 <div class="w-24 h-24 bg-gray-100 dark:bg-gray-700 rounded-lg flex-shrink-0 overflow-hidden flex items-center justify-center">
-                    <?php if ($item['image'] && file_exists(UPLOAD_PATH . $item['image'])): ?>
-                        <img src="<?= BASE_URL ?>uploads/<?= htmlspecialchars($item['image']) ?>" class="w-full h-full object-cover" alt="">
+                    <?php if (!empty($item['image'])): ?>
+                        <img src="<?= BASE_URL . 'uploads/' . rawurlencode($item['image']) ?>"
+                             onerror="this.src='<?= BASE_URL . 'images/' . rawurlencode($item['image']) ?>'; this.onerror=null;"
+                             class="w-full h-full object-cover" alt="<?= htmlspecialchars($item['name']) ?>">
                     <?php else: ?>
                         <i class="fas fa-image text-gray-300 dark:text-gray-600 text-2xl"></i>
                     <?php endif; ?>

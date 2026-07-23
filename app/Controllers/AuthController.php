@@ -13,14 +13,17 @@ class AuthController extends Controller {
     }
 
     public function showLogin() {
-        if (Session::isLoggedIn()) {
-            if (Session::isAdmin()) {
-                $this->redirect('admin/dashboard');
-            } else {
-                $this->redirect('');
-            }
+        if (Session::isLoggedIn('customer')) {
+            $this->redirect('');
         }
         $this->render('customer/login', ['title' => 'Login - E-Shop'], 'auth');
+    }
+
+    public function showAdminLogin() {
+        if (Session::isAdmin()) {
+            $this->redirect('admin/dashboard');
+        }
+        $this->render('admin/login', ['title' => 'Admin Login - E-Shop'], 'admin_auth');
     }
 
     public function login() {
@@ -39,17 +42,47 @@ class AuthController extends Controller {
         $user = $this->userModel->findByEmail($email);
 
         if ($user && password_verify($password, $user['password'])) {
+            if ($user['role'] === 'admin') {
+                Session::setFlash('error', 'Administrators must log in through the admin portal.');
+                $this->redirect('login');
+            }
+
             Session::login($user);
             Session::setFlash('success', 'Welcome back, ' . $user['name'] . '!');
-            
-            if ($user['role'] === 'admin') {
-                $this->redirect('admin/dashboard');
-            } else {
-                $this->redirect('');
-            }
+            $this->redirect('');
         } else {
             Session::setFlash('error', 'Invalid email or password.');
             $this->redirect('login');
+        }
+    }
+
+    public function adminLogin() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->redirect('admin/login');
+        }
+
+        $email = trim($_POST['email'] ?? '');
+        $password = trim($_POST['password'] ?? '');
+
+        if (empty($email) || empty($password)) {
+            Session::setFlash('error', 'Please fill in all fields.');
+            $this->redirect('admin/login');
+        }
+
+        $user = $this->userModel->findByEmail($email);
+
+        if ($user && password_verify($password, $user['password'])) {
+            if ($user['role'] !== 'admin') {
+                Session::setFlash('error', 'Access denied. This area is for administrators only.');
+                $this->redirect('admin/login');
+            }
+
+            Session::login($user);
+            Session::setFlash('success', 'Welcome to Admin Panel, ' . $user['name'] . '!');
+            $this->redirect('admin/dashboard');
+        } else {
+            Session::setFlash('error', 'Invalid email or password.');
+            $this->redirect('admin/login');
         }
     }
 
@@ -105,7 +138,12 @@ class AuthController extends Controller {
     }
 
     public function logout() {
-        Session::logout();
+        Session::logout('customer');
         $this->redirect('login');
+    }
+
+    public function adminLogout() {
+        Session::logout('admin');
+        $this->redirect('admin/login');
     }
 }

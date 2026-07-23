@@ -34,8 +34,10 @@
                     <?php foreach ($order['items'] as $item): ?>
                     <div class="flex items-center gap-2 bg-gray-50 rounded-lg px-3 py-2">
                         <div class="w-8 h-8 bg-gray-200 rounded-md flex-shrink-0 overflow-hidden flex items-center justify-center">
-                            <?php if ($item['product_image'] && file_exists(UPLOAD_PATH . $item['product_image'])): ?>
-                                <img src="<?= BASE_URL ?>uploads/<?= htmlspecialchars($item['product_image']) ?>" class="w-full h-full object-cover" alt="">
+                            <?php if (!empty($item['product_image'])): ?>
+                                <img src="<?= BASE_URL . 'uploads/' . rawurlencode($item['product_image']) ?>"
+                                     onerror="this.src='<?= BASE_URL . 'images/' . rawurlencode($item['product_image']) ?>'; this.onerror=null;"
+                                     class="w-full h-full object-cover" alt="<?= htmlspecialchars($item['product_name']) ?>">
                             <?php else: ?>
                                 <i class="fas fa-image text-gray-300 text-xs"></i>
                             <?php endif; ?>

@@ -120,8 +120,11 @@
                         <td class="py-3 px-4">
                             <div class="flex items-center gap-3">
                                 <div class="w-10 h-10 bg-gray-100 dark:bg-gray-700 rounded-lg flex-shrink-0 overflow-hidden flex items-center justify-center">
-                                    <?php if ($product['image'] && file_exists(UPLOAD_PATH . $product['image'])): ?>
-                                        <img src="<?= BASE_URL ?>uploads/<?= htmlspecialchars($product['image']) ?>" class="w-full h-full object-cover" alt="">
+                                    <?php if (!empty($product['image'])): ?>
+                                        <img src="<?= BASE_URL . 'uploads/' . rawurlencode($product['image']) ?>"
+                                             onerror="this.src='<?= BASE_URL . 'images/' . rawurlencode($product['image']) ?>'; this.onerror=null;"
+                                             class="w-full h-full object-cover"
+                                             alt="<?= htmlspecialchars($product['name']) ?>">
                                     <?php else: ?>
                                         <i class="fas fa-image text-gray-300 dark:text-gray-500 text-xs"></i>
                                     <?php endif; ?>

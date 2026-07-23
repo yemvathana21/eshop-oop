@@ -47,15 +47,25 @@ class Database {
     }
 
     private function checkAndInitializeDatabase() {
-        // Check if users table exists
-        $result = $this->connection->query("SHOW TABLES LIKE 'users'")->rowCount();
+        // 1. Check if categories table exists
+        $result = $this->connection->query("SHOW TABLES LIKE 'categories'")->rowCount();
         if ($result === 0) {
             $sqlFile = ROOT_PATH . 'config' . DIRECTORY_SEPARATOR . 'database.sql';
             if (file_exists($sqlFile)) {
                 $sql = file_get_contents($sqlFile);
                 $this->connection->exec($sql);
                 $this->seedInitialData();
+                return; // Everything created fresh
             }
+        }
+
+        // 2. Force fix for missing category_id in products table (the error you are seeing)
+        try {
+            $this->connection->query("SELECT category_id FROM products LIMIT 1");
+        } catch (PDOException $e) {
+            // Column doesn't exist, let's add it
+            $this->connection->exec("ALTER TABLE products ADD COLUMN category_id INT NULL AFTER stock");
+            $this->connection->exec("ALTER TABLE products ADD CONSTRAINT fk_product_category FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL");
         }
     }
 
@@ -77,44 +87,25 @@ class Database {
             $products = [
                 [
                     'name' => 'Premium Leather Backpack',
-                    'description' => 'A stylish and durable premium leather backpack suitable for daily commute and travel. Features multiple compartments and a laptop sleeve.',
+                    'description' => 'A stylish and durable premium leather backpack.',
                     'price' => 79.99,
                     'stock' => 15,
-                    'image' => 'backpack.jpg'
+                    'image' => 'backpack.jpg',
+                    'category_id' => 1
                 ],
                 [
-                    'name' => 'Wireless Noise-Cancelling Headphones',
-                    'description' => 'Over-ear headphones with high-fidelity sound, active noise cancellation, and up to 30 hours of battery life.',
+                    'name' => 'Wireless Headphones',
+                    'description' => 'High-fidelity sound, active noise cancellation.',
                     'price' => 129.50,
                     'stock' => 8,
-                    'image' => 'headphones.jpg'
-                ],
-                [
-                    'name' => 'Minimalist Analog Watch',
-                    'description' => 'Elegant minimalist watch with Japanese quartz movement, stainless steel case, and genuine leather strap.',
-                    'price' => 49.00,
-                    'stock' => 20,
-                    'image' => 'watch.jpg'
-                ],
-                [
-                    'name' => 'Ergonomic Office Chair',
-                    'description' => 'Adjustable lumbar support, breathable mesh back, and 3D armrests. Perfect for long work hours.',
-                    'price' => 189.99,
-                    'stock' => 5,
-                    'image' => 'chair.jpg'
-                ],
-                [
-                    'name' => 'Mechanical Gaming Keyboard',
-                    'description' => 'Compact 80% layout keyboard with tactile mechanical switches, custom RGB backlighting, and aluminum frame.',
-                    'price' => 89.95,
-                    'stock' => 12,
-                    'image' => 'keyboard.jpg'
+                    'image' => 'headphones.jpg',
+                    'category_id' => 2
                 ]
             ];
 
-            $stmtProd = $this->connection->prepare("INSERT INTO products (name, description, price, stock, image) VALUES (?, ?, ?, ?, ?)");
+            $stmtProd = $this->connection->prepare("INSERT INTO products (name, description, price, stock, image, category_id) VALUES (?, ?, ?, ?, ?, ?)");
             foreach ($products as $p) {
-                $stmtProd->execute([$p['name'], $p['description'], $p['price'], $p['stock'], $p['image']]);
+                $stmtProd->execute([$p['name'], $p['description'], $p['price'], $p['stock'], $p['image'], $p['category_id']]);
             }
         }
     }

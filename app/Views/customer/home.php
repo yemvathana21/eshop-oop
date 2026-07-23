@@ -25,8 +25,11 @@
                         <div class="grid grid-cols-2 gap-4">
                             <?php foreach (array_slice($featured, 0, 4) as $fp): ?>
                             <div class="bg-white rounded-xl overflow-hidden shadow-lg w-36 h-36">
-                                <?php if ($fp['image'] && file_exists(UPLOAD_PATH . $fp['image'])): ?>
-                                    <img src="<?= BASE_URL ?>uploads/<?= htmlspecialchars($fp['image']) ?>" alt="<?= htmlspecialchars($fp['name']) ?>" class="w-full h-full object-cover">
+                                <?php if (!empty($fp['image'])): ?>
+                                    <img src="<?= BASE_URL . 'uploads/' . rawurlencode($fp['image']) ?>"
+                                         onerror="this.src='<?= BASE_URL . 'images/' . rawurlencode($fp['image']) ?>'; this.onerror=null;"
+                                         alt="<?= htmlspecialchars($fp['name']) ?>"
+                                         class="w-full h-full object-cover">
                                 <?php else: ?>
                                     <div class="w-full h-full flex items-center justify-center bg-gray-100"><i class="fas fa-image text-gray-300 text-2xl"></i></div>
                                 <?php endif; ?>
@@ -102,8 +105,11 @@
             <?php foreach ($featured as $product): ?>
             <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 overflow-hidden hover:shadow-lg transition-all duration-300 group">
                 <div class="relative bg-gray-50 dark:bg-gray-700 h-56 flex items-center justify-center overflow-hidden">
-                    <?php if ($product['image'] && file_exists(UPLOAD_PATH . $product['image'])): ?>
-                        <img src="<?= BASE_URL ?>uploads/<?= htmlspecialchars($product['image']) ?>" alt="<?= htmlspecialchars($product['name']) ?>" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
+                    <?php if (!empty($product['image'])): ?>
+                        <img src="<?= BASE_URL . 'uploads/' . rawurlencode($product['image']) ?>"
+                             onerror="this.src='<?= BASE_URL . 'images/' . rawurlencode($product['image']) ?>'; this.onerror=null;"
+                             alt="<?= htmlspecialchars($product['name']) ?>"
+                             class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
                     <?php else: ?>
                         <div class="text-gray-300 dark:text-gray-600"><i class="fas fa-image text-5xl"></i></div>
                     <?php endif; ?>
@@ -198,8 +204,11 @@
             <?php foreach ($allProducts as $product): ?>
             <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 overflow-hidden hover:shadow-lg transition-all duration-300 group">
                 <div class="relative bg-gray-50 dark:bg-gray-700 h-56 flex items-center justify-center overflow-hidden">
-                    <?php if ($product['image'] && file_exists(UPLOAD_PATH . $product['image'])): ?>
-                        <img src="<?= BASE_URL ?>uploads/<?= htmlspecialchars($product['image']) ?>" alt="<?= htmlspecialchars($product['name']) ?>" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
+                    <?php if (!empty($product['image'])): ?>
+                        <img src="<?= BASE_URL . 'uploads/' . rawurlencode($product['image']) ?>"
+                             onerror="this.src='<?= BASE_URL . 'images/' . rawurlencode($product['image']) ?>'; this.onerror=null;"
+                             alt="<?= htmlspecialchars($product['name']) ?>"
+                             class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
                     <?php else: ?>
                         <div class="text-gray-300 dark:text-gray-600"><i class="fas fa-image text-5xl"></i></div>
                     <?php endif; ?>

@@ -2,16 +2,23 @@
 namespace App\Controllers;
 
 use App\Core\Controller;
+use App\Core\Session;
 use App\Models\Product;
 use App\Models\Category;
+use App\Models\Review;
+use App\Models\Wishlist;
 
 class HomeController extends Controller {
     private $productModel;
     private $categoryModel;
+    private $reviewModel;
+    private $wishlistModel;
 
     public function __construct() {
         $this->productModel = new Product();
         $this->categoryModel = new Category();
+        $this->reviewModel = new Review();
+        $this->wishlistModel = new Wishlist();
     }
 
     public function index() {
@@ -89,9 +96,86 @@ class HomeController extends Controller {
             $this->redirect('shop');
         }
 
+        $userId = Session::getUserId();
+        $categoryId = $product['category_id'];
+
+        $reviews = $this->reviewModel->getByProduct($product['id']);
+        $ratingData = $this->reviewModel->getAvgRating($product['id']);
+        $distribution = $this->reviewModel->getRatingDistribution($product['id']);
+        $isWishlisted = $this->wishlistModel->isWishlisted($product['id'], $userId);
+        $relatedProducts = $this->productModel->relatedByCategory($categoryId, 4);
+
+        $galleryImages = [];
+        if (!empty($product['gallery_images'])) {
+            $galleryImages = json_decode($product['gallery_images'], true) ?? [];
+        }
+
         $this->render('customer/product_detail', [
             'title' => $product['name'] . ' - E-Shop',
-            'product' => $product
+            'product' => $product,
+            'reviews' => $reviews,
+            'ratingData' => $ratingData,
+            'distribution' => $distribution,
+            'isWishlisted' => $isWishlisted,
+            'relatedProducts' => $relatedProducts,
+            'galleryImages' => $galleryImages
+        ]);
+    }
+
+    public function submitReview() {
+        $userId = Session::getUserId();
+        if (!$userId) {
+            Session::setFlash('error', 'Please login to write a review.');
+            $this->redirect('login');
+        }
+
+        $productId = $_POST['product_id'] ?? null;
+        $rating = $_POST['rating'] ?? null;
+        $comment = trim($_POST['comment'] ?? '');
+
+        if (!$productId || !$rating || $rating < 1 || $rating > 5) {
+            Session::setFlash('error', 'Invalid review data.');
+            $this->redirect('product?id=' . $productId);
+        }
+
+        $this->reviewModel->create($productId, $userId, (int)$rating, $comment);
+        Session::setFlash('success', 'Review submitted!');
+        $this->redirect('product?id=' . $productId);
+    }
+
+    public function deleteReview() {
+        $userId = Session::getUserId();
+        if (!$userId) {
+            $this->redirect('login');
+        }
+
+        $reviewId = $_GET['id'] ?? null;
+        $productId = $_GET['product_id'] ?? null;
+
+        if ($reviewId) {
+            $this->reviewModel->delete($reviewId, $userId);
+            Session::setFlash('success', 'Review deleted.');
+        }
+
+        $this->redirect('product?id=' . $productId);
+    }
+
+    public function toggleWishlist() {
+        $userId = Session::getUserId();
+        if (!$userId) {
+            $this->json(['success' => false, 'message' => 'Please login first.']);
+        }
+
+        $productId = $_POST['product_id'] ?? $_GET['product_id'] ?? null;
+        if (!$productId) {
+            $this->json(['success' => false, 'message' => 'Invalid product.']);
+        }
+
+        $added = $this->wishlistModel->toggle($productId, $userId);
+        $this->json([
+            'success' => true, 
+            'wishlisted' => $added,
+            'message' => $added ? 'Added to wishlist!' : 'Removed from wishlist.'
         ]);
     }
 }

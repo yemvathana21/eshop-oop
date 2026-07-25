@@ -51,6 +51,9 @@
             <a href="<?= BASE_URL ?>admin/users" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-700 transition <?= (strpos($_SERVER['REQUEST_URI'], 'user') !== false && strpos($_SERVER['REQUEST_URI'], 'users') !== false || preg_match('#/admin/users?#', $_SERVER['REQUEST_URI'])) ? 'bg-gray-700' : '' ?>">
                 <i class="fas fa-users w-5"></i><span><?= t('users') ?></span>
             </a>
+            <a href="<?= BASE_URL ?>admin/reviews" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-700 transition <?= (strpos($_SERVER['REQUEST_URI'], 'review') !== false) ? 'bg-gray-700' : '' ?>">
+                <i class="fas fa-star w-5"></i><span><?= t('reviews') ?></span>
+            </a>
             <hr class="border-gray-700 my-3">
             <a href="<?= BASE_URL ?>admin/logout" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-red-600 transition">
                 <i class="fas fa-sign-out-alt w-5"></i><span><?= t('logout') ?></span>

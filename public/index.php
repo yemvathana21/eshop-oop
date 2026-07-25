@@ -44,6 +44,10 @@ $router = new Router();
 $router->get('/', [HomeController::class, 'index']);
 $router->get('/shop', [HomeController::class, 'shop']);
 $router->get('/product', [HomeController::class, 'productDetail']);
+$router->post('/review/submit', [HomeController::class, 'submitReview']);
+$router->get('/review/delete', [HomeController::class, 'deleteReview']);
+$router->post('/wishlist/toggle', [HomeController::class, 'toggleWishlist']);
+$router->get('/wishlist/toggle', [HomeController::class, 'toggleWishlist']);
 
 // --- Auth Routes ---
 $router->get('/login', [AuthController::class, 'showLogin']);
@@ -105,6 +109,8 @@ $router->post('/admin/user/save', [AdminController::class, 'userSave']);
 $router->get('/admin/user/edit', [AdminController::class, 'userEdit']);
 $router->post('/admin/user/update', [AdminController::class, 'userUpdate']);
 $router->get('/admin/user/delete', [AdminController::class, 'userDelete']);
+$router->get('/admin/reviews', [AdminController::class, 'reviews']);
+$router->get('/admin/review/delete', [AdminController::class, 'reviewDelete']);
 $router->get('/admin/search', [AdminController::class, 'search']);
 
 // Dispatch

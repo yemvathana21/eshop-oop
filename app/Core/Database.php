@@ -67,6 +67,67 @@ class Database {
             $this->connection->exec("ALTER TABLE products ADD COLUMN category_id INT NULL AFTER stock");
             $this->connection->exec("ALTER TABLE products ADD CONSTRAINT fk_product_category FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL");
         }
+
+        // 3. Add gallery_images column if missing
+        try {
+            $this->connection->query("SELECT gallery_images FROM products LIMIT 1");
+        } catch (PDOException $e) {
+            $this->connection->exec("ALTER TABLE products ADD COLUMN gallery_images TEXT NULL AFTER image");
+        }
+
+        // 3b. Add specifications column if missing
+        try {
+            $this->connection->query("SELECT specifications FROM products LIMIT 1");
+        } catch (PDOException $e) {
+            $this->connection->exec("ALTER TABLE products ADD COLUMN specifications TEXT NULL AFTER gallery_images");
+        }
+
+        // 4. Create reviews table if missing
+        $reviewsCheck = $this->connection->query("SHOW TABLES LIKE 'reviews'")->rowCount();
+        if ($reviewsCheck === 0) {
+            $this->connection->exec("CREATE TABLE IF NOT EXISTS `reviews` (
+                `id` INT AUTO_INCREMENT PRIMARY KEY,
+                `product_id` INT NOT NULL,
+                `user_id` INT NOT NULL,
+                `rating` TINYINT NOT NULL,
+                `comment` TEXT NULL,
+                `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE,
+                FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+                UNIQUE KEY `unique_review` (`product_id`, `user_id`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+        }
+
+        // 4b. Drop unique constraint on reviews to allow multiple reviews per user per product
+        try {
+            $this->connection->exec("ALTER TABLE reviews DROP FOREIGN KEY reviews_ibfk_1");
+        } catch (PDOException $e) {}
+        try {
+            $this->connection->exec("ALTER TABLE reviews DROP FOREIGN KEY reviews_ibfk_2");
+        } catch (PDOException $e) {}
+        try {
+            $this->connection->exec("ALTER TABLE reviews DROP INDEX unique_review");
+        } catch (PDOException $e) {}
+        try {
+            $this->connection->exec("ALTER TABLE reviews ADD CONSTRAINT reviews_ibfk_1 FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE");
+        } catch (PDOException $e) {}
+        try {
+            $this->connection->exec("ALTER TABLE reviews ADD CONSTRAINT reviews_ibfk_2 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE");
+        } catch (PDOException $e) {}
+
+        // 5. Create wishlist table if missing
+        $wishlistCheck = $this->connection->query("SHOW TABLES LIKE 'wishlist'")->rowCount();
+        if ($wishlistCheck === 0) {
+            $this->connection->exec("CREATE TABLE IF NOT EXISTS `wishlist` (
+                `id` INT AUTO_INCREMENT PRIMARY KEY,
+                `user_id` INT NOT NULL,
+                `product_id` INT NOT NULL,
+                `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+                FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE,
+                UNIQUE KEY `unique_wishlist` (`user_id`, `product_id`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+        }
     }
 
     private function seedInitialData() {

@@ -1,10 +1,37 @@
 <div class="space-y-6">
+    <!-- Filters Bar -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-4 transition-colors">
+        <form method="GET" action="<?= BASE_URL ?>admin/orders" class="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+            <div class="flex items-center gap-2 flex-wrap">
+                <span class="text-sm font-medium text-gray-600 dark:text-gray-300"><?= t('status') ?>:</span>
+                <a href="<?= BASE_URL ?>admin/orders" class="px-3 py-1.5 rounded-lg text-sm font-medium transition <?= !$statusFilter ? 'bg-blue-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600' ?>">
+                    <?= t('all') ?> (<?= $totalOrders ?>)
+                </a>
+                <?php
+                foreach (['completed', 'pending', 'cancelled'] as $sf):
+                ?>
+                <a href="<?= BASE_URL ?>admin/orders?status=<?= $sf ?>" class="px-3 py-1.5 rounded-lg text-sm font-medium transition <?= $statusFilter === $sf ? 'bg-blue-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600' ?>">
+                    <?= t($sf) ?> (<?= $statusCounts[$sf] ?? 0 ?>)
+                </a>
+                <?php endforeach; ?>
+            </div>
+            <div class="relative sm:ml-auto">
+                <input type="text" name="search" value="<?= htmlspecialchars($search) ?>" placeholder="<?= t('search') ?>"
+                    class="pl-9 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition w-64">
+                <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+            </div>
+        </form>
+    </div>
+
     <p class="text-sm text-gray-500 dark:text-gray-400"><?= count($orders) ?> <?= t('orders_total') ?></p>
 
     <?php if (empty($orders)): ?>
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 text-center py-16 transition-colors">
         <i class="fas fa-file-invoice text-5xl text-gray-300 dark:text-gray-600 mb-4"></i>
         <p class="text-gray-500 dark:text-gray-400 text-lg"><?= t('no_orders_found') ?></p>
+        <?php if ($statusFilter || $search): ?>
+        <a href="<?= BASE_URL ?>admin/orders" class="mt-3 text-blue-600 dark:text-blue-400 text-sm hover:underline"><?= t('clear_filters') ?></a>
+        <?php endif; ?>
     </div>
     <?php else: ?>
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden transition-colors">

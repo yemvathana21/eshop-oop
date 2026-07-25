@@ -30,6 +30,10 @@ $currentLang = \App\Core\Lang\Language::current();
         }
     </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
     <script>
         (function() {
             const saved = localStorage.getItem('theme');
@@ -204,6 +208,22 @@ $currentLang = \App\Core\Lang\Language::current();
             </div>
         </div>
     </nav>
+
+    <!-- Category Bar -->
+    <div class="bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 transition-colors hidden lg:block">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center gap-1 overflow-x-auto py-2 scrollbar-hide">
+                <a href="<?= BASE_URL ?>shop" class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-800 rounded-full transition whitespace-nowrap <?= empty($_GET['category']) ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400' : '' ?>">
+                    <i class="fas fa-grid-2"></i> <?= t('all_products') ?>
+                </a>
+                <?php foreach ($navCategories as $cat): ?>
+                <a href="<?= BASE_URL ?>shop?category=<?= htmlspecialchars($cat['slug']) ?>" class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-800 rounded-full transition whitespace-nowrap <?= (isset($_GET['category']) && $_GET['category'] === $cat['slug']) ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400' : '' ?>">
+                    <i class="fas <?= htmlspecialchars($cat['icon']) ?>"></i> <?= htmlspecialchars($cat['name']) ?>
+                </a>
+                <?php endforeach; ?>
+            </div>
+        </div>
+    </div>
 
     <!-- Toast Container -->
     <div id="toastContainer" class="fixed top-4 right-4 z-50 flex flex-col gap-3 max-w-sm"></div>

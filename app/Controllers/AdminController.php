@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Models\Order;
 use App\Models\Category;
 use App\Models\User;
+use App\Models\Review;
 
 class AdminController extends Controller {
     private $productModel;
@@ -34,6 +35,39 @@ class AdminController extends Controller {
         $totalProducts = count($this->productModel->all());
         $totalUsers = count($this->userModel->all());
 
+        // Additional stats for enhanced dashboard
+        $db = \App\Core\Database::getInstance()->getConnection();
+        $reviewModel = new Review();
+        $totalReviews = $reviewModel->countAll();
+
+        // Orders by status
+        $stmt = $db->query("SELECT status, COUNT(*) as count FROM orders GROUP BY status");
+        $ordersByStatus = [];
+        foreach ($stmt->fetchAll() as $row) {
+            $ordersByStatus[$row['status']] = $row['count'];
+        }
+
+        // Daily sales (last 7 days)
+        $stmt = $db->query("SELECT DATE(created_at) as day, SUM(total_price) as total FROM orders WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 7 DAY) GROUP BY DATE(created_at) ORDER BY day ASC");
+        $dailySales = $stmt->fetchAll();
+
+        // Fill missing days with 0
+        $salesChart = [];
+        for ($i = 6; $i >= 0; $i--) {
+            $date = date('Y-m-d', strtotime("-{$i} days"));
+            $label = date('D', strtotime($date));
+            $amount = 0;
+            foreach ($dailySales as $ds) {
+                if ($ds['day'] === $date) {
+                    $amount = (float)$ds['total'];
+                    break;
+                }
+            }
+            $salesChart[] = ['label' => $label, 'amount' => $amount, 'date' => $date];
+        }
+
+        $maxSales = max(array_column($salesChart, 'amount')) ?: 1;
+
         $this->render('admin/dashboard', [
             'title' => 'Admin Dashboard - E-Shop',
             'totalSales' => $totalSales,
@@ -41,7 +75,11 @@ class AdminController extends Controller {
             'recentOrders' => $recentOrders,
             'lowStockProducts' => $lowStockProducts,
             'totalProducts' => $totalProducts,
-            'totalUsers' => $totalUsers
+            'totalUsers' => $totalUsers,
+            'totalReviews' => $totalReviews,
+            'ordersByStatus' => $ordersByStatus,
+            'salesChart' => $salesChart,
+            'maxSales' => $maxSales
         ], 'admin');
     }
 
@@ -85,13 +123,15 @@ class AdminController extends Controller {
         $stock = (int)($_POST['stock'] ?? 0);
         $categoryId = (int)($_POST['category_id'] ?? 0) ?: null;
         $image = null;
+        $galleryImages = null;
+        $specifications = null;
 
         if (empty($name) || $price <= 0 || $stock < 0) {
             Session::setFlash('error', 'Please fill all required fields correctly.');
             $this->redirect('admin/product/create');
         }
 
-        // Handle image upload
+        // Handle main image upload
         if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
             $uploadDir = UPLOAD_PATH;
             if (!is_dir($uploadDir)) {
@@ -109,7 +149,43 @@ class AdminController extends Controller {
             }
         }
 
-        if ($this->productModel->create($name, $description, $price, $stock, $image, $categoryId, $comparePrice)) {
+        // Handle gallery images upload
+        $galleryFiles = [];
+        if (!empty($_FILES['gallery_images']['name'][0])) {
+            $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+            foreach ($_FILES['gallery_images']['name'] as $idx => $gName) {
+                if ($_FILES['gallery_images']['error'][$idx] === UPLOAD_ERR_OK) {
+                    $gType = $_FILES['gallery_images']['type'][$idx];
+                    if (in_array($gType, $allowedTypes)) {
+                        $gFileName = time() . '_' . $idx . '_' . basename($gName);
+                        $gFilePath = UPLOAD_PATH . $gFileName;
+                        if (move_uploaded_file($_FILES['gallery_images']['tmp_name'][$idx], $gFilePath)) {
+                            $galleryFiles[] = $gFileName;
+                        }
+                    }
+                }
+            }
+        }
+        if (!empty($galleryFiles)) {
+            $galleryImages = json_encode($galleryFiles);
+        }
+
+        // Collect specifications
+        $specKeys = $_POST['spec_key'] ?? [];
+        $specVals = $_POST['spec_value'] ?? [];
+        $specs = [];
+        for ($i = 0; $i < count($specKeys); $i++) {
+            $k = trim($specKeys[$i] ?? '');
+            $v = trim($specVals[$i] ?? '');
+            if ($k !== '' && $v !== '') {
+                $specs[$k] = $v;
+            }
+        }
+        if (!empty($specs)) {
+            $specifications = json_encode($specs);
+        }
+
+        if ($this->productModel->create($name, $description, $price, $stock, $image, $categoryId, $comparePrice, $galleryImages, $specifications)) {
             Session::setFlash('success', 'Product created successfully.');
         } else {
             Session::setFlash('error', 'Failed to create product.');
@@ -151,13 +227,15 @@ class AdminController extends Controller {
         $stock = (int)($_POST['stock'] ?? 0);
         $categoryId = (int)($_POST['category_id'] ?? 0) ?: null;
         $image = null;
+        $galleryImages = null;
+        $specifications = null;
 
         if (!$id || empty($name) || $price <= 0 || $stock < 0) {
             Session::setFlash('error', 'Please fill all required fields correctly.');
             $this->redirect('admin/product/edit?id=' . $id);
         }
 
-        // Handle image upload
+        // Handle main image upload
         if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
             $uploadDir = UPLOAD_PATH;
             if (!is_dir($uploadDir)) {
@@ -170,7 +248,6 @@ class AdminController extends Controller {
 
             if (in_array($_FILES['image']['type'], $allowedTypes)) {
                 if (move_uploaded_file($_FILES['image']['tmp_name'], $filePath)) {
-                    // Delete old image if exists
                     $oldProduct = $this->productModel->find($id);
                     if ($oldProduct && $oldProduct['image']) {
                         if (file_exists(UPLOAD_PATH . $oldProduct['image'])) {
@@ -189,7 +266,63 @@ class AdminController extends Controller {
             }
         }
 
-        if ($this->productModel->update($id, $name, $description, $price, $stock, $image, $categoryId, $comparePrice)) {
+        // Handle gallery images
+        $existingGallery = $_POST['existing_gallery'] ?? '';
+        $existingGalleryArr = $existingGallery ? json_decode($existingGallery, true) : [];
+
+        // Delete removed gallery images
+        if (!empty($_POST['remove_gallery'])) {
+            $removeIds = $_POST['remove_gallery'];
+            foreach ($existingGalleryArr as $idx => $gFile) {
+                if (in_array($idx, $removeIds)) {
+                    if (file_exists(UPLOAD_PATH . $gFile)) {
+                        unlink(UPLOAD_PATH . $gFile);
+                    }
+                    unset($existingGalleryArr[$idx]);
+                }
+            }
+            $existingGalleryArr = array_values($existingGalleryArr);
+        }
+
+        // Add new gallery images
+        $newGalleryFiles = [];
+        if (!empty($_FILES['gallery_images']['name'][0])) {
+            $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+            foreach ($_FILES['gallery_images']['name'] as $idx => $gName) {
+                if ($_FILES['gallery_images']['error'][$idx] === UPLOAD_ERR_OK) {
+                    $gType = $_FILES['gallery_images']['type'][$idx];
+                    if (in_array($gType, $allowedTypes)) {
+                        $gFileName = time() . '_' . $idx . '_' . basename($gName);
+                        $gFilePath = UPLOAD_PATH . $gFileName;
+                        if (move_uploaded_file($_FILES['gallery_images']['tmp_name'][$idx], $gFilePath)) {
+                            $newGalleryFiles[] = $gFileName;
+                        }
+                    }
+                }
+            }
+        }
+
+        $allGallery = array_merge($existingGalleryArr, $newGalleryFiles);
+        if (!empty($allGallery)) {
+            $galleryImages = json_encode($allGallery);
+        }
+
+        // Collect specifications
+        $specKeys = $_POST['spec_key'] ?? [];
+        $specVals = $_POST['spec_value'] ?? [];
+        $specs = [];
+        for ($i = 0; $i < count($specKeys); $i++) {
+            $k = trim($specKeys[$i] ?? '');
+            $v = trim($specVals[$i] ?? '');
+            if ($k !== '' && $v !== '') {
+                $specs[$k] = $v;
+            }
+        }
+        if (!empty($specs)) {
+            $specifications = json_encode($specs);
+        }
+
+        if ($this->productModel->update($id, $name, $description, $price, $stock, $image, $categoryId, $comparePrice, $galleryImages, $specifications)) {
             Session::setFlash('success', 'Product updated successfully.');
         } else {
             Session::setFlash('error', 'Failed to update product.');
@@ -225,10 +358,39 @@ class AdminController extends Controller {
 
     // Orders
     public function orders() {
-        $orders = $this->orderModel->all();
+        $statusFilter = $_GET['status'] ?? null;
+        $search = trim($_GET['search'] ?? '');
+
+        $allOrders = $this->orderModel->all();
+        $statusCounts = [];
+        foreach ($allOrders as $o) {
+            $statusCounts[$o['status']] = ($statusCounts[$o['status']] ?? 0) + 1;
+        }
+
+        $orders = $allOrders;
+
+        if ($statusFilter) {
+            $orders = array_filter($orders, fn($o) => $o['status'] === $statusFilter);
+            $orders = array_values($orders);
+        }
+
+        if ($search) {
+            $orders = array_filter($orders, function($o) use ($search) {
+                $term = strtolower($search);
+                return stripos($o['invoice_number'], $term) !== false ||
+                       stripos($o['user_name'], $term) !== false ||
+                       stripos($o['user_email'], $term) !== false;
+            });
+            $orders = array_values($orders);
+        }
+
         $this->render('admin/orders', [
             'title' => 'Manage Orders - E-Shop',
-            'orders' => $orders
+            'orders' => $orders,
+            'statusFilter' => $statusFilter,
+            'search' => $search,
+            'totalOrders' => count($allOrders),
+            'statusCounts' => $statusCounts
         ], 'admin');
     }
 
@@ -599,6 +761,36 @@ class AdminController extends Controller {
         }
 
         $this->redirect('admin/users');
+    }
+
+    // Reviews Management
+    public function reviews() {
+        $reviewModel = new Review();
+        $db = \App\Core\Database::getInstance()->getConnection();
+
+        $stmt = $db->query("
+            SELECT r.*, u.name as user_name, u.email as user_email, p.name as product_name 
+            FROM reviews r 
+            JOIN users u ON r.user_id = u.id 
+            JOIN products p ON r.product_id = p.id 
+            ORDER BY r.created_at DESC
+        ");
+        $reviews = $stmt->fetchAll();
+
+        $this->render('admin/reviews', [
+            'title' => 'Manage Reviews - E-Shop',
+            'reviews' => $reviews
+        ], 'admin');
+    }
+
+    public function reviewDelete() {
+        $id = $_GET['id'] ?? null;
+        if ($id) {
+            $reviewModel = new Review();
+            $reviewModel->delete($id);
+            Session::setFlash('success', 'Review deleted.');
+        }
+        $this->redirect('admin/reviews');
     }
 
     public function search() {

@@ -1,3 +1,19 @@
+<?php
+$GLOBALS['_flatList'] = [];
+$flattenTree = function($tree, $depth = 0) use (&$flattenTree) {
+    foreach ($tree as $cat) {
+        $cat['depth'] = $depth;
+        $GLOBALS['_flatList'][] = $cat;
+        if (!empty($cat['children'])) {
+            $flattenTree($cat['children'], $depth + 1);
+        }
+    }
+};
+$flattenTree($categoryTree);
+$flatList = $GLOBALS['_flatList'];
+unset($GLOBALS['_flatList']);
+?>
+
 <div class="flex items-center justify-between mb-8">
     <div>
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white"><?= t('manage_categories') ?></h1>
@@ -25,31 +41,40 @@
                     <th class="text-left py-3 px-4 font-semibold text-gray-600 dark:text-gray-300">#</th>
                     <th class="text-left py-3 px-4 font-semibold text-gray-600 dark:text-gray-300"><?= t('category_name') ?></th>
                     <th class="text-left py-3 px-4 font-semibold text-gray-600 dark:text-gray-300">Slug</th>
-                    <th class="text-left py-3 px-4 font-semibold text-gray-600 dark:text-gray-300">Icon</th>
+                    <th class="text-left py-3 px-4 font-semibold text-gray-600 dark:text-gray-300"><?= t('parent_category') ?></th>
                     <th class="text-center py-3 px-4 font-semibold text-gray-600 dark:text-gray-300"><?= t('sort_order') ?></th>
                     <th class="text-center py-3 px-4 font-semibold text-gray-600 dark:text-gray-300"><?= t('products') ?></th>
                     <th class="text-right py-3 px-4 font-semibold text-gray-600 dark:text-gray-300"><?= t('actions') ?></th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
-                <?php foreach ($categories as $cat): ?>
+                <?php foreach ($flatList as $cat): ?>
                 <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition">
                     <td class="py-3 px-4 text-gray-500 dark:text-gray-400"><?= $cat['id'] ?></td>
                     <td class="py-3 px-4">
-                        <div class="flex items-center gap-3">
-                            <div class="w-9 h-9 bg-blue-50 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
-                                <i class="fas <?= htmlspecialchars($cat['icon']) ?> text-blue-600 dark:text-blue-400 text-sm"></i>
+                        <div class="flex items-center gap-3" style="padding-left: <?= $cat['depth'] * 24 ?>px">
+                            <?php if ($cat['depth'] > 0): ?>
+                                <span class="text-gray-300 dark:text-gray-600 text-xs">└</span>
+                            <?php endif; ?>
+                            <div class="w-9 h-9 <?= $cat['depth'] > 0 ? 'bg-purple-50 dark:bg-purple-900/30' : 'bg-blue-50 dark:bg-blue-900/30' ?> rounded-lg flex items-center justify-center">
+                                <i class="fas <?= htmlspecialchars($cat['icon']) ?> <?= $cat['depth'] > 0 ? 'text-purple-600 dark:text-purple-400' : 'text-blue-600 dark:text-blue-400' ?> text-sm"></i>
                             </div>
-                            <span class="font-medium text-gray-900 dark:text-white"><?= htmlspecialchars($cat['name']) ?></span>
+                            <span class="font-medium text-gray-900 dark:text-white <?= $cat['depth'] > 0 ? 'text-sm' : '' ?>"><?= htmlspecialchars($cat['name']) ?></span>
                         </div>
                     </td>
                     <td class="py-3 px-4">
                         <code class="text-xs bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-2 py-1 rounded"><?= htmlspecialchars($cat['slug']) ?></code>
                     </td>
-                    <td class="py-3 px-4 text-gray-500 dark:text-gray-400"><code class="text-xs"><?= htmlspecialchars($cat['icon']) ?></code></td>
+                    <td class="py-3 px-4">
+                        <?php if ($cat['depth'] > 0): ?>
+                            <span class="text-xs text-gray-500 dark:text-gray-400"><?= htmlspecialchars($cat['parent_id'] ? $flatList[array_search($cat['parent_id'], array_column($flatList, 'id'))]['name'] ?? '' : '') ?></span>
+                        <?php else: ?>
+                            <span class="text-xs text-gray-400 dark:text-gray-500">—</span>
+                        <?php endif; ?>
+                    </td>
                     <td class="py-3 px-4 text-center text-gray-500 dark:text-gray-400"><?= $cat['sort_order'] ?></td>
                     <td class="py-3 px-4 text-center">
-                        <span class="inline-block bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs font-semibold px-2.5 py-1 rounded-full"><?= $cat['product_count'] ?></span>
+                        <span class="inline-block <?= $cat['depth'] > 0 ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400' : 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400' ?> text-xs font-semibold px-2.5 py-1 rounded-full"><?= $cat['product_count'] ?></span>
                     </td>
                     <td class="py-3 px-4 text-right">
                         <div class="flex items-center justify-end gap-2">

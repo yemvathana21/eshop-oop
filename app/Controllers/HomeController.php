@@ -23,12 +23,14 @@ class HomeController extends Controller {
 
     public function index() {
         $categories = $this->categoryModel->all();
+        $categoryTree = $this->categoryModel->getTree();
         $featured = $this->productModel->featured(4);
         $allProducts = $this->productModel->all();
 
         $this->render('customer/home', [
             'title' => 'E-Shop - Premium Store',
             'categories' => $categories,
+            'categoryTree' => $categoryTree,
             'featured' => $featured,
             'allProducts' => $allProducts
         ]);
@@ -36,6 +38,7 @@ class HomeController extends Controller {
 
     public function shop() {
         $categories = $this->categoryModel->all();
+        $categoryTree = $this->categoryModel->getTree();
         $slug = $_GET['category'] ?? null;
         $priceFilter = $_GET['price'] ?? null;
         $search = trim($_GET['search'] ?? '');
@@ -46,7 +49,10 @@ class HomeController extends Controller {
         }
 
         if ($currentCategory) {
-            $products = $this->productModel->byCategory($currentCategory['id']);
+            $categoryIds = [$currentCategory['id']];
+            $children = $this->categoryModel->getChildIdsRecursive($currentCategory['id']);
+            $categoryIds = array_merge($categoryIds, $children);
+            $products = $this->productModel->byCategories($categoryIds);
         } else {
             $products = $this->productModel->all();
         }
@@ -80,6 +86,7 @@ class HomeController extends Controller {
             'title' => ($currentCategory ? $currentCategory['name'] . ' - ' : 'Shop - ') . 'E-Shop',
             'products' => $products,
             'categories' => $categories,
+            'categoryTree' => $categoryTree,
             'currentCategory' => $currentCategory,
             'totalProducts' => $totalProducts
         ]);

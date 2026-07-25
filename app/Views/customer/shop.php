@@ -5,8 +5,14 @@
             <i class="fas fa-chevron-right text-xs"></i>
             <span class="text-gray-700 dark:text-gray-300 font-medium"><?= t('shop') ?></span>
             <?php if (!empty($currentCategory)): ?>
+                <?php
+                $catPath = $this->categoryModel->getPath($currentCategory['id']);
+                array_shift($catPath);
+                foreach ($catPath as $pathCat):
+                ?>
                 <i class="fas fa-chevron-right text-xs"></i>
-                <span class="text-gray-700 dark:text-gray-300 font-medium"><?= htmlspecialchars($currentCategory['name']) ?></span>
+                <a href="<?= BASE_URL ?>shop?category=<?= htmlspecialchars($pathCat['slug']) ?>" class="hover:text-blue-600 dark:hover:text-blue-400 transition <?= $pathCat['id'] === $currentCategory['id'] ? 'text-gray-700 dark:text-gray-300 font-medium' : 'text-gray-500 dark:text-gray-400' ?>"><?= htmlspecialchars($pathCat['name']) ?></a>
+                <?php endforeach; ?>
             <?php endif; ?>
         </div>
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -42,7 +48,7 @@
                             <span class="text-xs <?= empty($_GET['category']) ? 'text-blue-500' : 'text-gray-400' ?>"><?= $totalProducts ?></span>
                         </a>
                     </li>
-                    <?php foreach ($categories as $cat): ?>
+                    <?php foreach ($categoryTree as $cat): ?>
                     <li>
                         <a href="<?= BASE_URL ?>shop?category=<?= htmlspecialchars($cat['slug']) ?>"
                            class="flex items-center justify-between px-3 py-2.5 rounded-lg text-sm transition <?= (isset($_GET['category']) && $_GET['category'] === $cat['slug']) ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 font-semibold' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700' ?>">
@@ -52,6 +58,22 @@
                             </span>
                             <span class="text-xs <?= (isset($_GET['category']) && $_GET['category'] === $cat['slug']) ? 'text-blue-500' : 'text-gray-400' ?>"><?= $cat['product_count'] ?></span>
                         </a>
+                        <?php if (!empty($cat['children'])): ?>
+                        <ul class="ml-5 mt-0.5 space-y-0.5 border-l border-gray-100 dark:border-gray-700 pl-3">
+                            <?php foreach ($cat['children'] as $child): ?>
+                            <li>
+                                <a href="<?= BASE_URL ?>shop?category=<?= htmlspecialchars($child['slug']) ?>"
+                                   class="flex items-center justify-between px-3 py-2 rounded-lg text-sm transition <?= (isset($_GET['category']) && $_GET['category'] === $child['slug']) ? 'bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 font-semibold' : 'text-gray-500 dark:text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700' ?>">
+                                    <span class="flex items-center gap-2.5">
+                                        <i class="fas <?= htmlspecialchars($child['icon']) ?> text-[10px] w-4 text-center"></i>
+                                        <?= htmlspecialchars($child['name']) ?>
+                                    </span>
+                                    <span class="text-xs <?= (isset($_GET['category']) && $_GET['category'] === $child['slug']) ? 'text-purple-500' : 'text-gray-400' ?>"><?= $child['product_count'] ?></span>
+                                </a>
+                            </li>
+                            <?php endforeach; ?>
+                        </ul>
+                        <?php endif; ?>
                     </li>
                     <?php endforeach; ?>
                 </ul>

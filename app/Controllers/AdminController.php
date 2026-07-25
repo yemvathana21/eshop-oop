@@ -104,10 +104,12 @@ class AdminController extends Controller {
 
     public function productCreate() {
         $categories = $this->categoryModel->all();
+        $categoryTree = $this->categoryModel->getTree();
         $this->render('admin/product_form', [
             'title' => 'Add Product - E-Shop',
             'product' => null,
-            'categories' => $categories
+            'categories' => $categories,
+            'categoryTree' => $categoryTree
         ], 'admin');
     }
 
@@ -207,10 +209,12 @@ class AdminController extends Controller {
         }
 
         $categories = $this->categoryModel->all();
+        $categoryTree = $this->categoryModel->getTree();
         $this->render('admin/product_form', [
             'title' => 'Edit Product - E-Shop',
             'product' => $product,
-            'categories' => $categories
+            'categories' => $categories,
+            'categoryTree' => $categoryTree
         ], 'admin');
     }
 
@@ -511,16 +515,20 @@ class AdminController extends Controller {
     // Categories
     public function categories() {
         $categories = $this->categoryModel->all();
+        $categoryTree = $this->categoryModel->getTree();
         $this->render('admin/categories', [
             'title' => 'Manage Categories - E-Shop',
-            'categories' => $categories
+            'categories' => $categories,
+            'categoryTree' => $categoryTree
         ], 'admin');
     }
 
     public function categoryCreate() {
+        $parentCategories = $this->categoryModel->parentCategories();
         $this->render('admin/category_form', [
             'title' => 'Add Category - E-Shop',
-            'category' => null
+            'category' => null,
+            'parentCategories' => $parentCategories
         ], 'admin');
     }
 
@@ -533,6 +541,7 @@ class AdminController extends Controller {
         $slug = trim($_POST['slug'] ?? '');
         $icon = trim($_POST['icon'] ?? 'fa-tag');
         $sortOrder = (int)($_POST['sort_order'] ?? 0);
+        $parentId = !empty($_POST['parent_id']) ? (int)$_POST['parent_id'] : null;
 
         if (empty($name) || empty($slug)) {
             Session::setFlash('error', 'Name and slug are required.');
@@ -546,7 +555,7 @@ class AdminController extends Controller {
             $this->redirect('admin/category/create');
         }
 
-        if ($this->categoryModel->create($name, $slug, $icon, $sortOrder)) {
+        if ($this->categoryModel->create($name, $slug, $icon, $sortOrder, $parentId)) {
             Session::setFlash('success', 'Category created successfully.');
         } else {
             Session::setFlash('error', 'Failed to create category.');
@@ -567,9 +576,11 @@ class AdminController extends Controller {
             $this->redirect('admin/categories');
         }
 
+        $parentCategories = $this->categoryModel->parentCategories();
         $this->render('admin/category_form', [
             'title' => 'Edit Category - E-Shop',
-            'category' => $category
+            'category' => $category,
+            'parentCategories' => $parentCategories
         ], 'admin');
     }
 
@@ -583,10 +594,16 @@ class AdminController extends Controller {
         $slug = trim($_POST['slug'] ?? '');
         $icon = trim($_POST['icon'] ?? 'fa-tag');
         $sortOrder = (int)($_POST['sort_order'] ?? 0);
+        $parentId = !empty($_POST['parent_id']) ? (int)$_POST['parent_id'] : null;
 
         if (!$id || empty($name) || empty($slug)) {
             Session::setFlash('error', 'Name and slug are required.');
             $this->redirect('admin/categories');
+        }
+
+        if ($parentId == $id) {
+            Session::setFlash('error', 'A category cannot be its own parent.');
+            $this->redirect('admin/category/edit?id=' . $id);
         }
 
         $slug = strtolower(preg_replace('/[^a-z0-9-]/', '-', $slug));
@@ -596,7 +613,7 @@ class AdminController extends Controller {
             $this->redirect('admin/category/edit?id=' . $id);
         }
 
-        if ($this->categoryModel->update($id, $name, $slug, $icon, $sortOrder)) {
+        if ($this->categoryModel->update($id, $name, $slug, $icon, $sortOrder, $parentId)) {
             Session::setFlash('success', 'Category updated successfully.');
         } else {
             Session::setFlash('error', 'Failed to update category.');

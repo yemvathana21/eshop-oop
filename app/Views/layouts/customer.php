@@ -1,8 +1,10 @@
 <?php
 $navCategories = [];
+$navTree = [];
 if (class_exists('App\Models\Category')) {
     $catModel = new \App\Models\Category();
     $navCategories = $catModel->all();
+    $navTree = $catModel->getTree();
 }
 $currentLang = \App\Core\Lang\Language::current();
 ?>
@@ -76,15 +78,31 @@ $currentLang = \App\Core\Lang\Language::current();
                         <a href="<?= BASE_URL ?>shop" class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-800 rounded-lg transition inline-flex items-center gap-1">
                             <?= t('shop') ?> <i class="fas fa-chevron-down text-xs text-gray-400"></i>
                         </a>
-                        <div class="absolute top-full left-0 w-56 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                        <div class="absolute top-full left-0 w-64 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
                             <a href="<?= BASE_URL ?>shop" class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700 hover:text-blue-600 dark:hover:text-blue-400 transition">
                                 <i class="fas fa-grid-2 text-xs w-5 text-center text-gray-400"></i> <?= t('all_products') ?>
                             </a>
-                            <?php foreach ($navCategories as $cat): ?>
-                            <a href="<?= BASE_URL ?>shop?category=<?= htmlspecialchars($cat['slug']) ?>" class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700 hover:text-blue-600 dark:hover:text-blue-400 transition">
-                                <i class="fas <?= htmlspecialchars($cat['icon']) ?> text-xs w-5 text-center text-gray-400"></i> <?= htmlspecialchars($cat['name']) ?>
-                                <span class="ml-auto text-xs text-gray-400"><?= $cat['product_count'] ?></span>
-                            </a>
+                            <?php foreach ($navTree as $cat): ?>
+                            <div class="relative group/sub">
+                                <a href="<?= BASE_URL ?>shop?category=<?= htmlspecialchars($cat['slug']) ?>" class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700 hover:text-blue-600 dark:hover:text-blue-400 transition">
+                                    <i class="fas <?= htmlspecialchars($cat['icon']) ?> text-xs w-5 text-center text-gray-400"></i> <?= htmlspecialchars($cat['name']) ?>
+                                    <?php if (!empty($cat['children'])): ?>
+                                        <i class="fas fa-chevron-right text-[10px] text-gray-400 ml-auto"></i>
+                                    <?php else: ?>
+                                        <span class="ml-auto text-xs text-gray-400"><?= $cat['product_count'] ?></span>
+                                    <?php endif; ?>
+                                </a>
+                                <?php if (!empty($cat['children'])): ?>
+                                <div class="absolute top-full left-full w-48 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 py-2 opacity-0 invisible group-hover/sub:opacity-100 group-hover/sub:visible transition-all duration-200 z-50">
+                                    <?php foreach ($cat['children'] as $child): ?>
+                                    <a href="<?= BASE_URL ?>shop?category=<?= htmlspecialchars($child['slug']) ?>" class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700 hover:text-blue-600 dark:hover:text-blue-400 transition">
+                                        <i class="fas <?= htmlspecialchars($child['icon']) ?> text-xs w-5 text-center text-gray-400"></i> <?= htmlspecialchars($child['name']) ?>
+                                        <span class="ml-auto text-xs text-gray-400"><?= $child['product_count'] ?></span>
+                                    </a>
+                                    <?php endforeach; ?>
+                                </div>
+                                <?php endif; ?>
+                            </div>
                             <?php endforeach; ?>
                         </div>
                     </div>
@@ -179,10 +197,28 @@ $currentLang = \App\Core\Lang\Language::current();
                 <a href="<?= BASE_URL ?>shop" class="block py-2.5 px-3 text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-800 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg text-sm font-medium transition"><?= t('shop_all') ?></a>
                 <hr class="my-2 border-gray-100 dark:border-gray-800">
                 <p class="text-xs text-gray-400 uppercase tracking-wider px-3 py-1"><?= t('categories') ?></p>
-                <?php foreach ($navCategories as $cat): ?>
-                <a href="<?= BASE_URL ?>shop?category=<?= htmlspecialchars($cat['slug']) ?>" class="flex items-center gap-3 py-2 px-3 text-gray-600 dark:text-gray-400 hover:bg-blue-50 dark:hover:bg-gray-800 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg text-sm transition">
-                    <i class="fas <?= htmlspecialchars($cat['icon']) ?> text-xs w-5 text-center text-gray-400"></i> <?= htmlspecialchars($cat['name']) ?>
-                </a>
+                <?php foreach ($navTree as $cat): ?>
+                <div class="mobile-cat-group">
+                    <div class="flex items-center justify-between">
+                        <a href="<?= BASE_URL ?>shop?category=<?= htmlspecialchars($cat['slug']) ?>" class="flex items-center gap-3 py-2 px-3 text-gray-600 dark:text-gray-400 hover:bg-blue-50 dark:hover:bg-gray-800 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg text-sm transition flex-1">
+                            <i class="fas <?= htmlspecialchars($cat['icon']) ?> text-xs w-5 text-center text-gray-400"></i> <?= htmlspecialchars($cat['name']) ?>
+                        </a>
+                        <?php if (!empty($cat['children'])): ?>
+                        <button onclick="this.parentElement.nextElementSibling.classList.toggle('hidden'); this.querySelector('i').classList.toggle('fa-chevron-down'); this.querySelector('i').classList.toggle('fa-chevron-up');" class="px-3 py-2 text-gray-400 hover:text-blue-500">
+                            <i class="fas fa-chevron-down text-xs"></i>
+                        </button>
+                        <?php endif; ?>
+                    </div>
+                    <?php if (!empty($cat['children'])): ?>
+                    <div class="hidden pl-8 space-y-1 pb-1">
+                        <?php foreach ($cat['children'] as $child): ?>
+                        <a href="<?= BASE_URL ?>shop?category=<?= htmlspecialchars($child['slug']) ?>" class="flex items-center gap-3 py-1.5 px-3 text-gray-500 dark:text-gray-500 hover:bg-blue-50 dark:hover:bg-gray-800 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg text-sm transition">
+                            <i class="fas <?= htmlspecialchars($child['icon']) ?> text-xs w-5 text-center text-gray-400"></i> <?= htmlspecialchars($child['name']) ?>
+                        </a>
+                        <?php endforeach; ?>
+                    </div>
+                    <?php endif; ?>
+                </div>
                 <?php endforeach; ?>
                 <hr class="my-2 border-gray-100 dark:border-gray-800">
                 <div class="flex items-center justify-between px-3 py-2">
@@ -216,11 +252,42 @@ $currentLang = \App\Core\Lang\Language::current();
                 <a href="<?= BASE_URL ?>shop" class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-800 rounded-full transition whitespace-nowrap <?= empty($_GET['category']) ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400' : '' ?>">
                     <i class="fas fa-grid-2"></i> <?= t('all_products') ?>
                 </a>
-                <?php foreach ($navCategories as $cat): ?>
-                <a href="<?= BASE_URL ?>shop?category=<?= htmlspecialchars($cat['slug']) ?>" class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-800 rounded-full transition whitespace-nowrap <?= (isset($_GET['category']) && $_GET['category'] === $cat['slug']) ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400' : '' ?>">
+                <?php
+                $activeParentId = null;
+                if (!empty($_GET['category'])) {
+                    foreach ($navTree as $pc) {
+                        if ($pc['slug'] === $_GET['category']) {
+                            $activeParentId = $pc['id'];
+                            break;
+                        }
+                        if (!empty($pc['children'])) {
+                            foreach ($pc['children'] as $ch) {
+                                if ($ch['slug'] === $_GET['category']) {
+                                    $activeParentId = $pc['id'];
+                                    break 2;
+                                }
+                            }
+                        }
+                    }
+                }
+                foreach ($navTree as $cat):
+                    $isActive = (isset($_GET['category']) && $_GET['category'] === $cat['slug']) || $activeParentId === $cat['id'];
+                ?>
+                <a href="<?= BASE_URL ?>shop?category=<?= htmlspecialchars($cat['slug']) ?>" class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-800 rounded-full transition whitespace-nowrap <?= $isActive && !empty($cat['children']) ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-bold' : ((isset($_GET['category']) && $_GET['category'] === $cat['slug']) ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400' : '') ?>">
                     <i class="fas <?= htmlspecialchars($cat['icon']) ?>"></i> <?= htmlspecialchars($cat['name']) ?>
                 </a>
-                <?php endforeach; ?>
+                <?php
+                    if ($activeParentId === $cat['id'] && !empty($cat['children'])) {
+                        foreach ($cat['children'] as $child) {
+                            $childActive = isset($_GET['category']) && $_GET['category'] === $child['slug'];
+                ?>
+                <a href="<?= BASE_URL ?>shop?category=<?= htmlspecialchars($child['slug']) ?>" class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-800 rounded-full transition whitespace-nowrap <?= $childActive ? 'bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400' : '' ?>">
+                    <i class="fas <?= htmlspecialchars($child['icon']) ?>"></i> <?= htmlspecialchars($child['name']) ?>
+                </a>
+                <?php
+                        }
+                    }
+                endforeach; ?>
             </div>
         </div>
     </div>
@@ -260,7 +327,7 @@ $currentLang = \App\Core\Lang\Language::current();
                 <div>
                     <h4 class="text-white font-semibold text-sm mb-4"><?= t('categories') ?></h4>
                     <ul class="space-y-2.5 text-sm">
-                        <?php foreach (array_slice($navCategories, 0, 5) as $cat): ?>
+                        <?php foreach (array_slice($navTree, 0, 5) as $cat): ?>
                         <li><a href="<?= BASE_URL ?>shop?category=<?= htmlspecialchars($cat['slug']) ?>" class="hover:text-white transition"><?= htmlspecialchars($cat['name']) ?></a></li>
                         <?php endforeach; ?>
                     </ul>

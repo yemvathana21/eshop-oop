@@ -325,4 +325,9 @@ return [
     'save' => 'Save',
     'review' => 'review',
     'update_review' => 'Update Review',
+
+    // Categories - Hierarchy
+    'parent_category' => 'Parent Category',
+    'no_parent' => '-- Top Level (No Parent) --',
+    'parent_category_help' => 'Leave empty for top-level category. Select a parent to make this a subcategory.',
 ];

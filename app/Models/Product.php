@@ -46,6 +46,14 @@ class Product {
         return $stmt->fetchAll();
     }
 
+    public function byCategories($categoryIds) {
+        if (empty($categoryIds)) return [];
+        $placeholders = implode(',', array_fill(0, count($categoryIds), '?'));
+        $stmt = $this->db->prepare("SELECT p.*, c.name as category_name, c.slug as category_slug FROM products p LEFT JOIN categories c ON p.category_id = c.id WHERE p.category_id IN ($placeholders) ORDER BY p.id DESC");
+        $stmt->execute($categoryIds);
+        return $stmt->fetchAll();
+    }
+
     public function featured($limit = 4) {
         $stmt = $this->db->prepare("SELECT p.*, c.name as category_name, c.slug as category_slug FROM products p LEFT JOIN categories c ON p.category_id = c.id WHERE p.stock > 0 ORDER BY p.created_at DESC LIMIT ?");
         $stmt->execute([$limit]);

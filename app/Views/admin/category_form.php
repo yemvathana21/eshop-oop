@@ -27,6 +27,22 @@
                 <p class="text-xs text-gray-400 dark:text-gray-500 mt-1"><?= t('slug_help') ?></p>
             </div>
 
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"><?= t('parent_category') ?></label>
+                <select name="parent_id"
+                    class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                    <option value=""><?= t('no_parent') ?></option>
+                    <?php foreach ($parentCategories as $pc): ?>
+                        <?php if (!$isEdit || $pc['id'] != $category['id']): ?>
+                        <option value="<?= $pc['id'] ?>" <?= ($category['parent_id'] ?? '') == $pc['id'] ? 'selected' : '' ?>>
+                            <?= htmlspecialchars($pc['name']) ?>
+                        </option>
+                        <?php endif; ?>
+                    <?php endforeach; ?>
+                </select>
+                <p class="text-xs text-gray-400 dark:text-gray-500 mt-1"><?= t('parent_category_help') ?></p>
+            </div>
+
             <div class="grid grid-cols-2 gap-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Icon</label>
@@ -51,7 +67,7 @@
                 <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2"><?= t('popular_icons') ?></p>
                 <div class="flex flex-wrap gap-2">
                     <?php
-                    $icons = ['fa-laptop', 'fa-headphones', 'fa-shirt', 'fa-couch', 'fa-gamepad', 'fa-bag-shopping', 'fa-book', 'fa-utensils', 'fa-car', 'fa-heart', 'fa-gem', 'fa-spa', 'fa-baby', 'fa-dumbbell', 'fa-paw', 'fa-camera'];
+                    $icons = ['fa-laptop', 'fa-headphones', 'fa-shirt', 'fa-couch', 'fa-gamepad', 'fa-bag-shopping', 'fa-book', 'fa-utensils', 'fa-car', 'fa-heart', 'fa-gem', 'fa-spa', 'fa-baby', 'fa-dumbbell', 'fa-paw', 'fa-camera', 'fa-mobile-screen', 'fa-tablet-screen-button', 'fa-desktop', 'fa-chair', 'fa-lightbulb', 'fa-tv', 'fa-keyboard', 'fa-suitcase', 'fa-child'];
                     foreach ($icons as $ic):
                     ?>
                     <button type="button" onclick="setIcon('<?= $ic ?>')" class="w-9 h-9 rounded-lg border border-gray-200 dark:border-gray-600 hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 flex items-center justify-center transition text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400" title="<?= $ic ?>">

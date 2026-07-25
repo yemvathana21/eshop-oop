@@ -82,6 +82,16 @@ class Database {
             $this->connection->exec("ALTER TABLE products ADD COLUMN specifications TEXT NULL AFTER gallery_images");
         }
 
+        // 3c. Add parent_id column to categories if missing
+        try {
+            $this->connection->query("SELECT parent_id FROM categories LIMIT 1");
+        } catch (PDOException $e) {
+            $this->connection->exec("ALTER TABLE categories ADD COLUMN parent_id INT DEFAULT NULL AFTER sort_order");
+            try {
+                $this->connection->exec("ALTER TABLE categories ADD CONSTRAINT fk_category_parent FOREIGN KEY (parent_id) REFERENCES categories(id) ON DELETE SET NULL");
+            } catch (PDOException $e2) {}
+        }
+
         // 4. Create reviews table if missing
         $reviewsCheck = $this->connection->query("SHOW TABLES LIKE 'reviews'")->rowCount();
         if ($reviewsCheck === 0) {

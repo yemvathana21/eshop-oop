@@ -59,7 +59,6 @@
                 $currentUrl = $_SERVER['REQUEST_URI'];
                 $shopSettingsActive = (
                     strpos($currentUrl, '-categor') !== false ||
-                    strpos($currentUrl, 'inventory') !== false ||
                     strpos($currentUrl, 'size') !== false ||
                     strpos($currentUrl, 'color') !== false ||
                     strpos($currentUrl, 'country') !== false ||
@@ -95,14 +94,15 @@
                     <a href="<?= BASE_URL ?>admin/end-categories" class="block py-2 text-sm <?= (strpos($currentUrl, 'end-categor') !== false) ? 'text-blue-400 font-semibold' : 'text-gray-400' ?> hover:text-white transition">
                         <i class="far fa-circle text-[8px] mr-2"></i><?= t('end_level_category') ?>
                     </a>
-                    <a href="<?= BASE_URL ?>admin/inventory" class="block py-2 text-sm <?= (strpos($currentUrl, 'inventory') !== false) ? 'text-blue-400 font-semibold' : 'text-gray-400' ?> hover:text-white transition">
-                        <i class="fas fa-warehouse text-[10px] mr-2"></i><?= t('inventory') ?>
-                    </a>
                 </div>
             </div>
 
             <a href="<?= BASE_URL ?>admin/products" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-700 transition <?= (strpos($_SERVER['REQUEST_URI'], 'product') !== false && strpos($_SERVER['REQUEST_URI'], 'dashboard') === false) ? 'bg-gray-700' : '' ?>">
                 <i class="fas fa-shopping-bag w-5 text-green-500"></i><span><?= t('product_management') ?></span>
+            </a>
+
+            <a href="<?= BASE_URL ?>admin/inventory" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-700 transition <?= (strpos($_SERVER['REQUEST_URI'], 'inventory') !== false) ? 'bg-gray-700' : '' ?>">
+                <i class="fas fa-warehouse w-5 text-cyan-500"></i><span><?= t('inventory') ?></span>
             </a>
 
             <a href="<?= BASE_URL ?>admin/orders" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-700 transition <?= (strpos($_SERVER['REQUEST_URI'], 'order') !== false && strpos($_SERVER['REQUEST_URI'], 'product') === false) ? 'bg-gray-700' : '' ?>">

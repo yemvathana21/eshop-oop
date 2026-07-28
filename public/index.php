@@ -37,6 +37,8 @@ use App\Controllers\AuthController;
 use App\Controllers\CartController;
 use App\Controllers\CheckoutController;
 use App\Controllers\AdminController;
+use App\Controllers\ProfileController;
+use App\Controllers\LocationController;
 
 $router = new Router();
 
@@ -48,6 +50,58 @@ $router->post('/review/submit', [HomeController::class, 'submitReview']);
 $router->get('/review/delete', [HomeController::class, 'deleteReview']);
 $router->post('/wishlist/toggle', [HomeController::class, 'toggleWishlist']);
 $router->get('/wishlist/toggle', [HomeController::class, 'toggleWishlist']);
+
+// --- Profile Routes (Legacy, keeps old /profile links working) ---
+$router->get('/profile', [ProfileController::class, 'show']);
+$router->post('/profile/update', [ProfileController::class, 'update']);
+$router->post('/profile/password', [ProfileController::class, 'password']);
+$router->post('/profile/address/save', [ProfileController::class, 'addressSave']);
+$router->get('/profile/address/delete', [ProfileController::class, 'addressDelete']);
+$router->post('/profile/delete-account', [ProfileController::class, 'deleteAccount']);
+
+// --- Account Center Routes ---
+$router->get('/account', function() {
+    header('Location: ' . BASE_URL . 'account/dashboard');
+    exit;
+});
+$router->get('/account/dashboard', [ProfileController::class, 'dashboard']);
+$router->get('/account/profile', [ProfileController::class, 'profile']);
+$router->post('/account/profile/update', [ProfileController::class, 'update']);
+$router->get('/account/orders', [ProfileController::class, 'orders']);
+$router->get('/account/order', [ProfileController::class, 'orderDetail']);
+$router->get('/account/wishlist', [ProfileController::class, 'wishlist']);
+$router->get('/account/addresses', [ProfileController::class, 'addresses']);
+$router->post('/account/address/save', [ProfileController::class, 'addressSave']);
+$router->get('/account/address/delete', [ProfileController::class, 'addressDelete']);
+$router->get('/account/payment-methods', [ProfileController::class, 'paymentMethods']);
+$router->post('/account/payment-method/save', [ProfileController::class, 'paymentMethodSave']);
+$router->get('/account/payment-method/delete', [ProfileController::class, 'paymentMethodDelete']);
+$router->get('/account/payment-method/default', [ProfileController::class, 'paymentMethodSetDefault']);
+$router->get('/account/security', [ProfileController::class, 'security']);
+$router->post('/account/security/password', [ProfileController::class, 'password']);
+$router->get('/account/notifications', [ProfileController::class, 'notifications']);
+$router->post('/account/notifications/save', [ProfileController::class, 'notificationsSave']);
+$router->get('/account/connected', [ProfileController::class, 'connectedAccounts']);
+$router->get('/account/connected/delete', [ProfileController::class, 'connectedAccountDelete']);
+$router->get('/account/appearance', [ProfileController::class, 'appearance']);
+$router->post('/account/appearance/save', [ProfileController::class, 'appearanceSave']);
+$router->get('/account/privacy', [ProfileController::class, 'privacy']);
+$router->post('/account/delete-account', [ProfileController::class, 'deleteAccount']);
+$router->get('/account/username', [ProfileController::class, 'username']);
+$router->post('/account/username/save', [ProfileController::class, 'usernameSave']);
+$router->get('/account/devices', [ProfileController::class, 'devices']);
+$router->get('/account/passkeys', [ProfileController::class, 'passkeys']);
+$router->get('/account/membership', [ProfileController::class, 'membership']);
+$router->get('/account/download-data', [ProfileController::class, 'downloadData']);
+$router->post('/account/preference/save', [ProfileController::class, 'preferenceSave']);
+$router->post('/account/connected/toggle', [ProfileController::class, 'connectedAccountToggle']);
+$router->post('/account/device/revoke', [ProfileController::class, 'deviceRevoke']);
+
+// --- Location (AJAX) Routes ---
+$router->get('/api/provinces', [LocationController::class, 'provinces']);
+$router->get('/api/districts', [LocationController::class, 'districts']);
+$router->get('/api/communes', [LocationController::class, 'communes']);
+$router->get('/api/villages', [LocationController::class, 'villages']);
 
 // --- Auth Routes ---
 $router->get('/login', [AuthController::class, 'showLogin']);

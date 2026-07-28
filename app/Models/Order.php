@@ -114,6 +114,18 @@ class Order {
         return $stmt->fetchAll();
     }
 
+    public function getCountByUser($userId) {
+        $stmt = $this->db->prepare("SELECT COUNT(*) FROM orders WHERE user_id = ?");
+        $stmt->execute([$userId]);
+        return (int)$stmt->fetchColumn();
+    }
+
+    public function getTotalSpentByUser($userId) {
+        $stmt = $this->db->prepare("SELECT COALESCE(SUM(total_price), 0) FROM orders WHERE user_id = ? AND status = 'completed'");
+        $stmt->execute([$userId]);
+        return (float)$stmt->fetchColumn();
+    }
+
     // Analytics Methods
     public function getTotalSales() {
         $stmt = $this->db->query("SELECT SUM(total_price) as total FROM orders WHERE status = 'completed'");

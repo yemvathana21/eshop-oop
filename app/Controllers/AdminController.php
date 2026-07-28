@@ -677,6 +677,8 @@ class AdminController extends Controller {
         $email = trim($_POST['email'] ?? '');
         $password = $_POST['password'] ?? '';
         $role = $_POST['role'] ?? 'customer';
+        $phone = trim($_POST['phone'] ?? '');
+        $address = trim($_POST['address'] ?? '');
 
         if (!$id || empty($name) || empty($email)) {
             Session::setFlash('error', 'Name and email are required.');
@@ -700,12 +702,41 @@ class AdminController extends Controller {
             $this->redirect('admin/user/edit?id=' . $id);
         }
 
-        if ($this->userModel->update($id, $name, $email, $role, $password ?: null)) {
-            Session::setFlash('success', 'User updated successfully.');
-        } else {
-            Session::setFlash('error', 'Failed to update user.');
+        // Handle avatar upload
+        $user = $this->userModel->findById($id);
+        $avatar = $user['avatar'] ?? null;
+        if (isset($_FILES['avatar']) && $_FILES['avatar']['error'] === UPLOAD_ERR_OK) {
+            $uploadDir = UPLOAD_PATH;
+            if (!is_dir($uploadDir)) {
+                mkdir($uploadDir, 0777, true);
+            }
+            $ext = pathinfo($_FILES['avatar']['name'], PATHINFO_EXTENSION);
+            $fileName = 'avatar_' . $id . '_' . time() . '.' . $ext;
+            if (move_uploaded_file($_FILES['avatar']['tmp_name'], $uploadDir . $fileName)) {
+                if ($avatar && file_exists($uploadDir . $avatar)) {
+                    unlink($uploadDir . $avatar);
+                }
+                $avatar = $fileName;
+                $this->userModel->updateAvatar($id, $avatar);
+            }
         }
 
+        $this->userModel->updateProfile($id, $name, $email, $phone ?: null, $address ?: null);
+
+        if ($password) {
+            $this->userModel->update($id, $name, $email, $role, $password);
+        } else {
+            $this->userModel->update($id, $name, $email, $role);
+        }
+
+        // If admin updated their own profile, refresh session
+        $adminId = Session::getUserId('admin');
+        if ($id == $adminId) {
+            Session::set('admin_user_name', $name);
+            Session::set('admin_user_email', $email);
+        }
+
+        Session::setFlash('success', 'User updated successfully.');
         $this->redirect('admin/users');
     }
 
@@ -1121,4 +1152,5 @@ class AdminController extends Controller {
         $subs = $categoryModel->childrenOf($parentId);
         $this->json($subs);
     }
+
 }

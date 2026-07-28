@@ -51,6 +51,22 @@ class User {
         }
     }
 
+    public function updateProfile($id, $name, $email, $phone = null, $address = null) {
+        $stmt = $this->db->prepare("UPDATE users SET name = ?, email = ?, phone = ?, address = ? WHERE id = ?");
+        return $stmt->execute([$name, $email, $phone, $address, $id]);
+    }
+
+    public function updateAvatar($id, $avatar) {
+        $stmt = $this->db->prepare("UPDATE users SET avatar = ? WHERE id = ?");
+        return $stmt->execute([$avatar, $id]);
+    }
+
+    public function changePassword($id, $newPassword) {
+        $hashed = password_hash($newPassword, PASSWORD_BCRYPT);
+        $stmt = $this->db->prepare("UPDATE users SET password = ? WHERE id = ?");
+        return $stmt->execute([$hashed, $id]);
+    }
+
     public function delete($id) {
         $stmt = $this->db->prepare("DELETE FROM users WHERE id = ?");
         return $stmt->execute([$id]);

@@ -92,6 +92,32 @@ class Database {
             } catch (PDOException $e2) {}
         }
 
+        // 3d. Create Cambodia address tables if missing
+        $addrCheck = $this->connection->query("SHOW TABLES LIKE 'provinces'")->rowCount();
+        if ($addrCheck === 0) {
+            $addrFile = ROOT_PATH . 'config' . DIRECTORY_SEPARATOR . 'cambodia_addresses.sql';
+            if (file_exists($addrFile)) {
+                $this->connection->exec(file_get_contents($addrFile));
+            }
+        }
+
+        // 3e. Add phone, address, avatar columns to users if missing
+        try {
+            $this->connection->query("SELECT phone FROM users LIMIT 1");
+        } catch (PDOException $e) {
+            $this->connection->exec("ALTER TABLE users ADD COLUMN phone VARCHAR(20) DEFAULT NULL AFTER email");
+        }
+        try {
+            $this->connection->query("SELECT address FROM users LIMIT 1");
+        } catch (PDOException $e) {
+            $this->connection->exec("ALTER TABLE users ADD COLUMN address TEXT DEFAULT NULL AFTER phone");
+        }
+        try {
+            $this->connection->query("SELECT avatar FROM users LIMIT 1");
+        } catch (PDOException $e) {
+            $this->connection->exec("ALTER TABLE users ADD COLUMN avatar VARCHAR(255) DEFAULT NULL AFTER address");
+        }
+
         // 4. Create reviews table if missing
         $reviewsCheck = $this->connection->query("SHOW TABLES LIKE 'reviews'")->rowCount();
         if ($reviewsCheck === 0) {

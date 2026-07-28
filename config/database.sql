@@ -1,7 +1,35 @@
 CREATE DATABASE IF NOT EXISTS `eshop_db` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE `eshop_db`;
 
+-- =============================================================================
+-- Drop all tables in reverse dependency order (to satisfy FK constraints)
+-- =============================================================================
+SET FOREIGN_KEY_CHECKS = 0;
+
+DROP TABLE IF EXISTS `user_addresses`;
+DROP TABLE IF EXISTS `villages`;
+DROP TABLE IF EXISTS `communes`;
+DROP TABLE IF EXISTS `districts`;
+DROP TABLE IF EXISTS `provinces`;
+DROP TABLE IF EXISTS `shipping_costs`;
+DROP TABLE IF EXISTS `countries`;
+DROP TABLE IF EXISTS `product_color`;
+DROP TABLE IF EXISTS `colors`;
+DROP TABLE IF EXISTS `product_size`;
+DROP TABLE IF EXISTS `sizes`;
+DROP TABLE IF EXISTS `wishlist`;
+DROP TABLE IF EXISTS `reviews`;
+DROP TABLE IF EXISTS `order_items`;
+DROP TABLE IF EXISTS `orders`;
+DROP TABLE IF EXISTS `products`;
+DROP TABLE IF EXISTS `users`;
+DROP TABLE IF EXISTS `categories`;
+
+SET FOREIGN_KEY_CHECKS = 1;
+
+-- =============================================================================
 -- 1. Categories (with parent_id for hierarchy)
+-- =============================================================================
 CREATE TABLE IF NOT EXISTS `categories` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
   `name` VARCHAR(100) NOT NULL,
@@ -13,7 +41,6 @@ CREATE TABLE IF NOT EXISTS `categories` (
   FOREIGN KEY (`parent_id`) REFERENCES `categories` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Comprehensive 3-Level Categories Seed
 INSERT INTO `categories` (`id`, `name`, `slug`, `icon`, `sort_order`, `parent_id`) VALUES
 -- Level 1: Top Level Categories
 (1, 'Men', 'men', 'fa-person', 10, NULL),
@@ -99,11 +126,16 @@ INSERT INTO `categories` (`id`, `name`, `slug`, `icon`, `sort_order`, `parent_id
 (56, 'Baby Care', 'baby-care', 'fa-circle-o', 1, 53),
 (57, 'Supplies', 'household-supplies', 'fa-circle-o', 2, 53);
 
+-- =============================================================================
 -- 2. Users
+-- =============================================================================
 CREATE TABLE IF NOT EXISTS `users` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
   `name` VARCHAR(100) NOT NULL,
   `email` VARCHAR(100) NOT NULL UNIQUE,
+  `phone` VARCHAR(20) DEFAULT NULL,
+  `address` TEXT DEFAULT NULL,
+  `avatar` VARCHAR(255) DEFAULT NULL,
   `password` VARCHAR(255) NOT NULL,
   `role` ENUM('admin', 'customer') DEFAULT 'customer',
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -113,7 +145,9 @@ INSERT INTO `users` (`id`, `name`, `email`, `password`, `role`) VALUES
 (1, 'System Admin', 'admin@eshop.com', '$2y$10$EVg9jzPfKLprhFbc3ho6WeRFTtY7ge8gLY4MwuzDUer4Wwku478cK', 'admin'),
 (2, 'John Doe', 'john@gmail.com', '$2y$10$7OoPWE1OZrXsRtKQpB/jdeKEI4cmJhPrc3HeHoOgIrMXERUjY8jau', 'customer');
 
+-- =============================================================================
 -- 3. Products
+-- =============================================================================
 CREATE TABLE IF NOT EXISTS `products` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
   `name` VARCHAR(255) NOT NULL,
@@ -124,29 +158,11 @@ CREATE TABLE IF NOT EXISTS `products` (
   `category_id` INT NULL,
   `image` VARCHAR(255) NULL,
   `gallery_images` TEXT NULL,
+  `specifications` TEXT NULL,
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Product Sizes (Pivot table)
-CREATE TABLE IF NOT EXISTS `product_size` (
-  `product_id` INT NOT NULL,
-  `size_id` INT NOT NULL,
-  PRIMARY KEY (`product_id`, `size_id`),
-  FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE,
-  FOREIGN KEY (`size_id`) REFERENCES `sizes` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- Product Colors (Pivot table)
-CREATE TABLE IF NOT EXISTS `product_color` (
-  `product_id` INT NOT NULL,
-  `color_id` INT NOT NULL,
-  PRIMARY KEY (`product_id`, `color_id`),
-  FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE,
-  FOREIGN KEY (`color_id`) REFERENCES `colors` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- Comprehensive Product Seed (Matching available images)
 INSERT INTO `products` (`id`, `name`, `description`, `price`, `compare_price`, `stock`, `category_id`, `image`) VALUES
 (1, 'LED Desk Lamp', 'Adjustable LED desk lamp with multiple brightness levels and touch control.', 25.00, 35.00, 50, 57, 'LED Desk Lamp.jpg'),
 (2, 'Canvas Sneakers', 'Comfortable and stylish canvas sneakers suitable for everyday wear.', 45.00, 60.00, 100, 17, 'Canvas Sneakers.jpg'),
@@ -171,7 +187,54 @@ INSERT INTO `products` (`id`, `name`, `description`, `price`, `compare_price`, `
 (21, 'MacBook Pro Carrying Case', 'Slim and stylish carrying case designed specifically for MacBook Pro.', 35.00, 45.00, 30, 34, 'macbag.jpg'),
 (22, 'Water-Repellent Laptop Sleeve', 'High-quality polyester laptop sleeve for 14-15 inch laptops.', 25.00, 35.00, 50, 51, 'Mosiso-Laptop-Sleeve-for-15-Inch-New-MacBook-Pro-Touch-Bar-A1990-A1707-14-Inch-ThinkPad-Chromebook-Water-Repellent-Polyester-Tablet-Bag-Case-Gray_ce9dbd20-8fc7-4131-99a8-c9b432899cef.98f5031a0d84e6bd009d4e72d0711d20.avif');
 
--- 4. Orders
+-- =============================================================================
+-- 4. Sizes
+-- =============================================================================
+CREATE TABLE IF NOT EXISTS `sizes` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `name` VARCHAR(50) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+INSERT INTO `sizes` (`id`, `name`) VALUES
+(1, 'XS'), (2, 'S'), (3, 'M'), (4, 'L'), (5, 'XL'), (6, 'XXL'),
+(7, '38'), (8, '39'), (9, '40'), (10, '41'), (11, '42'), (12, '44');
+
+-- =============================================================================
+-- 5. Product Sizes (Pivot table)
+-- =============================================================================
+CREATE TABLE IF NOT EXISTS `product_size` (
+  `product_id` INT NOT NULL,
+  `size_id` INT NOT NULL,
+  PRIMARY KEY (`product_id`, `size_id`),
+  FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE,
+  FOREIGN KEY (`size_id`) REFERENCES `sizes` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- =============================================================================
+-- 6. Colors
+-- =============================================================================
+CREATE TABLE IF NOT EXISTS `colors` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `name` VARCHAR(50) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+INSERT INTO `colors` (`id`, `name`) VALUES
+(1, 'Red'), (2, 'Blue'), (3, 'Black'), (4, 'White'), (5, 'Green'), (6, 'Yellow'), (7, 'Grey');
+
+-- =============================================================================
+-- 7. Product Colors (Pivot table)
+-- =============================================================================
+CREATE TABLE IF NOT EXISTS `product_color` (
+  `product_id` INT NOT NULL,
+  `color_id` INT NOT NULL,
+  PRIMARY KEY (`product_id`, `color_id`),
+  FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE,
+  FOREIGN KEY (`color_id`) REFERENCES `colors` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- =============================================================================
+-- 8. Orders
+-- =============================================================================
 CREATE TABLE IF NOT EXISTS `orders` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
   `user_id` INT NOT NULL,
@@ -182,13 +245,14 @@ CREATE TABLE IF NOT EXISTS `orders` (
   FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Seed Orders
 INSERT INTO `orders` (`id`, `user_id`, `total_price`, `status`, `invoice_number`) VALUES
 (1, 2, 125.00, 'completed', 'INV-2023-001'),
 (2, 2, 55.00, 'completed', 'INV-2023-002'),
 (3, 2, 235.00, 'pending', 'INV-2023-003');
 
--- 5. Order Items
+-- =============================================================================
+-- 9. Order Items
+-- =============================================================================
 CREATE TABLE IF NOT EXISTS `order_items` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
   `order_id` INT NOT NULL,
@@ -199,7 +263,6 @@ CREATE TABLE IF NOT EXISTS `order_items` (
   FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Seed Order Items
 INSERT INTO `order_items` (`order_id`, `product_id`, `price`, `quantity`) VALUES
 (1, 1, 25.00, 1),
 (1, 2, 45.00, 1),
@@ -208,7 +271,9 @@ INSERT INTO `order_items` (`order_id`, `product_id`, `price`, `quantity`) VALUES
 (3, 11, 85.00, 2),
 (3, 14, 65.00, 1);
 
--- 6. Reviews
+-- =============================================================================
+-- 10. Reviews
+-- =============================================================================
 CREATE TABLE IF NOT EXISTS `reviews` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
   `product_id` INT NOT NULL,
@@ -220,13 +285,14 @@ CREATE TABLE IF NOT EXISTS `reviews` (
   FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Seed Reviews
 INSERT INTO `reviews` (`product_id`, `user_id`, `rating`, `comment`) VALUES
 (1, 2, 5, 'Great lamp! Very bright and easy to use.'),
 (8, 2, 4, 'Good sound quality for the price.'),
 (13, 2, 5, 'Perfect bag for my laptop, very well made.');
 
--- 7. Wishlist
+-- =============================================================================
+-- 11. Wishlist
+-- =============================================================================
 CREATE TABLE IF NOT EXISTS `wishlist` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
   `user_id` INT NOT NULL,
@@ -237,26 +303,9 @@ CREATE TABLE IF NOT EXISTS `wishlist` (
   UNIQUE KEY `unique_wishlist` (`user_id`, `product_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- 8. Sizes
-CREATE TABLE IF NOT EXISTS `sizes` (
-  `id` INT AUTO_INCREMENT PRIMARY KEY,
-  `name` VARCHAR(50) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-INSERT INTO `sizes` (`id`, `name`) VALUES
-(1, 'XS'), (2, 'S'), (3, 'M'), (4, 'L'), (5, 'XL'), (6, 'XXL'),
-(7, '38'), (8, '39'), (9, '40'), (10, '41'), (11, '42'), (12, '44');
-
--- 9. Colors
-CREATE TABLE IF NOT EXISTS `colors` (
-  `id` INT AUTO_INCREMENT PRIMARY KEY,
-  `name` VARCHAR(50) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-INSERT INTO `colors` (`id`, `name`) VALUES
-(1, 'Red'), (2, 'Blue'), (3, 'Black'), (4, 'White'), (5, 'Green'), (6, 'Yellow'), (7, 'Grey');
-
--- 10. Countries
+-- =============================================================================
+-- 12. Countries
+-- =============================================================================
 CREATE TABLE IF NOT EXISTS `countries` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
   `name` VARCHAR(100) NOT NULL
@@ -265,7 +314,9 @@ CREATE TABLE IF NOT EXISTS `countries` (
 INSERT INTO `countries` (`id`, `name`) VALUES
 (1, 'United States'), (2, 'Cambodia'), (3, 'Thailand'), (4, 'Vietnam'), (5, 'United Kingdom');
 
--- 11. Shipping Costs
+-- =============================================================================
+-- 13. Shipping Costs
+-- =============================================================================
 CREATE TABLE IF NOT EXISTS `shipping_costs` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
   `country_id` INT NOT NULL,

@@ -10,7 +10,7 @@
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Country Name *</label>
                         <input type="text" name="name" id="countryName" required
                             class="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-blue-500 outline-none transition"
-                            placeholder="e.g. United States, Cambodia, Thailand">
+                            placeholder="e.g. United States, Cambodia, Vitenam, China, etc.">
                     </div>
                     <div class="flex gap-2">
                         <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition shadow-md shadow-blue-500/20">

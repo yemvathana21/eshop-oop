@@ -133,6 +133,9 @@ $count = array_sum(array_column($cart, 'quantity'));
                                 <span class="max-w-[100px] truncate hidden lg:inline"><?= htmlspecialchars(\App\Core\Session::getUserName('customer')) ?></span>
                             </button>
                             <div class="absolute top-full right-0 w-48 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                                <a href="<?= BASE_URL ?>account/dashboard" class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700 hover:text-blue-600 dark:hover:text-blue-400 transition">
+                                    <i class="fas fa-user w-4 text-center text-gray-400"></i> <?= t('my_profile') ?>
+                                </a>
                                 <a href="<?= BASE_URL ?>my-orders" class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700 hover:text-blue-600 dark:hover:text-blue-400 transition">
                                     <i class="fas fa-receipt w-4 text-center text-gray-400"></i> <?= t('my_orders') ?>
                                 </a>
@@ -273,7 +276,8 @@ $count = array_sum(array_column($cart, 'quantity'));
                         <a href="<?= BASE_URL ?>login" class="flex items-center justify-center py-2.5 px-4 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 rounded-lg text-sm font-semibold"><?= t('login') ?></a>
                         <a href="<?= BASE_URL ?>register" class="flex items-center justify-center py-2.5 px-4 bg-blue-600 text-white rounded-lg text-sm font-semibold"><?= t('register') ?></a>
                     <?php else: ?>
-                        <a href="<?= BASE_URL ?>my-orders" class="col-span-2 flex items-center justify-center py-2.5 px-4 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-semibold"><?= t('my_orders') ?></a>
+                        <a href="<?= BASE_URL ?>profile" class="flex items-center justify-center py-2.5 px-4 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-semibold"><?= t('my_profile') ?></a>
+                        <a href="<?= BASE_URL ?>my-orders" class="flex items-center justify-center py-2.5 px-4 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-semibold"><?= t('my_orders') ?></a>
                         <a href="<?= BASE_URL ?>logout" class="col-span-2 flex items-center justify-center py-2.5 px-4 text-red-600 font-semibold"><?= t('logout') ?></a>
                     <?php endif; ?>
                 </div>

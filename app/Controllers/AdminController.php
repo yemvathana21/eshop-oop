@@ -8,6 +8,10 @@ use App\Models\Order;
 use App\Models\Category;
 use App\Models\User;
 use App\Models\Review;
+use App\Models\Size;
+use App\Models\Color;
+use App\Models\Country;
+use App\Models\ShippingCost;
 
 class AdminController extends Controller {
     private $productModel;
@@ -94,7 +98,7 @@ class AdminController extends Controller {
         $totalPages = ceil($totalProducts / $limit);
 
         $this->render('admin/products', [
-            'title' => 'Manage Products - E-Shop',
+            'title' => 'Product Management - E-Shop',
             'products' => $products,
             'currentPage' => $page,
             'totalPages' => $totalPages,
@@ -103,13 +107,17 @@ class AdminController extends Controller {
     }
 
     public function productCreate() {
-        $categories = $this->categoryModel->all();
-        $categoryTree = $this->categoryModel->getTree();
+        $categoryModel = new Category();
+        $sizeModel = new Size();
+        $colorModel = new Color();
+
+        $topCategories = $categoryModel->parentCategories();
         $this->render('admin/product_form', [
             'title' => 'Add Product - E-Shop',
             'product' => null,
-            'categories' => $categories,
-            'categoryTree' => $categoryTree
+            'topCategories' => $topCategories,
+            'sizes' => $sizeModel->all(),
+            'colors' => $colorModel->all()
         ], 'admin');
     }
 
@@ -123,10 +131,12 @@ class AdminController extends Controller {
         $price = (float)($_POST['price'] ?? 0);
         $comparePrice = !empty($_POST['compare_price']) ? (float)$_POST['compare_price'] : null;
         $stock = (int)($_POST['stock'] ?? 0);
-        $categoryId = (int)($_POST['category_id'] ?? 0) ?: null;
+
+        // Handle 3-level categories: Use the deepest selected one
+        $categoryId = (int)($_POST['ecat_id'] ?? 0) ?: (int)($_POST['mcat_id'] ?? 0) ?: (int)($_POST['tcat_id'] ?? 0) ?: null;
+
         $image = null;
         $galleryImages = null;
-        $specifications = null;
 
         if (empty($name) || $price <= 0 || $stock < 0) {
             Session::setFlash('error', 'Please fill all required fields correctly.');
@@ -139,55 +149,33 @@ class AdminController extends Controller {
             if (!is_dir($uploadDir)) {
                 mkdir($uploadDir, 0777, true);
             }
-            chmod($uploadDir, 0777);
             $fileName = time() . '_' . basename($_FILES['image']['name']);
             $filePath = $uploadDir . $fileName;
-            $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-
-            if (in_array($_FILES['image']['type'], $allowedTypes)) {
-                if (move_uploaded_file($_FILES['image']['tmp_name'], $filePath)) {
-                    $image = $fileName;
-                }
+            if (move_uploaded_file($_FILES['image']['tmp_name'], $filePath)) {
+                $image = $fileName;
             }
         }
 
-        // Handle gallery images upload
+        // Handle gallery images
         $galleryFiles = [];
         if (!empty($_FILES['gallery_images']['name'][0])) {
-            $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
             foreach ($_FILES['gallery_images']['name'] as $idx => $gName) {
                 if ($_FILES['gallery_images']['error'][$idx] === UPLOAD_ERR_OK) {
-                    $gType = $_FILES['gallery_images']['type'][$idx];
-                    if (in_array($gType, $allowedTypes)) {
-                        $gFileName = time() . '_' . $idx . '_' . basename($gName);
-                        $gFilePath = UPLOAD_PATH . $gFileName;
-                        if (move_uploaded_file($_FILES['gallery_images']['tmp_name'][$idx], $gFilePath)) {
-                            $galleryFiles[] = $gFileName;
-                        }
+                    $gFileName = time() . '_' . $idx . '_' . basename($gName);
+                    if (move_uploaded_file($_FILES['gallery_images']['tmp_name'][$idx], UPLOAD_PATH . $gFileName)) {
+                        $galleryFiles[] = $gFileName;
                     }
                 }
             }
         }
-        if (!empty($galleryFiles)) {
-            $galleryImages = json_encode($galleryFiles);
-        }
+        if (!empty($galleryFiles)) $galleryImages = json_encode($galleryFiles);
 
-        // Collect specifications
-        $specKeys = $_POST['spec_key'] ?? [];
-        $specVals = $_POST['spec_value'] ?? [];
-        $specs = [];
-        for ($i = 0; $i < count($specKeys); $i++) {
-            $k = trim($specKeys[$i] ?? '');
-            $v = trim($specVals[$i] ?? '');
-            if ($k !== '' && $v !== '') {
-                $specs[$k] = $v;
-            }
-        }
-        if (!empty($specs)) {
-            $specifications = json_encode($specs);
-        }
+        $productId = $this->productModel->create($name, $description, $price, $stock, $image, $categoryId, $comparePrice, $galleryImages);
 
-        if ($this->productModel->create($name, $description, $price, $stock, $image, $categoryId, $comparePrice, $galleryImages, $specifications)) {
+        if ($productId) {
+            // Handle Sizes and Colors
+            $this->productModel->setSizes($productId, $_POST['size'] ?? []);
+            $this->productModel->setColors($productId, $_POST['color'] ?? []);
             Session::setFlash('success', 'Product created successfully.');
         } else {
             Session::setFlash('error', 'Failed to create product.');
@@ -198,9 +186,7 @@ class AdminController extends Controller {
 
     public function productEdit() {
         $id = $_GET['id'] ?? null;
-        if (!$id) {
-            $this->redirect('admin/products');
-        }
+        if (!$id) $this->redirect('admin/products');
 
         $product = $this->productModel->find($id);
         if (!$product) {
@@ -208,13 +194,38 @@ class AdminController extends Controller {
             $this->redirect('admin/products');
         }
 
-        $categories = $this->categoryModel->all();
-        $categoryTree = $this->categoryModel->getTree();
+        $categoryModel = new Category();
+        $sizeModel = new Size();
+        $colorModel = new Color();
+
+        $topCategories = $categoryModel->parentCategories();
+
+        // Find category hierarchy for this product
+        $catPath = [];
+        if ($product['category_id']) {
+            $catPath = $categoryModel->getPath($product['category_id']);
+        }
+
+        $tcat_id = isset($catPath[0]) ? $catPath[0]['id'] : null;
+        $mcat_id = isset($catPath[1]) ? $catPath[1]['id'] : null;
+        $ecat_id = isset($catPath[2]) ? $catPath[2]['id'] : null;
+
+        $midCategories = $tcat_id ? $categoryModel->childrenOf($tcat_id) : [];
+        $endCategories = $mcat_id ? $categoryModel->childrenOf($mcat_id) : [];
+
         $this->render('admin/product_form', [
             'title' => 'Edit Product - E-Shop',
             'product' => $product,
-            'categories' => $categories,
-            'categoryTree' => $categoryTree
+            'topCategories' => $topCategories,
+            'midCategories' => $midCategories,
+            'endCategories' => $endCategories,
+            'tcat_id' => $tcat_id,
+            'mcat_id' => $mcat_id,
+            'ecat_id' => $ecat_id,
+            'sizes' => $sizeModel->all(),
+            'colors' => $colorModel->all(),
+            'productSizes' => $this->productModel->getSizes($id),
+            'productColors' => $this->productModel->getColors($id)
         ], 'admin');
     }
 
@@ -229,104 +240,45 @@ class AdminController extends Controller {
         $price = (float)($_POST['price'] ?? 0);
         $comparePrice = !empty($_POST['compare_price']) ? (float)$_POST['compare_price'] : null;
         $stock = (int)($_POST['stock'] ?? 0);
-        $categoryId = (int)($_POST['category_id'] ?? 0) ?: null;
-        $image = null;
-        $galleryImages = null;
-        $specifications = null;
+
+        $categoryId = (int)($_POST['ecat_id'] ?? 0) ?: (int)($_POST['mcat_id'] ?? 0) ?: (int)($_POST['tcat_id'] ?? 0) ?: null;
 
         if (!$id || empty($name) || $price <= 0 || $stock < 0) {
             Session::setFlash('error', 'Please fill all required fields correctly.');
             $this->redirect('admin/product/edit?id=' . $id);
         }
 
-        // Handle main image upload
+        $image = null;
         if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
-            $uploadDir = UPLOAD_PATH;
-            if (!is_dir($uploadDir)) {
-                mkdir($uploadDir, 0777, true);
-            }
-
-            $fileName = time() . '_' . str_replace(' ', '_', basename($_FILES['image']['name']));
-            $filePath = $uploadDir . $fileName;
-            $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-
-            if (in_array($_FILES['image']['type'], $allowedTypes)) {
-                if (move_uploaded_file($_FILES['image']['tmp_name'], $filePath)) {
-                    $oldProduct = $this->productModel->find($id);
-                    if ($oldProduct && $oldProduct['image']) {
-                        if (file_exists(UPLOAD_PATH . $oldProduct['image'])) {
-                            unlink(UPLOAD_PATH . $oldProduct['image']);
-                        }
-                        if (file_exists(IMAGES_PATH . $oldProduct['image'])) {
-                            unlink(IMAGES_PATH . $oldProduct['image']);
-                        }
-                    }
-                    $image = $fileName;
-                } else {
-                    Session::setFlash('error', 'Failed to move uploaded file. Check folder permissions.');
-                }
-            } else {
-                Session::setFlash('error', 'Invalid file type. Only JPG, PNG, GIF, and WEBP are allowed.');
+            $fileName = time() . '_' . basename($_FILES['image']['name']);
+            if (move_uploaded_file($_FILES['image']['tmp_name'], UPLOAD_PATH . $fileName)) {
+                $image = $fileName;
             }
         }
 
-        // Handle gallery images
+        // Gallery logic
         $existingGallery = $_POST['existing_gallery'] ?? '';
         $existingGalleryArr = $existingGallery ? json_decode($existingGallery, true) : [];
-
-        // Delete removed gallery images
         if (!empty($_POST['remove_gallery'])) {
-            $removeIds = $_POST['remove_gallery'];
-            foreach ($existingGalleryArr as $idx => $gFile) {
-                if (in_array($idx, $removeIds)) {
-                    if (file_exists(UPLOAD_PATH . $gFile)) {
-                        unlink(UPLOAD_PATH . $gFile);
-                    }
-                    unset($existingGalleryArr[$idx]);
-                }
-            }
+            foreach ($_POST['remove_gallery'] as $ridx) unset($existingGalleryArr[$ridx]);
             $existingGalleryArr = array_values($existingGalleryArr);
         }
-
-        // Add new gallery images
         $newGalleryFiles = [];
         if (!empty($_FILES['gallery_images']['name'][0])) {
-            $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
             foreach ($_FILES['gallery_images']['name'] as $idx => $gName) {
                 if ($_FILES['gallery_images']['error'][$idx] === UPLOAD_ERR_OK) {
-                    $gType = $_FILES['gallery_images']['type'][$idx];
-                    if (in_array($gType, $allowedTypes)) {
-                        $gFileName = time() . '_' . $idx . '_' . basename($gName);
-                        $gFilePath = UPLOAD_PATH . $gFileName;
-                        if (move_uploaded_file($_FILES['gallery_images']['tmp_name'][$idx], $gFilePath)) {
-                            $newGalleryFiles[] = $gFileName;
-                        }
+                    $gFileName = time() . '_' . $idx . '_' . basename($gName);
+                    if (move_uploaded_file($_FILES['gallery_images']['tmp_name'][$idx], UPLOAD_PATH . $gFileName)) {
+                        $newGalleryFiles[] = $gFileName;
                     }
                 }
             }
         }
+        $galleryImages = json_encode(array_merge($existingGalleryArr, $newGalleryFiles));
 
-        $allGallery = array_merge($existingGalleryArr, $newGalleryFiles);
-        if (!empty($allGallery)) {
-            $galleryImages = json_encode($allGallery);
-        }
-
-        // Collect specifications
-        $specKeys = $_POST['spec_key'] ?? [];
-        $specVals = $_POST['spec_value'] ?? [];
-        $specs = [];
-        for ($i = 0; $i < count($specKeys); $i++) {
-            $k = trim($specKeys[$i] ?? '');
-            $v = trim($specVals[$i] ?? '');
-            if ($k !== '' && $v !== '') {
-                $specs[$k] = $v;
-            }
-        }
-        if (!empty($specs)) {
-            $specifications = json_encode($specs);
-        }
-
-        if ($this->productModel->update($id, $name, $description, $price, $stock, $image, $categoryId, $comparePrice, $galleryImages, $specifications)) {
+        if ($this->productModel->update($id, $name, $description, $price, $stock, $image, $categoryId, $comparePrice, $galleryImages)) {
+            $this->productModel->setSizes($id, $_POST['size'] ?? []);
+            $this->productModel->setColors($id, $_POST['color'] ?? []);
             Session::setFlash('success', 'Product updated successfully.');
         } else {
             Session::setFlash('error', 'Failed to update product.');
@@ -389,7 +341,7 @@ class AdminController extends Controller {
         }
 
         $this->render('admin/orders', [
-            'title' => 'Manage Orders - E-Shop',
+            'title' => 'Order Management - E-Shop',
             'orders' => $orders,
             'statusFilter' => $statusFilter,
             'search' => $search,
@@ -517,7 +469,7 @@ class AdminController extends Controller {
         $categories = $this->categoryModel->all();
         $categoryTree = $this->categoryModel->getTree();
         $this->render('admin/categories', [
-            'title' => 'Manage Categories - E-Shop',
+            'title' => 'Category Management - E-Shop',
             'categories' => $categories,
             'categoryTree' => $categoryTree
         ], 'admin');
@@ -646,7 +598,7 @@ class AdminController extends Controller {
             $u['order_count'] = $this->userModel->getOrderCount($u['id']);
         }
         $this->render('admin/users', [
-            'title' => 'Manage Users - E-Shop',
+            'title' => 'Registered Customer - E-Shop',
             'users' => $users
         ], 'admin');
     }
@@ -795,7 +747,7 @@ class AdminController extends Controller {
         $reviews = $stmt->fetchAll();
 
         $this->render('admin/reviews', [
-            'title' => 'Manage Reviews - E-Shop',
+            'title' => 'Customer Reviews - E-Shop',
             'reviews' => $reviews
         ], 'admin');
     }
@@ -864,5 +816,309 @@ class AdminController extends Controller {
         }
 
         $this->json($results);
+    }
+
+    // Sizes
+    public function sizes() {
+        $model = new Size();
+        $this->render('admin/settings/sizes', [
+            'title' => 'Manage Sizes - E-Shop',
+            'sizes' => $model->all()
+        ], 'admin');
+    }
+
+    public function sizeSave() {
+        $model = new Size();
+        $name = trim($_POST['name'] ?? '');
+        $id = $_POST['id'] ?? null;
+
+        if (empty($name)) {
+            Session::setFlash('error', 'Size name is required.');
+        } else {
+            if ($id) {
+                $model->update($id, $name);
+                Session::setFlash('success', 'Size updated.');
+            } else {
+                $model->create($name);
+                Session::setFlash('success', 'Size added.');
+            }
+        }
+        $this->redirect('admin/sizes');
+    }
+
+    public function sizeDelete() {
+        $id = $_GET['id'] ?? null;
+        if ($id) {
+            (new Size())->delete($id);
+            Session::setFlash('success', 'Size deleted.');
+        }
+        $this->redirect('admin/sizes');
+    }
+
+    // Colors
+    public function colors() {
+        $model = new Color();
+        $this->render('admin/settings/colors', [
+            'title' => 'Manage Colors - E-Shop',
+            'colors' => $model->all()
+        ], 'admin');
+    }
+
+    public function colorSave() {
+        $model = new Color();
+        $name = trim($_POST['name'] ?? '');
+        $id = $_POST['id'] ?? null;
+
+        if (empty($name)) {
+            Session::setFlash('error', 'Color name is required.');
+        } else {
+            if ($id) {
+                $model->update($id, $name);
+                Session::setFlash('success', 'Color updated.');
+            } else {
+                $model->create($name);
+                Session::setFlash('success', 'Color added.');
+            }
+        }
+        $this->redirect('admin/colors');
+    }
+
+    public function colorDelete() {
+        $id = $_GET['id'] ?? null;
+        if ($id) {
+            (new Color())->delete($id);
+            Session::setFlash('success', 'Color deleted.');
+        }
+        $this->redirect('admin/colors');
+    }
+
+    // Countries
+    public function countries() {
+        $model = new Country();
+        $this->render('admin/settings/countries', [
+            'title' => 'Manage Countries - E-Shop',
+            'countries' => $model->all()
+        ], 'admin');
+    }
+
+    public function countrySave() {
+        $model = new Country();
+        $name = trim($_POST['name'] ?? '');
+        $id = $_POST['id'] ?? null;
+
+        if (empty($name)) {
+            Session::setFlash('error', 'Country name is required.');
+        } else {
+            if ($id) {
+                $model->update($id, $name);
+                Session::setFlash('success', 'Country updated.');
+            } else {
+                $model->create($name);
+                Session::setFlash('success', 'Country added.');
+            }
+        }
+        $this->redirect('admin/countries');
+    }
+
+    public function countryDelete() {
+        $id = $_GET['id'] ?? null;
+        if ($id) {
+            (new Country())->delete($id);
+            Session::setFlash('success', 'Country deleted.');
+        }
+        $this->redirect('admin/countries');
+    }
+
+    // Shipping Costs
+    public function shippingCosts() {
+        $scModel = new ShippingCost();
+        $cModel = new Country();
+        $this->render('admin/settings/shipping_costs', [
+            'title' => 'Manage Shipping Costs - E-Shop',
+            'shippingCosts' => $scModel->all(),
+            'countries' => $cModel->all()
+        ], 'admin');
+    }
+
+    public function shippingCostSave() {
+        $model = new ShippingCost();
+        $countryId = $_POST['country_id'] ?? null;
+        $amount = (float)($_POST['amount'] ?? 0);
+        $id = $_POST['id'] ?? null;
+
+        if (!$countryId) {
+            Session::setFlash('error', 'Country is required.');
+        } else {
+            if ($model->countryExists($countryId, $id)) {
+                Session::setFlash('error', 'Shipping cost for this country already exists.');
+            } else {
+                if ($id) {
+                    $model->update($id, $countryId, $amount);
+                    Session::setFlash('success', 'Shipping cost updated.');
+                } else {
+                    $model->create($countryId, $amount);
+                    Session::setFlash('success', 'Shipping cost added.');
+                }
+            }
+        }
+        $this->redirect('admin/shipping-costs');
+    }
+
+    public function shippingCostDelete() {
+        $id = $_GET['id'] ?? null;
+        if ($id) {
+            (new ShippingCost())->delete($id);
+            Session::setFlash('success', 'Shipping cost deleted.');
+        }
+        $this->redirect('admin/shipping-costs');
+    }
+
+    // Top Level Categories
+    public function topCategories() {
+        $this->render('admin/settings/top_categories', [
+            'title' => 'Top Level Categories - E-Shop',
+            'categories' => $this->categoryModel->parentCategories()
+        ], 'admin');
+    }
+
+    public function topCategorySave() {
+        $name = trim($_POST['name'] ?? '');
+        $slug = trim($_POST['slug'] ?? '');
+        $icon = trim($_POST['icon'] ?? 'fa-tag');
+        $id = $_POST['id'] ?? null;
+
+        if (empty($name) || empty($slug)) {
+            Session::setFlash('error', 'Name and Slug are required.');
+        } else {
+            $slug = strtolower(preg_replace('/[^a-z0-9-]/', '-', $slug));
+            if ($id) {
+                $this->categoryModel->update($id, $name, $slug, $icon, 0, null);
+                Session::setFlash('success', 'Top category updated.');
+            } else {
+                if ($this->categoryModel->slugExists($slug)) {
+                    Session::setFlash('error', 'Slug already exists.');
+                } else {
+                    $this->categoryModel->create($name, $slug, $icon, 0, null);
+                    Session::setFlash('success', 'Top category added.');
+                }
+            }
+        }
+        $this->redirect('admin/top-categories');
+    }
+
+    public function topCategoryDelete() {
+        $id = $_GET['id'] ?? null;
+        if ($id) {
+            $this->categoryModel->delete($id);
+            Session::setFlash('success', 'Top category deleted.');
+        }
+        $this->redirect('admin/top-categories');
+    }
+
+    // Mid Level Categories
+    public function midCategories() {
+        $db = \App\Core\Database::getInstance()->getConnection();
+        $stmt = $db->query("
+            SELECT c.*, p.name as parent_name
+            FROM categories c
+            JOIN categories p ON c.parent_id = p.id
+            WHERE p.parent_id IS NULL
+            ORDER BY p.name ASC, c.name ASC
+        ");
+        $midCategories = $stmt->fetchAll();
+
+        $this->render('admin/settings/mid_categories', [
+            'title' => 'Mid Level Categories - E-Shop',
+            'categories' => $midCategories,
+            'topCategories' => $this->categoryModel->parentCategories()
+        ], 'admin');
+    }
+
+    public function midCategorySave() {
+        $name = trim($_POST['name'] ?? '');
+        $slug = trim($_POST['slug'] ?? '');
+        $parentId = $_POST['parent_id'] ?? null;
+        $id = $_POST['id'] ?? null;
+
+        if (empty($name) || empty($slug) || !$parentId) {
+            Session::setFlash('error', 'All fields are required.');
+        } else {
+            $slug = strtolower(preg_replace('/[^a-z0-9-]/', '-', $slug));
+            if ($id) {
+                $this->categoryModel->update($id, $name, $slug, 'fa-circle-o', 0, $parentId);
+                Session::setFlash('success', 'Mid category updated.');
+            } else {
+                $this->categoryModel->create($name, $slug, 'fa-circle-o', 0, $parentId);
+                Session::setFlash('success', 'Mid category added.');
+            }
+        }
+        $this->redirect('admin/mid-categories');
+    }
+
+    public function midCategoryDelete() {
+        $id = $_GET['id'] ?? null;
+        if ($id) {
+            $this->categoryModel->delete($id);
+            Session::setFlash('success', 'Mid category deleted.');
+        }
+        $this->redirect('admin/mid-categories');
+    }
+
+    // End Level Categories
+    public function endCategories() {
+        $db = \App\Core\Database::getInstance()->getConnection();
+        $stmt = $db->query("
+            SELECT c.*, m.name as mid_name, t.name as top_name
+            FROM categories c
+            JOIN categories m ON c.parent_id = m.id
+            JOIN categories t ON m.parent_id = t.id
+            ORDER BY t.name ASC, m.name ASC, c.name ASC
+        ");
+        $endCategories = $stmt->fetchAll();
+
+        // Get mid categories for dropdown
+        $stmt = $db->query("
+            SELECT c.*, p.name as parent_name
+            FROM categories c
+            JOIN categories p ON c.parent_id = p.id
+            WHERE p.parent_id IS NULL
+        ");
+        $midCategories = $stmt->fetchAll();
+
+        $this->render('admin/settings/end_categories', [
+            'title' => 'End Level Categories - E-Shop',
+            'categories' => $endCategories,
+            'midCategories' => $midCategories
+        ], 'admin');
+    }
+
+    public function endCategorySave() {
+        $name = trim($_POST['name'] ?? '');
+        $slug = trim($_POST['slug'] ?? '');
+        $parentId = $_POST['parent_id'] ?? null;
+        $id = $_POST['id'] ?? null;
+
+        if (empty($name) || empty($slug) || !$parentId) {
+            Session::setFlash('error', 'All fields are required.');
+        } else {
+            $slug = strtolower(preg_replace('/[^a-z0-9-]/', '-', $slug));
+            if ($id) {
+                $this->categoryModel->update($id, $name, $slug, 'fa-circle-o', 0, $parentId);
+                Session::setFlash('success', 'End category updated.');
+            } else {
+                $this->categoryModel->create($name, $slug, 'fa-circle-o', 0, $parentId);
+                Session::setFlash('success', 'End category added.');
+            }
+        }
+        $this->redirect('admin/end-categories');
+    }
+
+    public function getSubcategories() {
+        $parentId = $_GET['parent_id'] ?? null;
+        if (!$parentId) $this->json([]);
+
+        $categoryModel = new Category();
+        $subs = $categoryModel->childrenOf($parentId);
+        $this->json($subs);
     }
 }

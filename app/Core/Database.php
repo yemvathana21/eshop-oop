@@ -138,6 +138,30 @@ class Database {
                 UNIQUE KEY `unique_wishlist` (`user_id`, `product_id`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
         }
+
+        // 6. Create product_size pivot table if missing
+        $sizeCheck = $this->connection->query("SHOW TABLES LIKE 'product_size'")->rowCount();
+        if ($sizeCheck === 0) {
+            $this->connection->exec("CREATE TABLE IF NOT EXISTS `product_size` (
+                `product_id` INT NOT NULL,
+                `size_id` INT NOT NULL,
+                PRIMARY KEY (`product_id`, `size_id`),
+                FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE,
+                FOREIGN KEY (`size_id`) REFERENCES `sizes` (`id`) ON DELETE CASCADE
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+        }
+
+        // 7. Create product_color pivot table if missing
+        $colorCheck = $this->connection->query("SHOW TABLES LIKE 'product_color'")->rowCount();
+        if ($colorCheck === 0) {
+            $this->connection->exec("CREATE TABLE IF NOT EXISTS `product_color` (
+                `product_id` INT NOT NULL,
+                `color_id` INT NOT NULL,
+                PRIMARY KEY (`product_id`, `color_id`),
+                FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE,
+                FOREIGN KEY (`color_id`) REFERENCES `colors` (`id`) ON DELETE CASCADE
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+        }
     }
 
     private function seedInitialData() {

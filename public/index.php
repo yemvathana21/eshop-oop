@@ -112,6 +112,36 @@ $router->get('/admin/user/delete', [AdminController::class, 'userDelete']);
 $router->get('/admin/reviews', [AdminController::class, 'reviews']);
 $router->get('/admin/review/delete', [AdminController::class, 'reviewDelete']);
 $router->get('/admin/search', [AdminController::class, 'search']);
+$router->get('/admin/get-subcategories', [AdminController::class, 'getSubcategories']);
+
+// --- Shop Settings Routes ---
+$router->get('/admin/sizes', [AdminController::class, 'sizes']);
+$router->post('/admin/size/save', [AdminController::class, 'sizeSave']);
+$router->get('/admin/size/delete', [AdminController::class, 'sizeDelete']);
+
+$router->get('/admin/colors', [AdminController::class, 'colors']);
+$router->post('/admin/color/save', [AdminController::class, 'colorSave']);
+$router->get('/admin/color/delete', [AdminController::class, 'colorDelete']);
+
+$router->get('/admin/countries', [AdminController::class, 'countries']);
+$router->post('/admin/country/save', [AdminController::class, 'countrySave']);
+$router->get('/admin/country/delete', [AdminController::class, 'countryDelete']);
+
+$router->get('/admin/shipping-costs', [AdminController::class, 'shippingCosts']);
+$router->post('/admin/shipping-cost/save', [AdminController::class, 'shippingCostSave']);
+$router->get('/admin/shipping-cost/delete', [AdminController::class, 'shippingCostDelete']);
+
+$router->get('/admin/top-categories', [AdminController::class, 'topCategories']);
+$router->post('/admin/top-category/save', [AdminController::class, 'topCategorySave']);
+$router->get('/admin/top-category/delete', [AdminController::class, 'topCategoryDelete']);
+
+$router->get('/admin/mid-categories', [AdminController::class, 'midCategories']);
+$router->post('/admin/mid-category/save', [AdminController::class, 'midCategorySave']);
+$router->get('/admin/mid-category/delete', [AdminController::class, 'midCategoryDelete']);
+
+$router->get('/admin/end-categories', [AdminController::class, 'endCategories']);
+$router->post('/admin/end-category/save', [AdminController::class, 'endCategorySave']);
+$router->get('/admin/end-category/delete', [AdminController::class, 'endCategoryDelete']);
 
 // Dispatch
 $url = $_SERVER['REQUEST_URI'];

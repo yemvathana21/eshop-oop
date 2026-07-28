@@ -7,6 +7,8 @@ if (class_exists('App\Models\Category')) {
     $navTree = $catModel->getTree();
 }
 $currentLang = \App\Core\Lang\Language::current();
+$cart = \App\Core\Session::get('cart', []);
+$count = array_sum(array_column($cart, 'quantity'));
 ?>
 <!DOCTYPE html>
 <html lang="<?= $currentLang ?>" class="scroll-smooth">
@@ -53,65 +55,44 @@ $currentLang = \App\Core\Lang\Language::current();
     <div class="bg-gray-900 dark:bg-gray-950 text-gray-400 text-xs border-b border-gray-800">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-9">
             <div class="flex items-center gap-4">
-                <span><i class="fas fa-truck mr-1"></i> <?= t('free_shipping') ?></span>
-                <span class="hidden sm:inline"><i class="fas fa-headset mr-1"></i> <?= t('support_247') ?></span>
+                <span><i class="fas fa-phone mr-1"></i> +855 987654321</span>
+                <span class="hidden sm:inline"><i class="fas fa-envelope-o mr-1"></i> kongsievmey8@gmail.com</span>
             </div>
             <div class="flex items-center gap-3">
-                <span class="hidden sm:inline text-gray-500"><i class="fas fa-clock mr-1"></i> <?= t('delivery_time') ?></span>
+                <a href="#" class="hover:text-white transition"><i class="fab fa-facebook-f"></i></a>
+                <a href="#" class="hover:text-white transition"><i class="fab fa-twitter"></i></a>
+                <a href="#" class="hover:text-white transition"><i class="fab fa-instagram"></i></a>
+                <a href="#" class="hover:text-white transition"><i class="fab fa-whatsapp"></i></a>
             </div>
         </div>
     </div>
 
-    <!-- Main Nav -->
-    <nav class="bg-white dark:bg-gray-900 shadow-sm border-b border-gray-100 dark:border-gray-800 sticky top-0 z-50 transition-colors duration-300">
+    <!-- Header Section -->
+    <header class="bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 sticky top-0 z-50 transition-colors duration-300 shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
+            <div class="flex justify-between items-center h-20 gap-8">
+                <!-- Logo -->
                 <a href="<?= BASE_URL ?>" class="flex items-center space-x-2 flex-shrink-0">
-                    <div class="bg-blue-600 text-white w-9 h-9 rounded-lg flex items-center justify-center font-bold text-lg">E</div>
-                    <span class="text-xl font-bold text-gray-900 dark:text-white">E-Shop</span>
+                    <div class="bg-blue-600 text-white w-10 h-10 rounded-lg flex items-center justify-center font-bold text-xl shadow-lg shadow-blue-500/30">E</div>
+                    <span class="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">E-Shop</span>
                 </a>
 
-                <!-- Desktop Nav Links -->
-                <div class="hidden lg:flex items-center gap-1">
-                    <a href="<?= BASE_URL ?>" class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-800 rounded-lg transition"><?= t('home') ?></a>
-                    <div class="relative group">
-                        <a href="<?= BASE_URL ?>shop" class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-800 rounded-lg transition inline-flex items-center gap-1">
-                            <?= t('shop') ?> <i class="fas fa-chevron-down text-xs text-gray-400"></i>
-                        </a>
-                        <div class="absolute top-full left-0 w-64 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                            <a href="<?= BASE_URL ?>shop" class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700 hover:text-blue-600 dark:hover:text-blue-400 transition">
-                                <i class="fas fa-grid-2 text-xs w-5 text-center text-gray-400"></i> <?= t('all_products') ?>
-                            </a>
-                            <?php foreach ($navTree as $cat): ?>
-                            <div class="relative group/sub">
-                                <a href="<?= BASE_URL ?>shop?category=<?= htmlspecialchars($cat['slug']) ?>" class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700 hover:text-blue-600 dark:hover:text-blue-400 transition">
-                                    <i class="fas <?= htmlspecialchars($cat['icon']) ?> text-xs w-5 text-center text-gray-400"></i> <?= htmlspecialchars($cat['name']) ?>
-                                    <?php if (!empty($cat['children'])): ?>
-                                        <i class="fas fa-chevron-right text-[10px] text-gray-400 ml-auto"></i>
-                                    <?php else: ?>
-                                        <span class="ml-auto text-xs text-gray-400"><?= $cat['product_count'] ?></span>
-                                    <?php endif; ?>
-                                </a>
-                                <?php if (!empty($cat['children'])): ?>
-                                <div class="absolute top-full left-full w-48 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 py-2 opacity-0 invisible group-hover/sub:opacity-100 group-hover/sub:visible transition-all duration-200 z-50">
-                                    <?php foreach ($cat['children'] as $child): ?>
-                                    <a href="<?= BASE_URL ?>shop?category=<?= htmlspecialchars($child['slug']) ?>" class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700 hover:text-blue-600 dark:hover:text-blue-400 transition">
-                                        <i class="fas <?= htmlspecialchars($child['icon']) ?> text-xs w-5 text-center text-gray-400"></i> <?= htmlspecialchars($child['name']) ?>
-                                        <span class="ml-auto text-xs text-gray-400"><?= $child['product_count'] ?></span>
-                                    </a>
-                                    <?php endforeach; ?>
-                                </div>
-                                <?php endif; ?>
-                            </div>
-                            <?php endforeach; ?>
-                        </div>
-                    </div>
+                <!-- Search Bar -->
+                <div class="hidden md:flex flex-1 max-w-xl mx-4">
+                    <form action="<?= BASE_URL ?>shop" method="GET" class="relative w-full group">
+                        <input type="text" name="search" value="<?= htmlspecialchars($_GET['search'] ?? '') ?>"
+                            placeholder="Search Product"
+                            class="w-full bg-gray-100 dark:bg-gray-800 border-none rounded-xl py-2.5 pl-4 pr-12 text-sm focus:ring-2 focus:ring-blue-500 transition-all">
+                        <button type="submit" class="absolute right-2 top-1/2 -translate-y-1/2 bg-blue-600 text-white p-1.5 rounded-lg hover:bg-blue-700 transition shadow-sm">
+                            <i class="fas fa-search text-xs"></i>
+                        </button>
+                    </form>
                 </div>
 
                 <!-- Right Actions -->
-                <div class="hidden lg:flex items-center gap-2">
+                <div class="flex items-center gap-2">
                     <!-- Language Switcher -->
-                    <div class="relative group">
+                    <div class="relative group hidden sm:block">
                         <button class="flex items-center gap-1.5 px-3 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-800 rounded-lg transition" title="<?= t('language') ?>">
                             <i class="fas fa-globe text-sm"></i>
                             <?= strtoupper($currentLang) ?>
@@ -127,7 +108,7 @@ $currentLang = \App\Core\Lang\Language::current();
                         </div>
                     </div>
 
-                    <div class="w-px h-6 bg-gray-200 dark:bg-gray-700"></div>
+                    <div class="hidden sm:block w-px h-6 bg-gray-200 dark:bg-gray-700 mx-1"></div>
 
                     <!-- Dark Mode Toggle -->
                     <button id="darkToggle" class="p-2.5 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-800 rounded-lg transition" title="<?= t('toggle_dark_mode') ?>">
@@ -135,25 +116,21 @@ $currentLang = \App\Core\Lang\Language::current();
                         <i class="fas fa-sun text-lg hidden dark:inline"></i>
                     </button>
 
-                    <a href="<?= BASE_URL ?>cart" class="relative p-2.5 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-800 rounded-lg transition" title="<?= t('cart') ?>">
+                    <a href="<?= BASE_URL ?>cart" class="relative p-2.5 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-800 rounded-lg transition flex items-center gap-2" title="<?= t('cart') ?>">
                         <i class="fas fa-shopping-cart text-lg"></i>
-                        <?php
-                        $cart = \App\Core\Session::get('cart', []);
-                        $count = array_sum(array_column($cart, 'quantity'));
-                        if ($count > 0):
-                        ?>
-                        <span class="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold"><?= $count ?></span>
+                        <span class="text-sm font-bold hidden sm:inline">Cart ($<?= number_format(array_sum(array_map(fn($item) => $item['price'] * $item['quantity'], $cart)), 2) ?>)</span>
+                        <?php if ($count > 0): ?>
+                        <span class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] w-4.5 h-4.5 rounded-full flex items-center justify-center font-bold ring-2 ring-white dark:ring-gray-900"><?= $count ?></span>
                         <?php endif; ?>
                     </a>
 
                     <?php if (\App\Core\Session::isLoggedIn('customer')): ?>
                         <div class="relative group">
                             <button class="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition">
-                                <div class="w-7 h-7 bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400 rounded-full flex items-center justify-center text-xs font-bold">
+                                <div class="w-8 h-8 bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400 rounded-full flex items-center justify-center text-xs font-bold">
                                     <?= strtoupper(substr(\App\Core\Session::getUserName('customer'), 0, 1) ?: 'U') ?>
                                 </div>
-                                <span class="max-w-[100px] truncate"><?= htmlspecialchars(\App\Core\Session::getUserName('customer')) ?></span>
-                                <i class="fas fa-chevron-down text-xs text-gray-400"></i>
+                                <span class="max-w-[100px] truncate hidden lg:inline"><?= htmlspecialchars(\App\Core\Session::getUserName('customer')) ?></span>
                             </button>
                             <div class="absolute top-full right-0 w-48 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
                                 <a href="<?= BASE_URL ?>my-orders" class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700 hover:text-blue-600 dark:hover:text-blue-400 transition">
@@ -166,131 +143,143 @@ $currentLang = \App\Core\Lang\Language::current();
                             </div>
                         </div>
                     <?php else: ?>
-                        <a href="<?= BASE_URL ?>login" class="text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 hover:bg-blue-50 dark:hover:bg-gray-800 rounded-lg transition"><?= t('login') ?></a>
-                        <a href="<?= BASE_URL ?>register" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg text-sm font-medium transition"><?= t('register') ?></a>
+                        <div class="hidden lg:flex items-center gap-2 ml-2">
+                            <a href="<?= BASE_URL ?>login" class="text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 transition"><?= t('login') ?></a>
+                            <a href="<?= BASE_URL ?>register" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg text-sm font-medium transition shadow-sm shadow-blue-500/20"><?= t('register') ?></a>
+                        </div>
                     <?php endif; ?>
-                </div>
 
-                <!-- Mobile Menu Button -->
-                <div class="flex items-center gap-2 lg:hidden">
-                    <button id="darkToggleMobile" class="p-2 text-gray-600 dark:text-gray-400">
-                        <i class="fas fa-moon dark:hidden"></i>
-                        <i class="fas fa-sun hidden dark:inline"></i>
-                    </button>
-                    <a href="<?= BASE_URL ?>cart" class="relative p-2 text-gray-600 dark:text-gray-400">
-                        <i class="fas fa-shopping-cart"></i>
-                        <?php if ($count > 0): ?>
-                        <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-4 h-4 rounded-full flex items-center justify-center font-bold text-[10px]"><?= $count ?></span>
-                        <?php endif; ?>
-                    </a>
-                    <button id="mobileMenuBtn" class="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                    <!-- Mobile Menu Button -->
+                    <button id="mobileMenuBtn" class="lg:hidden p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg">
                         <i class="fas fa-bars text-xl"></i>
                     </button>
                 </div>
             </div>
         </div>
 
+        <!-- Navigation Bar (Desktop) -->
+        <div class="bg-slate-900 text-white hidden lg:block border-t border-slate-800 shadow-md">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex items-center justify-between h-12">
+                    <div class="flex items-center gap-0">
+                        <a href="<?= BASE_URL ?>" class="px-5 py-3.5 text-[11px] font-bold uppercase tracking-widest hover:bg-slate-800 transition duration-300"><?= t('home') ?></a>
+
+                        <?php foreach ($navTree as $tcat): ?>
+                        <div class="group static">
+                            <a href="<?= BASE_URL ?>shop?category=<?= htmlspecialchars($tcat['slug']) ?>"
+                               class="px-5 py-3.5 text-[11px] font-bold uppercase tracking-widest hover:bg-slate-800 transition duration-300 inline-flex items-center gap-1.5">
+                                <?= htmlspecialchars($tcat['name']) ?>
+                            </a>
+
+                            <?php if (!empty($tcat['children'])): ?>
+                            <div class="absolute left-0 right-0 w-full bg-[#f9f9f9] text-gray-800 shadow-2xl border-b border-gray-200 py-10 px-8 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
+                                <div class="max-w-7xl mx-auto grid grid-cols-4 xl:grid-cols-5 gap-y-10 gap-x-12">
+                                    <?php foreach ($tcat['children'] as $mcat): ?>
+                                    <div class="space-y-4">
+                                        <a href="<?= BASE_URL ?>shop?category=<?= htmlspecialchars($mcat['slug']) ?>" class="block font-bold text-gray-900 uppercase tracking-widest text-[11px] border-b border-gray-300 pb-2 mb-2 hover:text-blue-600 transition">
+                                            <?= htmlspecialchars($mcat['name']) ?>
+                                        </a>
+                                        <ul class="space-y-2">
+                                            <?php foreach ($mcat['children'] as $ecat): ?>
+                                            <li>
+                                                <a href="<?= BASE_URL ?>shop?category=<?= htmlspecialchars($ecat['slug']) ?>" class="text-[13px] text-gray-600 hover:text-blue-600 transition block">
+                                                    <?= htmlspecialchars($ecat['name']) ?>
+                                                </a>
+                                            </li>
+                                            <?php endforeach; ?>
+                                        </ul>
+                                    </div>
+                                    <?php endforeach; ?>
+                                </div>
+                            </div>
+                            <?php endif; ?>
+                        </div>
+                        <?php endforeach; ?>
+
+                        <a href="#" class="px-5 py-3.5 text-[11px] font-bold uppercase tracking-widest hover:bg-slate-800 transition duration-300"><?= t('about_us') ?></a>
+                        <a href="#" class="px-5 py-3.5 text-[11px] font-bold uppercase tracking-widest hover:bg-slate-800 transition duration-300"><?= t('faq') ?></a>
+                        <a href="#" class="px-5 py-3.5 text-[11px] font-bold uppercase tracking-widest hover:bg-slate-800 transition duration-300"><?= t('contact_us') ?></a>
+                    </div>
+
+                    <div class="flex items-center text-[10px] text-slate-400 font-bold uppercase tracking-widest italic">
+                        <i class="fas fa-truck-fast mr-2 text-blue-500 text-sm"></i>
+                        <?= t('free_shipping') ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Mobile Menu -->
-        <div id="mobileMenu" class="hidden lg:hidden border-t border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900">
-            <div class="px-4 py-3 space-y-1">
-                <a href="<?= BASE_URL ?>" class="block py-2.5 px-3 text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-800 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg text-sm font-medium transition"><?= t('home') ?></a>
-                <a href="<?= BASE_URL ?>shop" class="block py-2.5 px-3 text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-800 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg text-sm font-medium transition"><?= t('shop_all') ?></a>
-                <hr class="my-2 border-gray-100 dark:border-gray-800">
-                <p class="text-xs text-gray-400 uppercase tracking-wider px-3 py-1"><?= t('categories') ?></p>
-                <?php foreach ($navTree as $cat): ?>
-                <div class="mobile-cat-group">
-                    <div class="flex items-center justify-between">
-                        <a href="<?= BASE_URL ?>shop?category=<?= htmlspecialchars($cat['slug']) ?>" class="flex items-center gap-3 py-2 px-3 text-gray-600 dark:text-gray-400 hover:bg-blue-50 dark:hover:bg-gray-800 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg text-sm transition flex-1">
-                            <i class="fas <?= htmlspecialchars($cat['icon']) ?> text-xs w-5 text-center text-gray-400"></i> <?= htmlspecialchars($cat['name']) ?>
-                        </a>
-                        <?php if (!empty($cat['children'])): ?>
-                        <button onclick="this.parentElement.nextElementSibling.classList.toggle('hidden'); this.querySelector('i').classList.toggle('fa-chevron-down'); this.querySelector('i').classList.toggle('fa-chevron-up');" class="px-3 py-2 text-gray-400 hover:text-blue-500">
-                            <i class="fas fa-chevron-down text-xs"></i>
-                        </button>
+        <div id="mobileMenu" class="hidden lg:hidden border-t border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 overflow-y-auto max-h-[calc(100vh-80px)]">
+            <div class="px-4 py-4 space-y-4">
+                <form action="<?= BASE_URL ?>shop" method="GET" class="relative">
+                    <input type="text" name="search" placeholder="<?= t('search_products') ?>" class="w-full bg-gray-100 dark:bg-gray-800 border-none rounded-lg py-2 pl-3 pr-10 text-sm">
+                    <button type="submit" class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </form>
+
+                <div class="space-y-1">
+                    <a href="<?= BASE_URL ?>" class="block py-2 px-3 text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-800 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg text-sm font-semibold"><?= t('home') ?></a>
+
+                    <?php foreach ($navTree as $tcat): ?>
+                    <div class="mobile-cat-group">
+                        <div class="flex items-center justify-between">
+                            <a href="<?= BASE_URL ?>shop?category=<?= htmlspecialchars($tcat['slug']) ?>" class="block py-2 px-3 text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-800 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg text-sm font-semibold flex-1">
+                                <?= htmlspecialchars($tcat['name']) ?>
+                            </a>
+                            <?php if (!empty($tcat['children'])): ?>
+                                <button onclick="this.parentElement.nextElementSibling.classList.toggle('hidden'); this.querySelector('i').classList.toggle('rotate-180');" class="px-4 py-2 text-gray-400">
+                                    <i class="fas fa-chevron-down text-[10px] transition-transform"></i>
+                                </button>
+                            <?php endif; ?>
+                        </div>
+
+                        <?php if (!empty($tcat['children'])): ?>
+                        <div class="hidden pl-4 space-y-1 mt-1 border-l-2 border-gray-100 dark:border-gray-800 ml-3">
+                            <?php foreach ($tcat['children'] as $mcat): ?>
+                                <div class="space-y-1">
+                                    <div class="flex items-center justify-between">
+                                        <a href="<?= BASE_URL ?>shop?category=<?= htmlspecialchars($mcat['slug']) ?>" class="block py-1.5 px-3 text-gray-600 dark:text-gray-400 text-sm"><?= htmlspecialchars($mcat['name']) ?></a>
+                                        <?php if (!empty($mcat['children'])): ?>
+                                            <button onclick="this.parentElement.nextElementSibling.classList.toggle('hidden'); this.querySelector('i').classList.toggle('rotate-180');" class="px-4 py-1 text-gray-400">
+                                                <i class="fas fa-chevron-down text-[10px] transition-transform"></i>
+                                            </button>
+                                        <?php endif; ?>
+                                    </div>
+                                    <?php if (!empty($mcat['children'])): ?>
+                                        <div class="hidden pl-4 space-y-1 border-l border-gray-100 dark:border-gray-800 ml-3">
+                                            <?php foreach ($mcat['children'] as $ecat): ?>
+                                                <a href="<?= BASE_URL ?>shop?category=<?= htmlspecialchars($ecat['slug']) ?>" class="block py-1 px-3 text-gray-400 dark:text-gray-600 text-[13px] hover:text-blue-600 transition"><?= htmlspecialchars($ecat['name']) ?></a>
+                                            <?php endforeach; ?>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
                         <?php endif; ?>
                     </div>
-                    <?php if (!empty($cat['children'])): ?>
-                    <div class="hidden pl-8 space-y-1 pb-1">
-                        <?php foreach ($cat['children'] as $child): ?>
-                        <a href="<?= BASE_URL ?>shop?category=<?= htmlspecialchars($child['slug']) ?>" class="flex items-center gap-3 py-1.5 px-3 text-gray-500 dark:text-gray-500 hover:bg-blue-50 dark:hover:bg-gray-800 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg text-sm transition">
-                            <i class="fas <?= htmlspecialchars($child['icon']) ?> text-xs w-5 text-center text-gray-400"></i> <?= htmlspecialchars($child['name']) ?>
-                        </a>
-                        <?php endforeach; ?>
-                    </div>
-                    <?php endif; ?>
-                </div>
-                <?php endforeach; ?>
-                <hr class="my-2 border-gray-100 dark:border-gray-800">
-                <div class="flex items-center justify-between px-3 py-2">
-                    <span class="text-sm text-gray-500 dark:text-gray-400"><?= t('language') ?></span>
-                    <div class="flex gap-1">
-                        <a href="<?= BASE_URL ?>lang?lang=en" class="px-2 py-1 text-xs rounded <?= $currentLang === 'en' ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-400 font-bold' : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800' ?> transition">EN</a>
-                        <a href="<?= BASE_URL ?>lang?lang=km" class="px-2 py-1 text-xs rounded <?= $currentLang === 'km' ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-400 font-bold' : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800' ?> transition">KM</a>
-                    </div>
-                </div>
-                <a href="<?= BASE_URL ?>cart" class="flex items-center justify-between py-2.5 px-3 text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-800 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg text-sm font-medium transition">
-                    <span><i class="fas fa-shopping-cart mr-2"></i><?= t('cart') ?></span>
-                    <?php if ($count > 0): ?>
-                    <span class="bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold"><?= $count ?></span>
-                    <?php endif; ?>
-                </a>
-                <?php if (\App\Core\Session::isLoggedIn('customer')): ?>
-                    <a href="<?= BASE_URL ?>my-orders" class="block py-2.5 px-3 text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-800 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg text-sm font-medium transition"><i class="fas fa-receipt mr-2"></i><?= t('my_orders') ?></a>
-                    <a href="<?= BASE_URL ?>logout" class="block py-2.5 px-3 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg text-sm font-medium transition"><i class="fas fa-right-from-bracket mr-2"></i><?= t('logout') ?></a>
-                <?php else: ?>
-                    <a href="<?= BASE_URL ?>login" class="block py-2.5 px-3 text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-800 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg text-sm font-medium transition"><i class="fas fa-right-to-bracket mr-2"></i><?= t('login') ?></a>
-                    <a href="<?= BASE_URL ?>register" class="block py-2.5 px-3 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-800 rounded-lg text-sm font-medium transition"><i class="fas fa-user-plus mr-2"></i><?= t('register') ?></a>
-                <?php endif; ?>
-            </div>
-        </div>
-    </nav>
+                    <?php endforeach; ?>
 
-    <!-- Category Bar -->
-    <div class="bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 transition-colors hidden lg:block">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center gap-1 overflow-x-auto py-2 scrollbar-hide">
-                <a href="<?= BASE_URL ?>shop" class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-800 rounded-full transition whitespace-nowrap <?= empty($_GET['category']) ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400' : '' ?>">
-                    <i class="fas fa-grid-2"></i> <?= t('all_products') ?>
-                </a>
-                <?php
-                $activeParentId = null;
-                if (!empty($_GET['category'])) {
-                    foreach ($navTree as $pc) {
-                        if ($pc['slug'] === $_GET['category']) {
-                            $activeParentId = $pc['id'];
-                            break;
-                        }
-                        if (!empty($pc['children'])) {
-                            foreach ($pc['children'] as $ch) {
-                                if ($ch['slug'] === $_GET['category']) {
-                                    $activeParentId = $pc['id'];
-                                    break 2;
-                                }
-                            }
-                        }
-                    }
-                }
-                foreach ($navTree as $cat):
-                    $isActive = (isset($_GET['category']) && $_GET['category'] === $cat['slug']) || $activeParentId === $cat['id'];
-                ?>
-                <a href="<?= BASE_URL ?>shop?category=<?= htmlspecialchars($cat['slug']) ?>" class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-800 rounded-full transition whitespace-nowrap <?= $isActive && !empty($cat['children']) ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-bold' : ((isset($_GET['category']) && $_GET['category'] === $cat['slug']) ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400' : '') ?>">
-                    <i class="fas <?= htmlspecialchars($cat['icon']) ?>"></i> <?= htmlspecialchars($cat['name']) ?>
-                </a>
-                <?php
-                    if ($activeParentId === $cat['id'] && !empty($cat['children'])) {
-                        foreach ($cat['children'] as $child) {
-                            $childActive = isset($_GET['category']) && $_GET['category'] === $child['slug'];
-                ?>
-                <a href="<?= BASE_URL ?>shop?category=<?= htmlspecialchars($child['slug']) ?>" class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-800 rounded-full transition whitespace-nowrap <?= $childActive ? 'bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400' : '' ?>">
-                    <i class="fas <?= htmlspecialchars($child['icon']) ?>"></i> <?= htmlspecialchars($child['name']) ?>
-                </a>
-                <?php
-                        }
-                    }
-                endforeach; ?>
+                    <a href="#" class="block py-2 px-3 text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-800 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg text-sm font-semibold"><?= t('about_us') ?></a>
+                    <a href="#" class="block py-2 px-3 text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-800 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg text-sm font-semibold"><?= t('faq') ?></a>
+                    <a href="#" class="block py-2 px-3 text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-800 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg text-sm font-semibold"><?= t('contact_us') ?></a>
+                </div>
+
+                <hr class="border-gray-100 dark:border-gray-800">
+
+                <div class="grid grid-cols-2 gap-2">
+                    <?php if (!\App\Core\Session::isLoggedIn('customer')): ?>
+                        <a href="<?= BASE_URL ?>login" class="flex items-center justify-center py-2.5 px-4 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 rounded-lg text-sm font-semibold"><?= t('login') ?></a>
+                        <a href="<?= BASE_URL ?>register" class="flex items-center justify-center py-2.5 px-4 bg-blue-600 text-white rounded-lg text-sm font-semibold"><?= t('register') ?></a>
+                    <?php else: ?>
+                        <a href="<?= BASE_URL ?>my-orders" class="col-span-2 flex items-center justify-center py-2.5 px-4 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-semibold"><?= t('my_orders') ?></a>
+                        <a href="<?= BASE_URL ?>logout" class="col-span-2 flex items-center justify-center py-2.5 px-4 text-red-600 font-semibold"><?= t('logout') ?></a>
+                    <?php endif; ?>
+                </div>
             </div>
         </div>
-    </div>
+    </header>
 
     <!-- Toast Container -->
     <div id="toastContainer" class="fixed top-4 right-4 z-50 flex flex-col gap-3 max-w-sm"></div>
@@ -343,12 +332,12 @@ $currentLang = \App\Core\Lang\Language::current();
             </div>
             <hr class="border-gray-800 my-8">
             <div class="flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-gray-500">
-                <p>&copy; <?= date('Y') ?> E-Shop. <?= t('all_rights_reserved') ?></p>
+                <p>&copy; <?= date('Y') ?> Ecommerce Website PHP - Developed By Group-D</p>
                 <div class="flex items-center gap-4">
-                    <span class="flex items-center gap-1"><i class="fab fa-cc-visa text-lg"></i></span>
-                    <span class="flex items-center gap-1"><i class="fab fa-cc-mastercard text-lg"></i></span>
-                    <span class="flex items-center gap-1"><i class="fab fa-cc-paypal text-lg"></i></span>
-                    <span class="flex items-center gap-1"><i class="fab fa-cc-stripe text-lg"></i></span>
+                    <a href="#" class="hover:text-blue-500 transition"><i class="fab fa-facebook-f text-lg"></i></a>
+                    <a href="#" class="hover:text-blue-400 transition"><i class="fab fa-twitter text-lg"></i></a>
+                    <a href="#" class="hover:text-red-500 transition"><i class="fab fa-pinterest text-lg"></i></a>
+                    <a href="#" class="hover:text-gray-300 transition"><i class="fas fa-envelope text-lg"></i></a>
                 </div>
             </div>
         </div>

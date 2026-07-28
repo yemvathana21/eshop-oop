@@ -3,6 +3,20 @@ return [
     // Admin Layout
     'admin_panel' => 'Admin Panel',
     'dashboard' => 'Dashboard',
+    'website_settings' => 'Website Settings',
+    'shop_settings' => 'Shop Settings',
+    'size' => 'Size',
+    'color' => 'Color',
+    'country' => 'Country',
+    'shipping_cost' => 'Shipping Cost',
+    'top_level_category' => 'Top Level Category',
+    'mid_level_category' => 'Mid Level Category',
+    'end_level_category' => 'End Level Category',
+    'product_management' => 'Product Management',
+    'order_management' => 'Order Management',
+    'category_management' => 'Category Management',
+    'registered_users' => 'Registered Users',
+    'customer_reviews' => 'Customer Reviews',
     'products' => 'Products',
     'inventory' => 'Inventory',
     'orders' => 'Orders',
@@ -143,6 +157,14 @@ return [
     'delivery_time' => 'Delivery: 2-5 days',
 
     // Nav
+    'featured_products' => 'Featured Products',
+    'featured_products_subtitle' => 'Our list on Top Featured Products',
+    'latest_products' => 'Latest Products',
+    'latest_products_subtitle' => 'Our list of recently added products',
+    'popular_products' => 'Popular Products',
+    'popular_products_subtitle' => 'Popular products based on customer\'s choice',
+    'newsletter_title' => 'Subscribe To Our Newsletter',
+    'email_placeholder' => 'Enter Your Email Address',
     'home' => 'Home',
     'shop' => 'Shop',
     'shop_all' => 'Shop All',
@@ -151,6 +173,9 @@ return [
     'my_orders' => 'My Orders',
     'login' => 'Login',
     'register' => 'Register',
+    'about_us' => 'About Us',
+    'faq' => 'FAQ',
+    'contact_us' => 'Contact Us',
 
     // Homepage - Hero
     'hero_badge' => 'New Season 2026',
@@ -262,6 +287,9 @@ return [
     'proceed_to_checkout' => 'Proceed to Checkout',
     'login_to_checkout' => 'Login to Checkout',
     'remove' => 'Remove',
+    'clear_cart' => 'Clear Cart',
+    'product' => 'Product',
+    'quantity' => 'Quantity',
 
     // Auth
     'welcome_back' => 'Welcome Back',

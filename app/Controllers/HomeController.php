@@ -24,7 +24,9 @@ class HomeController extends Controller {
     public function index() {
         $categories = $this->categoryModel->all();
         $categoryTree = $this->categoryModel->getTree();
-        $featured = $this->productModel->featured(4);
+        $featured = $this->productModel->featured(8);
+        $latest = $this->productModel->latest(8);
+        $popular = $this->productModel->popular(8);
         $allProducts = $this->productModel->all();
 
         $this->render('customer/home', [
@@ -32,6 +34,8 @@ class HomeController extends Controller {
             'categories' => $categories,
             'categoryTree' => $categoryTree,
             'featured' => $featured,
+            'latest' => $latest,
+            'popular' => $popular,
             'allProducts' => $allProducts
         ]);
     }
@@ -44,8 +48,12 @@ class HomeController extends Controller {
         $search = trim($_GET['search'] ?? '');
 
         $currentCategory = null;
+        $categoryPath = [];
         if ($slug) {
             $currentCategory = $this->categoryModel->findBySlug($slug);
+            if ($currentCategory) {
+                $categoryPath = $this->categoryModel->getPath($currentCategory['id']);
+            }
         }
 
         if ($currentCategory) {
@@ -88,6 +96,7 @@ class HomeController extends Controller {
             'categories' => $categories,
             'categoryTree' => $categoryTree,
             'currentCategory' => $currentCategory,
+            'categoryPath' => $categoryPath,
             'totalProducts' => $totalProducts
         ]);
     }

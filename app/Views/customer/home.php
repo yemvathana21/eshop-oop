@@ -1,269 +1,165 @@
-<!-- Hero Banner -->
-<section class="relative bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-800 text-white overflow-hidden">
-    <div class="absolute inset-0 opacity-10">
-        <div class="absolute top-0 -left-20 w-96 h-96 bg-white rounded-full blur-3xl"></div>
-        <div class="absolute bottom-0 right-0 w-80 h-80 bg-white rounded-full blur-3xl"></div>
-    </div>
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-28 relative z-10">
-        <div class="grid md:grid-cols-2 gap-12 items-center">
-            <div>
-                <span class="inline-block bg-white/20 text-white text-sm font-medium px-4 py-1.5 rounded-full mb-4"><?= t('hero_badge') ?></span>
-                <h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight mb-6"><?= t('hero_title') ?></h1>
-                <p class="text-blue-100 text-lg mb-8 max-w-lg"><?= t('hero_subtitle') ?></p>
-                <div class="flex flex-wrap gap-4">
-                    <a href="<?= BASE_URL ?>shop" class="bg-white text-blue-700 hover:bg-blue-50 px-8 py-3.5 rounded-lg font-bold transition shadow-lg">
-                        <i class="fas fa-shopping-bag mr-2"></i><?= t('shop_now') ?>
-                    </a>
-                    <a href="#categories" class="border-2 border-white/40 hover:border-white text-white px-8 py-3.5 rounded-lg font-bold transition">
-                        <?= t('browse_categories') ?>
+<!-- Hero Section -->
+<section class="relative bg-[#2b3445] min-h-[500px] flex items-center overflow-hidden">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 relative z-10 w-full">
+        <div class="grid md:grid-cols-2 gap-8 items-center">
+            <div class="text-white space-y-6 animate-fade-in">
+                <h4 class="text-blue-400 font-bold tracking-widest uppercase text-sm">Welcome to Ecommerce PHP</h4>
+                <h1 class="text-5xl md:text-6xl font-extrabold leading-tight">Shop Online for Latest <span class="text-blue-500">Women Accessories</span></h1>
+                <div class="space-y-2">
+                    <p class="text-2xl font-semibold text-gray-300">50% Discount on All Products</p>
+                    <p class="text-gray-400 max-w-md">Lorem ipsum dolor sit amet, an labores explicari qui, eu nostrum copiosae argumentum has.</p>
+                </div>
+                <div class="flex gap-4 pt-4">
+                    <a href="<?= BASE_URL ?>shop" class="bg-blue-600 hover:bg-blue-700 text-white px-10 py-4 rounded-lg font-bold transition transform hover:scale-105 shadow-xl">
+                        Shop Now
                     </a>
                 </div>
             </div>
-            <div class="hidden md:flex justify-center">
-                <div class="relative">
-                    <div class="bg-white/10 backdrop-blur-sm rounded-3xl p-8 border border-white/20">
-                        <div class="grid grid-cols-2 gap-4">
-                            <?php foreach (array_slice($featured, 0, 4) as $fp): ?>
-                            <div class="bg-white rounded-xl overflow-hidden shadow-lg w-36 h-36">
-                                <?php if (!empty($fp['image'])): ?>
-                                    <img src="<?= BASE_URL . 'uploads/' . rawurlencode($fp['image']) ?>"
-                                         onerror="this.src='<?= BASE_URL . 'images/' . rawurlencode($fp['image']) ?>'; this.onerror=null;"
-                                         alt="<?= htmlspecialchars($fp['name']) ?>"
-                                         class="w-full h-full object-cover">
-                                <?php else: ?>
-                                    <div class="w-full h-full flex items-center justify-center bg-gray-100"><i class="fas fa-image text-gray-300 text-2xl"></i></div>
-                                <?php endif; ?>
-                            </div>
-                            <?php endforeach; ?>
-                        </div>
-                    </div>
-                    <div class="absolute -bottom-4 -right-4 bg-yellow-400 text-yellow-900 rounded-xl px-5 py-3 shadow-xl font-bold text-sm">
-                        <i class="fas fa-truck mr-1"></i> <?= t('free_shipping_badge') ?>
-                    </div>
+            <div class="hidden md:block relative animate-float">
+                <div class="relative bg-white/5 backdrop-blur-md rounded-full p-10 border border-white/10">
+                    <img src="https://dummyimage.com/500x500/2b3445/fff&text=E-Shop+Promo" class="w-full max-w-md mx-auto drop-shadow-2xl rounded-full">
                 </div>
             </div>
         </div>
+    </div>
+
+    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2">
+        <div class="w-3 h-3 rounded-full bg-blue-600"></div>
+        <div class="w-3 h-3 rounded-full bg-gray-600"></div>
+        <div class="w-3 h-3 rounded-full bg-gray-600"></div>
     </div>
 </section>
 
 <!-- Trust Badges -->
-<section class="bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 transition-colors">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center text-sm">
-            <div class="flex items-center justify-center gap-3 text-gray-600 dark:text-gray-400">
-                <i class="fas fa-truck text-blue-600 dark:text-blue-400 text-xl"></i>
-                <div class="text-left"><span class="font-semibold text-gray-900 dark:text-white block"><?= t('free_shipping_title') ?></span><span class="text-xs text-gray-400 dark:text-gray-500"><?= t('free_shipping_desc') ?></span></div>
+<section class="bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 py-16 transition-colors">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-8">
+            <!-- Easy Returns -->
+            <div class="flex flex-col items-center text-center group">
+                <div class="w-14 h-14 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-blue-600 group-hover:text-white transition-all duration-300 shadow-sm">
+                    <i class="fas fa-rotate-left text-xl"></i>
+                </div>
+                <h4 class="font-bold text-gray-900 dark:text-white text-sm mb-1">Easy Returns</h4>
+                <p class="text-xs text-gray-500 dark:text-gray-400 leading-tight px-2">Return any item before 15 days!</p>
             </div>
-            <div class="flex items-center justify-center gap-3 text-gray-600 dark:text-gray-400">
-                <i class="fas fa-shield-halved text-blue-600 dark:text-blue-400 text-xl"></i>
-                <div class="text-left"><span class="font-semibold text-gray-900 dark:text-white block"><?= t('secure_payment') ?></span><span class="text-xs text-gray-400 dark:text-gray-500"><?= t('secure_payment_desc') ?></span></div>
+            <!-- Free Shipping -->
+            <div class="flex flex-col items-center text-center group">
+                <div class="w-14 h-14 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-emerald-600 group-hover:text-white transition-all duration-300 shadow-sm">
+                    <i class="fas fa-truck text-xl"></i>
+                </div>
+                <h4 class="font-bold text-gray-900 dark:text-white text-sm mb-1">Free Shipping</h4>
+                <p class="text-xs text-gray-500 dark:text-gray-400 leading-tight px-2">Enjoy free shipping inside US.</p>
             </div>
-            <div class="flex items-center justify-center gap-3 text-gray-600 dark:text-gray-400">
-                <i class="fas fa-rotate-left text-blue-600 dark:text-blue-400 text-xl"></i>
-                <div class="text-left"><span class="font-semibold text-gray-900 dark:text-white block"><?= t('easy_returns') ?></span><span class="text-xs text-gray-400 dark:text-gray-500"><?= t('easy_returns_desc') ?></span></div>
+            <!-- Fast Shipping -->
+            <div class="flex flex-col items-center text-center group">
+                <div class="w-14 h-14 bg-orange-50 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-orange-600 group-hover:text-white transition-all duration-300 shadow-sm">
+                    <i class="fas fa-bolt text-xl"></i>
+                </div>
+                <h4 class="font-bold text-gray-900 dark:text-white text-sm mb-1">Fast Shipping</h4>
+                <p class="text-xs text-gray-500 dark:text-gray-400 leading-tight px-2">Items are shipped within 24 hours.</p>
             </div>
-            <div class="flex items-center justify-center gap-3 text-gray-600 dark:text-gray-400">
-                <i class="fas fa-headset text-blue-600 dark:text-blue-400 text-xl"></i>
-                <div class="text-left"><span class="font-semibold text-gray-900 dark:text-white block"><?= t('support_title') ?></span><span class="text-xs text-gray-400 dark:text-gray-500"><?= t('support_desc') ?></span></div>
+            <!-- Satisfaction -->
+            <div class="flex flex-col items-center text-center group">
+                <div class="w-14 h-14 bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-purple-600 group-hover:text-white transition-all duration-300 shadow-sm">
+                    <i class="fas fa-face-smile text-xl"></i>
+                </div>
+                <h4 class="font-bold text-gray-900 dark:text-white text-sm mb-1">Satisfaction</h4>
+                <p class="text-xs text-gray-500 dark:text-gray-400 leading-tight px-2">We guarantee you with our quality satisfaction.</p>
+            </div>
+            <!-- Secure Checkout -->
+            <div class="flex flex-col items-center text-center group">
+                <div class="w-14 h-14 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-300 shadow-sm">
+                    <i class="fas fa-shield-check text-xl"></i>
+                </div>
+                <h4 class="font-bold text-gray-900 dark:text-white text-sm mb-1">Secure Checkout</h4>
+                <p class="text-xs text-gray-500 dark:text-gray-400 leading-tight px-2">Providing Secure Checkout Options for all</p>
+            </div>
+            <!-- Money Back -->
+            <div class="flex flex-col items-center text-center group">
+                <div class="w-14 h-14 bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-red-600 group-hover:text-white transition-all duration-300 shadow-sm">
+                    <i class="fas fa-hand-holding-dollar text-xl"></i>
+                </div>
+                <h4 class="font-bold text-gray-900 dark:text-white text-sm mb-1">Money Back</h4>
+                <p class="text-xs text-gray-500 dark:text-gray-400 leading-tight px-2">Offer money back guarantee on our products</p>
             </div>
         </div>
-    </div>
-</section>
-
-<!-- Categories -->
-<section id="categories" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-    <div class="text-center mb-12">
-        <h2 class="text-3xl font-bold text-gray-900 dark:text-white"><?= t('shop_by_category') ?></h2>
-        <p class="text-gray-500 dark:text-gray-400 mt-2"><?= t('find_what_looking') ?></p>
-    </div>
-    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-5">
-        <?php foreach ($categories as $cat): ?>
-        <a href="<?= BASE_URL ?>shop?category=<?= htmlspecialchars($cat['slug']) ?>" class="group bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl p-6 text-center hover:shadow-lg hover:border-blue-200 dark:hover:border-blue-700 transition-all duration-300">
-            <div class="w-16 h-16 mx-auto bg-blue-50 dark:bg-blue-900/30 group-hover:bg-blue-100 dark:group-hover:bg-blue-800/40 rounded-2xl flex items-center justify-center mb-4 transition">
-                <i class="fas <?= htmlspecialchars($cat['icon']) ?> text-2xl text-blue-600 dark:text-blue-400"></i>
-            </div>
-            <h3 class="font-semibold text-gray-900 dark:text-white text-sm mb-1"><?= htmlspecialchars($cat['name']) ?></h3>
-            <span class="text-xs text-gray-400 dark:text-gray-500"><?= $cat['product_count'] ?> <?= t('products_count') ?></span>
-        </a>
-        <?php endforeach; ?>
     </div>
 </section>
 
 <!-- Featured Products -->
-<section class="bg-white dark:bg-gray-900 border-y border-gray-100 dark:border-gray-800 transition-colors">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div class="flex items-center justify-between mb-10">
-            <div>
-                <h2 class="text-3xl font-bold text-gray-900 dark:text-white"><?= t('new_arrivals') ?></h2>
-                <p class="text-gray-500 dark:text-gray-400 mt-1"><?= t('check_latest_products') ?></p>
-            </div>
-            <a href="<?= BASE_URL ?>shop" class="hidden sm:inline-flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-semibold text-sm transition">
-                <?= t('view_all_products') ?> <i class="fas fa-arrow-right ml-2"></i>
-            </a>
+<section class="py-20 bg-gray-50 dark:bg-gray-950 transition-colors">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+            <h2 class="text-4xl font-extrabold text-gray-900 dark:text-white mb-3 tracking-tight"><?= t('featured_products') ?></h2>
+            <p class="text-gray-500 dark:text-gray-400 text-lg"><?= t('featured_products_subtitle') ?></p>
+            <div class="w-24 h-1.5 bg-blue-600 mx-auto mt-6 rounded-full shadow-sm shadow-blue-500/50"></div>
         </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             <?php foreach ($featured as $product): ?>
-            <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 overflow-hidden hover:shadow-lg transition-all duration-300 group">
-                <a href="<?= BASE_URL ?>product?id=<?= $product['id'] ?>" class="block relative bg-gray-50 dark:bg-gray-700 h-56 flex items-center justify-center overflow-hidden">
-                    <?php if (!empty($product['image'])): ?>
-                        <img src="<?= BASE_URL . 'uploads/' . rawurlencode($product['image']) ?>"
-                             onerror="this.src='<?= BASE_URL . 'images/' . rawurlencode($product['image']) ?>'; this.onerror=null;"
-                             alt="<?= htmlspecialchars($product['name']) ?>"
-                             class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
-                    <?php else: ?>
-                        <div class="text-gray-300 dark:text-gray-600"><i class="fas fa-image text-5xl"></i></div>
-                    <?php endif; ?>
-                    <?php if ($product['stock'] <= 0): ?>
-                        <div class="absolute top-3 left-3 bg-red-500 text-white text-xs px-2.5 py-1 rounded-full font-medium"><?= t('sold_out') ?></div>
-                    <?php elseif ($product['stock'] <= 10): ?>
-                        <div class="absolute top-3 left-3 bg-orange-500 text-white text-xs px-2.5 py-1 rounded-full font-medium"><?= $product['stock'] ?> <?= t('low_stock_left') ?></div>
-                    <?php elseif (!empty($product['compare_price']) && $product['compare_price'] > $product['price']): ?>
-                        <div class="absolute top-3 left-3 bg-red-500 text-white text-xs px-2.5 py-1 rounded-full font-medium">-<?= round((1 - $product['price'] / $product['compare_price']) * 100) ?>%</div>
-                    <?php endif; ?>
-                </a>
-                <div class="p-5">
-                    <a href="<?= BASE_URL ?>product?id=<?= $product['id'] ?>" class="block">
-                        <h3 class="font-semibold text-gray-900 dark:text-white leading-tight mb-2 truncate hover:text-blue-600 transition" title="<?= htmlspecialchars($product['name']) ?>"><?= htmlspecialchars($product['name']) ?></h3>
-                    </a>
-                    <p class="text-gray-400 dark:text-gray-500 text-sm mb-4 line-clamp-2"><?= htmlspecialchars($product['description'] ?? '') ?></p>
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-2">
-                            <span class="text-xl font-bold text-blue-600 dark:text-blue-400">$<?= number_format($product['price'], 2) ?></span>
-                            <?php if ($product['stock'] > 10 && !empty($product['compare_price']) && $product['compare_price'] > $product['price']): ?>
-                                <span class="text-sm text-gray-400 dark:text-gray-500 line-through">$<?= number_format($product['compare_price'], 2) ?></span>
-                            <?php endif; ?>
-                        </div>
-                        <div class="flex gap-2">
-                            <?php if ($product['stock'] > 0): ?>
-                            <a href="<?= BASE_URL ?>cart/add?id=<?= $product['id'] ?>" class="bg-blue-600 hover:bg-blue-700 text-white w-10 h-10 rounded-xl flex items-center justify-center transition shadow-sm">
-                                <i class="fas fa-cart-plus text-sm"></i>
-                            </a>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                <?php include APP_PATH . 'Views/customer/partials/product_card.php'; ?>
             <?php endforeach; ?>
-        </div>
-        <div class="sm:hidden mt-8 text-center">
-            <a href="<?= BASE_URL ?>shop" class="inline-flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-semibold transition">
-                <?= t('view_all_products') ?> <i class="fas fa-arrow-right ml-2"></i>
-            </a>
         </div>
     </div>
 </section>
 
-<!-- Promo Banner -->
-<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-    <div class="grid md:grid-cols-2 gap-6">
-        <div class="relative bg-gradient-to-br from-emerald-500 to-teal-600 rounded-3xl p-8 md:p-10 text-white overflow-hidden">
-            <div class="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -mr-10 -mt-10"></div>
-            <div class="absolute bottom-0 left-0 w-32 h-32 bg-white/10 rounded-full -ml-8 -mb-8"></div>
-            <div class="relative z-10">
-                <span class="bg-white/20 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide"><?= t('limited_time') ?></span>
-                <h3 class="text-2xl md:text-3xl font-bold mt-4 mb-2"><?= t('up_to_40_off') ?></h3>
-                <p class="text-emerald-100 mb-6 max-w-xs"><?= t('promo_electronics_desc') ?></p>
-                <a href="<?= BASE_URL ?>shop" class="inline-flex items-center bg-white text-emerald-700 hover:bg-emerald-50 px-6 py-3 rounded-lg font-bold transition shadow-lg">
-                    <?= t('shop_deals') ?> <i class="fas fa-arrow-right ml-2"></i>
-                </a>
-            </div>
+<!-- Latest Products -->
+<section class="py-20 bg-white dark:bg-gray-900 transition-colors">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+            <h2 class="text-4xl font-extrabold text-gray-900 dark:text-white mb-3 tracking-tight"><?= t('latest_products') ?></h2>
+            <p class="text-gray-500 dark:text-gray-400 text-lg"><?= t('latest_products_subtitle') ?></p>
+            <div class="w-24 h-1.5 bg-blue-600 mx-auto mt-6 rounded-full shadow-sm shadow-blue-500/50"></div>
         </div>
-        <div class="relative bg-gradient-to-br from-violet-500 to-purple-600 rounded-3xl p-8 md:p-10 text-white overflow-hidden">
-            <div class="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -mr-10 -mt-10"></div>
-            <div class="absolute bottom-0 left-0 w-32 h-32 bg-white/10 rounded-full -ml-8 -mb-8"></div>
-            <div class="relative z-10">
-                <span class="bg-white/20 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide"><?= t('new_collection') ?></span>
-                <h3 class="text-2xl md:text-3xl font-bold mt-4 mb-2"><?= t('premium_accessories') ?></h3>
-                <p class="text-purple-100 mb-6 max-w-xs"><?= t('promo_accessories_desc') ?></p>
-                <a href="<?= BASE_URL ?>shop?category=accessories" class="inline-flex items-center bg-white text-purple-700 hover:bg-purple-50 px-6 py-3 rounded-lg font-bold transition shadow-lg">
-                    <?= t('explore_now') ?> <i class="fas fa-arrow-right ml-2"></i>
-                </a>
-            </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+            <?php foreach ($latest as $product): ?>
+                <?php include APP_PATH . 'Views/customer/partials/product_card.php'; ?>
+            <?php endforeach; ?>
         </div>
     </div>
 </section>
 
-<!-- All Products -->
-<section class="bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800 transition-colors">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div class="flex items-center justify-between mb-10">
-            <div>
-                <h2 class="text-3xl font-bold text-gray-900 dark:text-white"><?= t('all_products_title') ?></h2>
-                <p class="text-gray-500 dark:text-gray-400 mt-1"><?= t('browse_complete_collection') ?></p>
-            </div>
-            <a href="<?= BASE_URL ?>shop" class="hidden sm:inline-flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-semibold text-sm transition">
-                <?= t('view_all_products') ?> <i class="fas fa-arrow-right ml-2"></i>
-            </a>
+<!-- Popular Products -->
+<section class="py-20 bg-gray-50 dark:bg-gray-950 transition-colors">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+            <h2 class="text-4xl font-extrabold text-gray-900 dark:text-white mb-3 tracking-tight"><?= t('popular_products') ?></h2>
+            <p class="text-gray-500 dark:text-gray-400 text-lg"><?= t('popular_products_subtitle') ?></p>
+            <div class="w-24 h-1.5 bg-blue-600 mx-auto mt-6 rounded-full shadow-sm shadow-blue-500/50"></div>
         </div>
-        <?php if (!empty($allProducts)): ?>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            <?php foreach ($allProducts as $product): ?>
-            <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 overflow-hidden hover:shadow-lg transition-all duration-300 group">
-                <a href="<?= BASE_URL ?>product?id=<?= $product['id'] ?>" class="block relative bg-gray-50 dark:bg-gray-700 h-56 flex items-center justify-center overflow-hidden">
-                    <?php if (!empty($product['image'])): ?>
-                        <img src="<?= BASE_URL . 'uploads/' . rawurlencode($product['image']) ?>"
-                             onerror="this.src='<?= BASE_URL . 'images/' . rawurlencode($product['image']) ?>'; this.onerror=null;"
-                             alt="<?= htmlspecialchars($product['name']) ?>"
-                             class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
-                    <?php else: ?>
-                        <div class="text-gray-300 dark:text-gray-600"><i class="fas fa-image text-5xl"></i></div>
-                    <?php endif; ?>
-                    <?php if ($product['stock'] <= 0): ?>
-                        <div class="absolute top-3 left-3 bg-red-500 text-white text-xs px-2.5 py-1 rounded-full font-medium"><?= t('sold_out') ?></div>
-                    <?php elseif ($product['stock'] <= 10): ?>
-                        <div class="absolute top-3 left-3 bg-orange-500 text-white text-xs px-2.5 py-1 rounded-full font-medium"><?= $product['stock'] ?> <?= t('low_stock_left') ?></div>
-                    <?php elseif (!empty($product['compare_price']) && $product['compare_price'] > $product['price']): ?>
-                        <div class="absolute top-3 left-3 bg-red-500 text-white text-xs px-2.5 py-1 rounded-full font-medium">-<?= round((1 - $product['price'] / $product['compare_price']) * 100) ?>%</div>
-                    <?php endif; ?>
-                </a>
-                <div class="p-5">
-                    <a href="<?= BASE_URL ?>product?id=<?= $product['id'] ?>" class="block">
-                        <h3 class="font-semibold text-gray-900 dark:text-white leading-tight mb-2 truncate hover:text-blue-600 transition" title="<?= htmlspecialchars($product['name']) ?>"><?= htmlspecialchars($product['name']) ?></h3>
-                    </a>
-                    <p class="text-gray-400 dark:text-gray-500 text-sm mb-4 line-clamp-2"><?= htmlspecialchars($product['description'] ?? '') ?></p>
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-2">
-                            <span class="text-xl font-bold text-blue-600 dark:text-blue-400">$<?= number_format($product['price'], 2) ?></span>
-                            <?php if ($product['stock'] > 10 && !empty($product['compare_price']) && $product['compare_price'] > $product['price']): ?>
-                                <span class="text-sm text-gray-400 dark:text-gray-500 line-through">$<?= number_format($product['compare_price'], 2) ?></span>
-                            <?php endif; ?>
-                        </div>
-                        <div class="flex gap-2">
-                            <?php if ($product['stock'] > 0): ?>
-                            <a href="<?= BASE_URL ?>cart/add?id=<?= $product['id'] ?>" class="bg-blue-600 hover:bg-blue-700 text-white w-10 h-10 rounded-xl flex items-center justify-center transition shadow-sm">
-                                <i class="fas fa-cart-plus text-sm"></i>
-                            </a>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+            <?php foreach ($popular as $product): ?>
+                <?php include APP_PATH . 'Views/customer/partials/product_card.php'; ?>
             <?php endforeach; ?>
-        </div>
-        <?php else: ?>
-        <div class="text-center py-16">
-            <i class="fas fa-box-open text-6xl text-gray-200 dark:text-gray-700 mb-4"></i>
-            <p class="text-gray-400 dark:text-gray-500 text-lg"><?= t('no_products_found') ?></p>
-        </div>
-        <?php endif; ?>
-        <div class="sm:hidden mt-8 text-center">
-            <a href="<?= BASE_URL ?>shop" class="inline-flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-semibold transition">
-                <?= t('view_all_products') ?> <i class="fas fa-arrow-right ml-2"></i>
-            </a>
         </div>
     </div>
 </section>
 
 <!-- Newsletter CTA -->
-<section class="bg-gradient-to-r from-gray-900 to-gray-800 text-white">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
-        <h2 class="text-3xl font-bold mb-3"><?= t('stay_in_loop') ?></h2>
-        <p class="text-gray-400 mb-8 max-w-md mx-auto"><?= t('newsletter_desc') ?></p>
-        <form class="flex max-w-md mx-auto" onsubmit="return false;">
-            <input type="email" placeholder="<?= t('email_placeholder') ?>" class="flex-1 px-5 py-3 rounded-l-lg bg-white/10 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <button type="submit" class="bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-r-lg font-semibold transition">
-                <?= t('subscribe') ?>
+<section class="bg-[#232f3e] py-24 text-white relative overflow-hidden">
+    <div class="absolute inset-0 bg-blue-600/5 mix-blend-overlay"></div>
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+        <h2 class="text-4xl font-extrabold mb-4 tracking-tight"><?= t('newsletter_title') ?></h2>
+        <p class="text-gray-400 text-lg mb-10">Subscribe to get special offers, free giveaways, and once-in-a-lifetime deals delivered straight to your inbox.</p>
+        <form class="flex flex-col sm:flex-row gap-4 max-w-lg mx-auto" onsubmit="return false;">
+            <input type="email" placeholder="<?= t('email_placeholder') ?>"
+                   class="flex-1 px-6 py-4 rounded-2xl bg-gray-800 border border-gray-700 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all shadow-inner text-lg">
+            <button type="submit" class="bg-blue-600 hover:bg-blue-700 px-10 py-4 rounded-2xl font-bold transition transform hover:scale-105 shadow-xl text-lg">
+                Subscribe
             </button>
         </form>
     </div>
 </section>
+
+<style>
+    @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-20px); }
+    }
+    .animate-float { animation: float 6s ease-in-out infinite; }
+
+    @keyframes fade-in {
+        from { opacity: 0; transform: translateX(-30px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+    .animate-fade-in { animation: fade-in 1s ease-out forwards; }
+</style>

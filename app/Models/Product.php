@@ -60,18 +60,19 @@ class Product {
         return $stmt->fetchAll();
     }
 
-    public function create($name, $description, $price, $stock, $image, $categoryId = null, $comparePrice = null, $galleryImages = null, $specifications = null) {
-        $stmt = $this->db->prepare("INSERT INTO products (name, description, price, compare_price, stock, image, category_id, gallery_images, specifications) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-        return $stmt->execute([$name, $description, $price, $comparePrice, $stock, $image, $categoryId, $galleryImages, $specifications]);
+    public function create($name, $description, $price, $stock, $image, $categoryId = null, $comparePrice = null, $galleryImages = null) {
+        $stmt = $this->db->prepare("INSERT INTO products (name, description, price, compare_price, stock, image, category_id, gallery_images) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+        $success = $stmt->execute([$name, $description, $price, $comparePrice, $stock, $image, $categoryId, $galleryImages]);
+        return $success ? $this->db->lastInsertId() : false;
     }
 
-    public function update($id, $name, $description, $price, $stock, $image = null, $categoryId = null, $comparePrice = null, $galleryImages = null, $specifications = null) {
+    public function update($id, $name, $description, $price, $stock, $image = null, $categoryId = null, $comparePrice = null, $galleryImages = null) {
         if ($image) {
-            $stmt = $this->db->prepare("UPDATE products SET name = ?, description = ?, price = ?, compare_price = ?, stock = ?, image = ?, category_id = ?, gallery_images = ?, specifications = ? WHERE id = ?");
-            return $stmt->execute([$name, $description, $price, $comparePrice, $stock, $image, $categoryId, $galleryImages, $specifications, $id]);
+            $stmt = $this->db->prepare("UPDATE products SET name = ?, description = ?, price = ?, compare_price = ?, stock = ?, image = ?, category_id = ?, gallery_images = ? WHERE id = ?");
+            return $stmt->execute([$name, $description, $price, $comparePrice, $stock, $image, $categoryId, $galleryImages, $id]);
         } else {
-            $stmt = $this->db->prepare("UPDATE products SET name = ?, description = ?, price = ?, compare_price = ?, stock = ?, category_id = ?, gallery_images = ?, specifications = ? WHERE id = ?");
-            return $stmt->execute([$name, $description, $price, $comparePrice, $stock, $categoryId, $galleryImages, $specifications, $id]);
+            $stmt = $this->db->prepare("UPDATE products SET name = ?, description = ?, price = ?, compare_price = ?, stock = ?, category_id = ?, gallery_images = ? WHERE id = ?");
+            return $stmt->execute([$name, $description, $price, $comparePrice, $stock, $categoryId, $galleryImages, $id]);
         }
     }
 
@@ -103,6 +104,54 @@ class Product {
         $stmt = $this->db->prepare("SELECT * FROM products WHERE stock <= ? ORDER BY stock ASC");
         $stmt->execute([$threshold]);
         return $stmt->fetchAll();
+    }
+
+    public function latest($limit = 8) {
+        $stmt = $this->db->prepare("SELECT p.*, c.name as category_name, c.slug as category_slug FROM products p LEFT JOIN categories c ON p.category_id = c.id WHERE p.stock > 0 ORDER BY p.id DESC LIMIT ?");
+        $stmt->execute([$limit]);
+        return $stmt->fetchAll();
+    }
+
+    public function popular($limit = 8) {
+        // In a real app, join with order_items. For now, random or by price.
+        $stmt = $this->db->prepare("SELECT p.*, c.name as category_name, c.slug as category_slug FROM products p LEFT JOIN categories c ON p.category_id = c.id WHERE p.stock > 0 ORDER BY RAND() LIMIT ?");
+        $stmt->execute([$limit]);
+        return $stmt->fetchAll();
+    }
+
+    // Pivot tables management
+    public function setSizes($productId, $sizeIds) {
+        $stmt = $this->db->prepare("DELETE FROM product_size WHERE product_id = ?");
+        $stmt->execute([$productId]);
+        if (!empty($sizeIds)) {
+            $stmt = $this->db->prepare("INSERT INTO product_size (product_id, size_id) VALUES (?, ?)");
+            foreach ($sizeIds as $sid) {
+                $stmt->execute([$productId, $sid]);
+            }
+        }
+    }
+
+    public function setColors($productId, $colorIds) {
+        $stmt = $this->db->prepare("DELETE FROM product_color WHERE product_id = ?");
+        $stmt->execute([$productId]);
+        if (!empty($colorIds)) {
+            $stmt = $this->db->prepare("INSERT INTO product_color (product_id, color_id) VALUES (?, ?)");
+            foreach ($colorIds as $cid) {
+                $stmt->execute([$productId, $cid]);
+            }
+        }
+    }
+
+    public function getSizes($productId) {
+        $stmt = $this->db->prepare("SELECT size_id FROM product_size WHERE product_id = ?");
+        $stmt->execute([$productId]);
+        return $stmt->fetchAll(PDO::FETCH_COLUMN);
+    }
+
+    public function getColors($productId) {
+        $stmt = $this->db->prepare("SELECT color_id FROM product_color WHERE product_id = ?");
+        $stmt->execute([$productId]);
+        return $stmt->fetchAll(PDO::FETCH_COLUMN);
     }
 
     public function relatedByCategory($categoryId, $limit = 4) {

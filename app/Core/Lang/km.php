@@ -3,6 +3,20 @@ return [
     // Admin Layout
     'admin_panel' => 'ផ្ទាំងគ្រប់គ្រង',
     'dashboard' => 'ផ្ទាំងព័ត៌មាន',
+    'website_settings' => 'ការកំណត់គេហទំព័រ',
+    'shop_settings' => 'ការកំណត់ហាង',
+    'size' => 'ទំហំ',
+    'color' => 'ពណ៌',
+    'country' => 'ប្រទេស',
+    'shipping_cost' => 'តម្លៃដឹកជញ្ជូន',
+    'top_level_category' => 'ប្រភេទកម្រិតខ្ពស់',
+    'mid_level_category' => 'ប្រភេទកម្រិតមធ្យម',
+    'end_level_category' => 'ប្រភេទកម្រិតទាប',
+    'product_management' => 'ការគ្រប់គ្រងផលិតផល',
+    'order_management' => 'ការគ្រប់គ្រងការបញ្ជាទិញ',
+    'category_management' => 'ការគ្រប់គ្រងប្រភេទ',
+    'registered_users' => 'អ្នកប្រើប្រាស់ដែលបានចុះឈ្មោះ',
+    'customer_reviews' => 'ការវាយតម្លៃរបស់អតិថិជន',
     'products' => 'ផលិតផល',
     'inventory' => 'ស្តុកទំនិញ',
     'orders' => 'ការបញ្ជាទិញ',
@@ -151,6 +165,9 @@ return [
     'my_orders' => 'ការបញ្ជាទិញរបស់ខ្ញុំ',
     'login' => 'ចូល',
     'register' => 'ចុះឈ្មោះ',
+    'about_us' => 'អំពីយើង',
+    'faq' => 'សំណួរដែលសួរញឹកញាប់',
+    'contact_us' => 'ទាក់ទងមកយើង',
 
     // Homepage - Hero
     'hero_badge' => 'រដូវកាលថ្មី ២០២៦',
@@ -262,6 +279,9 @@ return [
     'proceed_to_checkout' => 'បន្តទៅទូទាត់',
     'login_to_checkout' => 'ចូលដើម្បីទូទាត់',
     'remove' => 'យកចេញ',
+    'clear_cart' => 'សម្អាតរទេះ',
+    'product' => 'ផលិតផល',
+    'quantity' => 'ចំនួន',
 
     // Auth
     'welcome_back' => 'ស្វាគមន៍ត្រឡប់មកវិញ',

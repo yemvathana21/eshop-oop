@@ -132,6 +132,13 @@ INSERT INTO `categories` (`id`, `name`, `slug`, `icon`, `sort_order`, `parent_id
 CREATE TABLE IF NOT EXISTS `users` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
   `name` VARCHAR(100) NOT NULL,
+  `username` VARCHAR(100) DEFAULT NULL,
+  `first_name` VARCHAR(100) DEFAULT NULL,
+  `last_name` VARCHAR(100) DEFAULT NULL,
+  `gender` VARCHAR(20) DEFAULT NULL,
+  `date_of_birth` DATE DEFAULT NULL,
+  `company` VARCHAR(255) DEFAULT NULL,
+  `location` VARCHAR(255) DEFAULT NULL,
   `email` VARCHAR(100) NOT NULL UNIQUE,
   `phone` VARCHAR(20) DEFAULT NULL,
   `address` TEXT DEFAULT NULL,

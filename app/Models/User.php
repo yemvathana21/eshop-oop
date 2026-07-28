@@ -51,9 +51,20 @@ class User {
         }
     }
 
-    public function updateProfile($id, $name, $email, $phone = null, $address = null) {
-        $stmt = $this->db->prepare("UPDATE users SET name = ?, email = ?, phone = ?, address = ? WHERE id = ?");
-        return $stmt->execute([$name, $email, $phone, $address, $id]);
+    public function updateProfile($id, $data) {
+        $fields = [];
+        $values = [];
+        $allowed = ['name', 'username', 'first_name', 'last_name', 'gender', 'date_of_birth', 'company', 'location', 'email', 'phone', 'address'];
+        foreach ($allowed as $f) {
+            if (array_key_exists($f, $data)) {
+                $fields[] = "$f = ?";
+                $values[] = $data[$f];
+            }
+        }
+        if (empty($fields)) return false;
+        $values[] = $id;
+        $stmt = $this->db->prepare("UPDATE users SET " . implode(', ', $fields) . " WHERE id = ?");
+        return $stmt->execute($values);
     }
 
     public function updateAvatar($id, $avatar) {

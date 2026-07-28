@@ -38,7 +38,7 @@ class Wishlist {
 
     public function byUser($userId) {
         $stmt = $this->db->prepare("
-            SELECT w.*, p.name, p.image, p.price, p.compare_price, p.slug,
+            SELECT w.*, p.name, p.image, p.price, p.compare_price,
                    COALESCE(MIN(r.rating), 0) as avg_rating,
                    COALESCE(COUNT(r.id), 0) as review_count
             FROM wishlist w

@@ -31,9 +31,10 @@ class UserAddress {
 
     public function create($data) {
         $this->clearDefaultIfNeeded($data['user_id'], $data['is_default'] ?? false);
-        $stmt = $this->db->prepare("INSERT INTO user_addresses (user_id, label, full_name, phone, province_code, district_code, commune_code, village_code, street, zip_code, latitude, longitude, is_default) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt = $this->db->prepare("INSERT INTO user_addresses (user_id, label, full_name, company, email, tax_id, phone, province_code, district_code, commune_code, village_code, street, zip_code, latitude, longitude, is_default) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
         return $stmt->execute([
             $data['user_id'], $data['label'] ?? 'Billing', $data['full_name'] ?? null,
+            $data['company'] ?? null, $data['email'] ?? null, $data['tax_id'] ?? null,
             $data['phone'] ?? null, $data['province_code'] ?? null, $data['district_code'] ?? null,
             $data['commune_code'] ?? null, $data['village_code'] ?? null, $data['street'] ?? null,
             $data['zip_code'] ?? null, $data['latitude'] ?? null, $data['longitude'] ?? null,
@@ -45,10 +46,12 @@ class UserAddress {
         $addr = $this->findById($id);
         if (!$addr) return false;
         $this->clearDefaultIfNeeded($addr['user_id'], $data['is_default'] ?? false, $id);
-        $stmt = $this->db->prepare("UPDATE user_addresses SET label=?, full_name=?, phone=?, province_code=?, district_code=?, commune_code=?, village_code=?, street=?, zip_code=?, latitude=?, longitude=?, is_default=? WHERE id=?");
+        $stmt = $this->db->prepare("UPDATE user_addresses SET label=?, full_name=?, company=?, email=?, tax_id=?, phone=?, province_code=?, district_code=?, commune_code=?, village_code=?, street=?, zip_code=?, latitude=?, longitude=?, is_default=? WHERE id=?");
         return $stmt->execute([
             $data['label'] ?? $addr['label'], $data['full_name'] ?? $addr['full_name'],
-            $data['phone'] ?? $addr['phone'], $data['province_code'] ?? $addr['province_code'],
+            $data['company'] ?? $addr['company'], $data['email'] ?? $addr['email'],
+            $data['tax_id'] ?? $addr['tax_id'], $data['phone'] ?? $addr['phone'],
+            $data['province_code'] ?? $addr['province_code'],
             $data['district_code'] ?? $addr['district_code'], $data['commune_code'] ?? $addr['commune_code'],
             $data['village_code'] ?? $addr['village_code'], $data['street'] ?? $addr['street'],
             $data['zip_code'] ?? $addr['zip_code'], $data['latitude'] ?? $addr['latitude'],

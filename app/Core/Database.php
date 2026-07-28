@@ -101,21 +101,40 @@ class Database {
             }
         }
 
-        // 3e. Add phone, address, avatar columns to users if missing
-        try {
-            $this->connection->query("SELECT phone FROM users LIMIT 1");
-        } catch (PDOException $e) {
-            $this->connection->exec("ALTER TABLE users ADD COLUMN phone VARCHAR(20) DEFAULT NULL AFTER email");
+        // 3e. Add columns to users if missing
+        $userColumns = [
+            'phone' => "VARCHAR(20) DEFAULT NULL AFTER email",
+            'address' => "TEXT DEFAULT NULL AFTER phone",
+            'avatar' => "VARCHAR(255) DEFAULT NULL AFTER address",
+            'username' => "VARCHAR(100) DEFAULT NULL AFTER avatar",
+            'first_name' => "VARCHAR(100) DEFAULT NULL AFTER username",
+            'last_name' => "VARCHAR(100) DEFAULT NULL AFTER first_name",
+            'gender' => "VARCHAR(20) DEFAULT NULL AFTER last_name",
+            'date_of_birth' => "DATE DEFAULT NULL AFTER gender",
+            'company' => "VARCHAR(255) DEFAULT NULL AFTER date_of_birth",
+            'location' => "VARCHAR(255) DEFAULT NULL AFTER company",
+        ];
+        foreach ($userColumns as $col => $def) {
+            try {
+                $this->connection->query("SELECT $col FROM users LIMIT 1");
+            } catch (PDOException $e) {
+                $this->connection->exec("ALTER TABLE users ADD COLUMN $col $def");
+            }
         }
-        try {
-            $this->connection->query("SELECT address FROM users LIMIT 1");
-        } catch (PDOException $e) {
-            $this->connection->exec("ALTER TABLE users ADD COLUMN address TEXT DEFAULT NULL AFTER phone");
-        }
-        try {
-            $this->connection->query("SELECT avatar FROM users LIMIT 1");
-        } catch (PDOException $e) {
-            $this->connection->exec("ALTER TABLE users ADD COLUMN avatar VARCHAR(255) DEFAULT NULL AFTER address");
+
+        // 3f. Add columns to user_addresses if missing
+        $addrColumns = ['company', 'email', 'tax_id'];
+        $addrDefs = [
+            'company' => "VARCHAR(255) DEFAULT NULL AFTER full_name",
+            'email' => "VARCHAR(100) DEFAULT NULL AFTER company",
+            'tax_id' => "VARCHAR(50) DEFAULT NULL AFTER email",
+        ];
+        foreach ($addrColumns as $col) {
+            try {
+                $this->connection->query("SELECT $col FROM user_addresses LIMIT 1");
+            } catch (PDOException $e) {
+                $this->connection->exec("ALTER TABLE user_addresses ADD COLUMN $col {$addrDefs[$col]}");
+            }
         }
 
         // 4. Create reviews table if missing

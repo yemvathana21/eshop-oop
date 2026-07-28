@@ -721,7 +721,7 @@ class AdminController extends Controller {
             }
         }
 
-        $this->userModel->updateProfile($id, $name, $email, $phone ?: null, $address ?: null);
+        $this->userModel->updateProfile($id, ['name' => $name, 'email' => $email, 'phone' => $phone ?: null, 'address' => $address ?: null]);
 
         if ($password) {
             $this->userModel->update($id, $name, $email, $role, $password);

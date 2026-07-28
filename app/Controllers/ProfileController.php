@@ -67,12 +67,19 @@ class ProfileController extends Controller {
 
         $userId = Session::getUserId();
         $isAjax = !empty($_POST['ajax']);
-        $name = trim($_POST['name'] ?? '');
+        $first_name = trim($_POST['first_name'] ?? '');
+        $last_name = trim($_POST['last_name'] ?? '');
         $email = trim($_POST['email'] ?? '');
-        $phone = trim($_POST['phone'] ?? '');
 
-        if (empty($name) || empty($email)) {
-            $msg = t('name_email_required');
+        // Fallback for legacy forms that send a single "name" field
+        if (empty($first_name) && !empty($_POST['name'])) {
+            $parts = preg_split('/\s+/', trim($_POST['name']), 2);
+            $first_name = $parts[0] ?? '';
+            $last_name = $parts[1] ?? '';
+        }
+
+        if (empty($first_name) || empty($last_name) || empty($email)) {
+            $msg = 'First name, last name and email are required';
             if ($isAjax) { $this->json(['success' => false, 'message' => $msg]); return; }
             Session::setFlash('error', $msg);
             $this->redirect('account/dashboard');
@@ -112,8 +119,22 @@ class ProfileController extends Controller {
             $avatar = null;
         }
 
+        $name = trim("$first_name $last_name");
+        $data = [
+            'name' => $name,
+            'first_name' => $first_name,
+            'last_name' => $last_name,
+            'gender' => trim($_POST['gender'] ?? ''),
+            'date_of_birth' => trim($_POST['date_of_birth'] ?? '') ?: null,
+            'company' => trim($_POST['company'] ?? ''),
+            'location' => trim($_POST['location'] ?? ''),
+            'email' => $email,
+            'phone' => trim($_POST['phone'] ?? ''),
+            'address' => trim($_POST['address'] ?? ''),
+        ];
+
         $this->userModel->updateAvatar($userId, $avatar);
-        $this->userModel->updateProfile($userId, $name, $email, $phone ?: null, $user['address'] ?? null);
+        $this->userModel->updateProfile($userId, $data);
         Session::set('customer_user_name', $name);
         Session::set('customer_user_email', $email);
 
@@ -197,7 +218,7 @@ class ProfileController extends Controller {
             Session::setFlash('error', $msg);
             $this->redirect('account/dashboard');
         }
-        $this->userModel->updateProfile($userId, $username, '', '', '');
+        $this->userModel->updateProfile($userId, ['username' => $username]);
         Session::set('customer_user_name', $username);
         if ($isAjax) {
             $this->json(['success' => true, 'message' => 'Username updated.']);
@@ -250,7 +271,8 @@ class ProfileController extends Controller {
         $this->render('customer/account/addresses', [
             'title' => t('my_addresses') . ' - ' . t('my_account'),
             'addresses' => $addresses,
-            'provinces' => $provinces
+            'provinces' => $provinces,
+            'addressModel' => $this->addressModel
         ]);
     }
 
@@ -264,6 +286,9 @@ class ProfileController extends Controller {
             'user_id' => $userId,
             'label' => $_POST['label'] ?? 'Home',
             'full_name' => trim($_POST['full_name'] ?? ''),
+            'company' => trim($_POST['company'] ?? ''),
+            'email' => trim($_POST['email'] ?? ''),
+            'tax_id' => trim($_POST['tax_id'] ?? ''),
             'phone' => trim($_POST['phone'] ?? ''),
             'province_code' => $_POST['province_code'] ?? null,
             'district_code' => $_POST['district_code'] ?? null,
@@ -644,10 +669,12 @@ class ProfileController extends Controller {
         $connectedAccounts = $this->connectedAccountModel->byUser($userId);
         $devicesList = $this->deviceModel->byUser($userId);
         $prefs = $this->preferenceModel->findByUserId($userId);
+        $provinces = (new Province())->all();
 
         $this->render('customer/account/dashboard', [
             'title' => t('my_account'),
             'user' => $user,
+            'provinces' => $provinces,
             'orderCount' => $orderCount,
             'totalSpent' => $totalSpent,
             'recentOrders' => $recentOrders,

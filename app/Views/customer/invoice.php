@@ -63,14 +63,27 @@
                     <?php foreach ($items as $item): ?>
                     <tr>
                         <td class="py-3 px-4">
-                            <span class="font-medium text-gray-900"><?= htmlspecialchars($item['product_name']) ?></span>
-                            <?php if (!empty($item['color_name']) || !empty($item['size_name'])): ?>
-                            <p class="text-[10px] text-gray-400 mt-0.5">
-                                <?= !empty($item['color_name']) ? htmlspecialchars($item['color_name']) : '' ?>
-                                <?= !empty($item['color_name']) && !empty($item['size_name']) ? ' / ' : '' ?>
-                                <?= !empty($item['size_name']) ? htmlspecialchars($item['size_name']) : '' ?>
-                            </p>
-                            <?php endif; ?>
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-gray-100 rounded flex-shrink-0 overflow-hidden flex items-center justify-center">
+                                    <?php if (!empty($item['product_image'])): ?>
+                                    <img src="<?= BASE_URL ?>uploads/<?= rawurlencode($item['product_image']) ?>"
+                                         onerror="this.src='<?= BASE_URL ?>images/<?= rawurlencode($item['product_image']) ?>'; this.onerror=null;"
+                                         class="w-full h-full object-cover" alt="">
+                                    <?php else: ?>
+                                    <i class="fas fa-image text-gray-300"></i>
+                                    <?php endif; ?>
+                                </div>
+                                <div>
+                                    <span class="font-medium text-gray-900"><?= htmlspecialchars($item['product_name']) ?></span>
+                                    <?php if (!empty($item['color_name']) || !empty($item['size_name'])): ?>
+                                    <p class="text-[10px] text-gray-400 mt-0.5">
+                                        <?= !empty($item['color_name']) ? htmlspecialchars($item['color_name']) : '' ?>
+                                        <?= !empty($item['color_name']) && !empty($item['size_name']) ? ' / ' : '' ?>
+                                        <?= !empty($item['size_name']) ? htmlspecialchars($item['size_name']) : '' ?>
+                                    </p>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
                         </td>
                         <td class="py-3 px-4 text-center text-gray-600"><?= $item['quantity'] ?></td>
                         <td class="py-3 px-4 text-right text-gray-600">$<?= number_format($item['price'], 2) ?></td>

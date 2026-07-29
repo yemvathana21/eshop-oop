@@ -22,8 +22,10 @@
             <div class="flex items-center justify-between py-2">
                 <div class="flex items-center gap-2">
                     <div class="w-8 h-8 bg-gray-100 dark:bg-gray-700 rounded flex-shrink-0 overflow-hidden flex items-center justify-center">
-                        <?php if ($item['product_image'] && file_exists(UPLOAD_PATH . $item['product_image'])): ?>
-                        <img src="<?= BASE_URL ?>uploads/<?= htmlspecialchars($item['product_image']) ?>" class="w-full h-full object-cover" alt="">
+                        <?php if (!empty($item['product_image'])): ?>
+                        <img src="<?= BASE_URL ?>uploads/<?= rawurlencode($item['product_image']) ?>"
+                             onerror="this.src='<?= BASE_URL ?>images/<?= rawurlencode($item['product_image']) ?>'; this.onerror=null;"
+                             class="w-full h-full object-cover" alt="">
                         <?php else: ?>
                         <i class="fas fa-image text-gray-300 dark:text-gray-600 text-xs"></i>
                         <?php endif; ?>
@@ -49,6 +51,14 @@
         <a href="<?= BASE_URL ?>invoice?inv=<?= htmlspecialchars($order['invoice_number']) ?>" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2.5 rounded-lg font-medium transition text-sm">
             <i class="fas fa-file-invoice mr-2"></i>View Invoice
         </a>
+        <?php endif; ?>
+        <?php if ($order['status'] === 'pending'): ?>
+        <form method="post" action="<?= BASE_URL ?>account/order/cancel" onsubmit="return confirm('<?= t('cancel_order_confirm') ?>')">
+            <input type="hidden" name="id" value="<?= (int)$order['id'] ?>">
+            <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-6 py-2.5 rounded-lg font-medium transition text-sm">
+                <i class="fas fa-times mr-2"></i><?= t('cancel_order') ?>
+            </button>
+        </form>
         <?php endif; ?>
         <a href="<?= BASE_URL ?>account/orders" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-lg font-medium transition text-sm">
             <i class="fas fa-receipt mr-2"></i>My Orders

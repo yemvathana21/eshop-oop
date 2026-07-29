@@ -69,6 +69,7 @@ $router->get('/account/profile', [ProfileController::class, 'profile']);
 $router->post('/account/profile/update', [ProfileController::class, 'update']);
 $router->get('/account/orders', [ProfileController::class, 'orders']);
 $router->get('/account/order', [ProfileController::class, 'orderDetail']);
+$router->post('/account/order/cancel', [ProfileController::class, 'cancelOrder']);
 $router->get('/account/wishlist', [ProfileController::class, 'wishlist']);
 $router->get('/account/wishlist/remove', [ProfileController::class, 'wishlistRemove']);
 $router->get('/account/addresses', [ProfileController::class, 'addresses']);

@@ -11,6 +11,14 @@
                 <i class="fas fa-file-invoice mr-1"></i>Invoice
             </a>
             <?php endif; ?>
+            <?php if ($order['status'] === 'pending'): ?>
+            <form method="post" action="<?= BASE_URL ?>account/order/cancel" onsubmit="return confirm('<?= t('cancel_order_confirm') ?>')">
+                <input type="hidden" name="id" value="<?= (int)$order['id'] ?>">
+                <button type="submit" class="text-xs bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-800 px-2.5 py-1 rounded font-medium transition">
+                    <i class="fas fa-times mr-1"></i><?= t('cancel_order') ?>
+                </button>
+            </form>
+            <?php endif; ?>
             <?php $badgeMap = ['pending' => 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-600', 'confirmed' => 'bg-blue-50 dark:bg-blue-900/20 text-blue-600', 'shipping' => 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600', 'delivery' => 'bg-purple-50 dark:bg-purple-900/20 text-purple-600', 'delivered' => 'bg-green-50 dark:bg-green-900/20 text-green-600', 'completed' => 'bg-green-50 dark:bg-green-900/20 text-green-600', 'cancelled' => 'bg-red-50 dark:bg-red-900/20 text-red-600']; ?>
             <span class="text-xs px-2.5 py-1 rounded <?= $badgeMap[$order['status']] ?? 'bg-gray-100 text-gray-600' ?>"><?= t($order['status']) ?></span>
         </div>
@@ -40,12 +48,13 @@
         <?php if (!empty($items)): ?>
             <?php foreach ($items as $item): ?>
             <div class="flex items-center gap-3.5 px-4 py-3.5">
-                <div class="w-12 h-12 rounded-lg overflow-hidden shrink-0 bg-gray-100 dark:bg-gray-700">
+                <div class="w-12 h-12 rounded-lg overflow-hidden shrink-0 bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
                     <?php if (!empty($item['product_image'])): ?>
-                        <img src="<?= BASE_URL ?>uploads/<?= htmlspecialchars($item['product_image']) ?>" alt="" class="w-full h-full object-cover" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-                        <div class="w-full h-full hidden items-center justify-center text-gray-400"><i class="fas fa-box"></i></div>
+                        <img src="<?= BASE_URL ?>uploads/<?= rawurlencode($item['product_image']) ?>" alt=""
+                             onerror="this.src='<?= BASE_URL ?>images/<?= rawurlencode($item['product_image']) ?>'; this.onerror=null;"
+                             class="w-full h-full object-cover">
                     <?php else: ?>
-                        <div class="w-full h-full flex items-center justify-center text-gray-400"><i class="fas fa-box"></i></div>
+                        <i class="fas fa-box text-gray-400"></i>
                     <?php endif; ?>
                 </div>
                 <div class="flex-1 min-w-0">

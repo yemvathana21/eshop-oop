@@ -13,6 +13,7 @@ use App\Models\UserLoginHistory;
 use App\Models\UserDevice;
 use App\Models\Wishlist;
 use App\Models\Coupon;
+use App\Models\Product;
 use App\Models\Province;
 
 class ProfileController extends Controller {
@@ -177,6 +178,28 @@ class ProfileController extends Controller {
             'order' => $order,
             'items' => $items
         ]);
+    }
+
+    public function cancelOrder() {
+        $this->requireLogin();
+        $userId = Session::getUserId();
+        $orderId = $_POST['id'] ?? null;
+        if (!$orderId) $this->redirect('account/orders');
+
+        $order = $this->orderModel->findById($orderId);
+        if (!$order || $order['user_id'] != $userId) $this->redirect('account/orders');
+        if ($order['status'] !== 'pending') $this->redirect('account/order?id=' . $orderId);
+
+        $this->orderModel->updateStatus($orderId, 'cancelled');
+
+        $productModel = new Product();
+        $items = $this->orderModel->getItems($orderId);
+        foreach ($items as $item) {
+            $productModel->addStock($item['product_id'], $item['quantity']);
+        }
+
+        Session::setFlash('success', t('order_cancelled'));
+        $this->redirect('account/order?id=' . $orderId);
     }
 
     // ===== WISHLIST =====

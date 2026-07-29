@@ -30,8 +30,8 @@
     <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 divide-y divide-gray-100 dark:divide-gray-700">
         <?php foreach ($orders as $order): ?>
         <?php $badgeMap = ['pending' => 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-600', 'confirmed' => 'bg-blue-50 dark:bg-blue-900/20 text-blue-600', 'shipping' => 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600', 'delivery' => 'bg-purple-50 dark:bg-purple-900/20 text-purple-600', 'delivered' => 'bg-green-50 dark:bg-green-900/20 text-green-600', 'completed' => 'bg-green-50 dark:bg-green-900/20 text-green-600', 'cancelled' => 'bg-red-50 dark:bg-red-900/20 text-red-600']; ?>
-        <a href="<?= BASE_URL ?>account/order?id=<?= (int)$order['id'] ?>" class="flex items-center justify-between px-4 py-4 hover:bg-gray-100 dark:hover:bg-gray-700 transition">
-            <div class="flex items-center gap-3 min-w-0 pr-2">
+        <div class="flex items-center justify-between px-4 py-4 hover:bg-gray-100 dark:hover:bg-gray-700 transition group">
+            <a href="<?= BASE_URL ?>account/order?id=<?= (int)$order['id'] ?>" class="flex items-center gap-3 min-w-0 flex-1">
                 <div class="w-10 h-10 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-500 shrink-0"><i class="fas fa-receipt"></i></div>
                 <div>
                     <div class="flex items-center gap-2">
@@ -40,12 +40,20 @@
                     </div>
                     <p class="text-xs text-gray-500 mt-0.5"><?= date('M d, Y', strtotime($order['created_at'])) ?></p>
                 </div>
-            </div>
+            </a>
             <div class="flex items-center gap-3 shrink-0">
+                <?php if ($order['status'] === 'pending'): ?>
+                <form method="post" action="<?= BASE_URL ?>account/order/cancel" onsubmit="return confirm('<?= t('cancel_order_confirm') ?>')" class="opacity-0 group-hover:opacity-100 transition">
+                    <input type="hidden" name="id" value="<?= (int)$order['id'] ?>">
+                    <button type="submit" class="text-xs bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-800 px-2 py-1 rounded font-medium whitespace-nowrap">
+                        <?= t('cancel_order') ?>
+                    </button>
+                </form>
+                <?php endif; ?>
                 <span class="text-sm font-bold text-gray-900 dark:text-white">$<?= number_format((float)$order['total_price'], 2) ?></span>
                 <i class="fas fa-chevron-right text-xs text-gray-400"></i>
             </div>
-        </a>
+        </div>
         <?php endforeach; ?>
     </div>
     <?php endif; ?>

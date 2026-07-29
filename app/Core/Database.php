@@ -55,7 +55,7 @@ class Database {
                 $sql = file_get_contents($sqlFile);
                 $this->connection->exec($sql);
                 $this->seedInitialData();
-                return; // Everything created fresh
+                // NOTE: No early return — continue to run ALTER TABLE migrations below
             }
         }
 
@@ -92,7 +92,33 @@ class Database {
             } catch (PDOException $e2) {}
         }
 
-        // 3d. Create Cambodia address tables if missing
+        // 3d. Create user_addresses table if missing
+        $uaCheck = $this->connection->query("SHOW TABLES LIKE 'user_addresses'")->rowCount();
+        if ($uaCheck === 0) {
+            $this->connection->exec("CREATE TABLE IF NOT EXISTS `user_addresses` (
+                `id` INT AUTO_INCREMENT PRIMARY KEY,
+                `user_id` INT NOT NULL,
+                `label` VARCHAR(100) DEFAULT 'Billing',
+                `full_name` VARCHAR(255) DEFAULT NULL,
+                `company` VARCHAR(255) DEFAULT NULL,
+                `email` VARCHAR(100) DEFAULT NULL,
+                `tax_id` VARCHAR(50) DEFAULT NULL,
+                `phone` VARCHAR(20) DEFAULT NULL,
+                `province_code` VARCHAR(20) DEFAULT NULL,
+                `district_code` VARCHAR(20) DEFAULT NULL,
+                `commune_code` VARCHAR(20) DEFAULT NULL,
+                `village_code` VARCHAR(20) DEFAULT NULL,
+                `street` TEXT DEFAULT NULL,
+                `zip_code` VARCHAR(20) DEFAULT NULL,
+                `latitude` VARCHAR(50) DEFAULT NULL,
+                `longitude` VARCHAR(50) DEFAULT NULL,
+                `is_default` TINYINT(1) DEFAULT 0,
+                `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+        }
+
+        // 3f. Create Cambodia address tables if missing
         $addrCheck = $this->connection->query("SHOW TABLES LIKE 'provinces'")->rowCount();
         if ($addrCheck === 0) {
             $addrFile = ROOT_PATH . 'config' . DIRECTORY_SEPARATOR . 'cambodia_addresses.sql';
@@ -101,7 +127,7 @@ class Database {
             }
         }
 
-        // 3e. Add columns to users if missing
+        // 3g. Add columns to users if missing
         $userColumns = [
             'phone' => "VARCHAR(20) DEFAULT NULL AFTER email",
             'address' => "TEXT DEFAULT NULL AFTER phone",
@@ -122,7 +148,7 @@ class Database {
             }
         }
 
-        // 3f. Add columns to user_addresses if missing
+        // 3h. Add columns to user_addresses if missing
         $addrColumns = ['company', 'email', 'tax_id'];
         $addrDefs = [
             'company' => "VARCHAR(255) DEFAULT NULL AFTER full_name",
@@ -184,6 +210,33 @@ class Database {
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
         }
 
+        // 5b. Add columns to orders if missing
+        $orderCols = ['shipping_name', 'shipping_address', 'shipping_method', 'shipping_cost', 'payment_method'];
+        $orderDefs = [
+            'shipping_name' => "VARCHAR(255) DEFAULT NULL AFTER status",
+            'shipping_address' => "TEXT DEFAULT NULL AFTER shipping_name",
+            'shipping_method' => "VARCHAR(50) DEFAULT NULL AFTER shipping_address",
+            'shipping_cost' => "DECIMAL(10,2) DEFAULT 0.00 AFTER shipping_method",
+            'payment_method' => "VARCHAR(50) DEFAULT NULL AFTER shipping_cost",
+        ];
+        foreach ($orderCols as $col) {
+            try {
+                $this->connection->query("SELECT $col FROM orders LIMIT 1");
+            } catch (PDOException $e) {
+                $this->connection->exec("ALTER TABLE orders ADD COLUMN $col {$orderDefs[$col]}");
+            }
+        }
+
+        // 5c. Update orders.status ENUM to include new statuses
+        try {
+            $checkStatus = $this->connection->query("SHOW COLUMNS FROM orders WHERE Field = 'status'")->fetch();
+            if ($checkStatus && strpos($checkStatus['Type'], 'confirmed') === false) {
+                $this->connection->exec("ALTER TABLE orders MODIFY status ENUM('pending','confirmed','shipping','delivery','delivered','completed','cancelled') DEFAULT 'pending'");
+            }
+        } catch (PDOException $e) {
+            // Table may not exist yet
+        }
+
         // 6. Create product_size pivot table if missing
         $sizeCheck = $this->connection->query("SHOW TABLES LIKE 'product_size'")->rowCount();
         if ($sizeCheck === 0) {
@@ -206,6 +259,42 @@ class Database {
                 FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE,
                 FOREIGN KEY (`color_id`) REFERENCES `colors` (`id`) ON DELETE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+        }
+
+        // 8b. Add variant columns to order_items if missing
+        $oiCols = ['size_name', 'color_name'];
+        $oiDefs = [
+            'size_name' => "VARCHAR(100) DEFAULT NULL AFTER quantity",
+            'color_name' => "VARCHAR(100) DEFAULT NULL AFTER size_name",
+        ];
+        foreach ($oiCols as $col) {
+            try {
+                $this->connection->query("SELECT $col FROM order_items LIMIT 1");
+            } catch (PDOException $e) {
+                $this->connection->exec("ALTER TABLE order_items ADD COLUMN $col {$oiDefs[$col]}");
+            }
+        }
+
+        // 9. Create shipping_methods table if missing
+        $smCheck = $this->connection->query("SHOW TABLES LIKE 'shipping_methods'")->rowCount();
+        if ($smCheck === 0) {
+            $this->connection->exec("CREATE TABLE IF NOT EXISTS `shipping_methods` (
+                `id` INT AUTO_INCREMENT PRIMARY KEY,
+                `code` VARCHAR(50) NOT NULL UNIQUE,
+                `label` VARCHAR(100) NOT NULL,
+                `days` VARCHAR(100) DEFAULT NULL,
+                `cost` DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+                `is_active` TINYINT(1) DEFAULT 1,
+                `sort_order` INT DEFAULT 0,
+                `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+
+            // Seed 3 default shipping methods
+            $this->connection->exec("INSERT INTO shipping_methods (code, label, days, cost, is_active, sort_order) VALUES
+                ('standard', 'Standard Shipping', '5-7 business days', 0.00, 1, 1),
+                ('express', 'Express Shipping', '2-3 business days', 4.99, 1, 2),
+                ('nextday', 'Next Day Delivery', 'Tomorrow', 9.99, 1, 3)
+            ");
         }
     }
 

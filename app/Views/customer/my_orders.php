@@ -17,8 +17,10 @@
                 <div>
                     <div class="flex items-center gap-3">
                         <span class="font-bold text-gray-900">#<?= htmlspecialchars($order['invoice_number']) ?></span>
-                        <span class="inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold
-                            <?= $order['status'] === 'completed' ? 'bg-green-100 text-green-700' : ($order['status'] === 'pending' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700') ?>">
+                        <?php
+                            $badgeMap = ['pending' => 'bg-yellow-100 text-yellow-700', 'confirmed' => 'bg-blue-100 text-blue-700', 'shipping' => 'bg-indigo-100 text-indigo-700', 'delivery' => 'bg-purple-100 text-purple-700', 'delivered' => 'bg-green-100 text-green-700', 'completed' => 'bg-green-100 text-green-700', 'cancelled' => 'bg-red-100 text-red-700'];
+                        ?>
+                        <span class="inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold <?= $badgeMap[$order['status']] ?? 'bg-gray-100 text-gray-600' ?>">
                             <?= ucfirst($order['status']) ?>
                         </span>
                     </div>
@@ -27,6 +29,9 @@
                 <div class="flex items-center gap-4">
                     <span class="text-xl font-bold text-blue-600">$<?= number_format($order['total_price'], 2) ?></span>
                     <span class="text-sm text-gray-400"><?= count($order['items']) ?> item(s)</span>
+                    <?php if (!empty($order['payment_method'])): ?>
+                    <span class="text-xs text-gray-400 hidden sm:inline">| <?= $order['payment_method'] === 'cod' ? 'COD' : 'Card' ?></span>
+                    <?php endif; ?>
                 </div>
             </div>
             <div class="p-5">

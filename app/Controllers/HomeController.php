@@ -28,6 +28,7 @@ class HomeController extends Controller {
         $latest = $this->productModel->latest(8);
         $popular = $this->productModel->popular(8);
         $allProducts = $this->productModel->all();
+        $wishlistedIds = $this->wishlistModel->getProductIds(Session::getUserId());
 
         $this->render('customer/home', [
             'title' => 'E-Shop - Premium Store',
@@ -36,7 +37,8 @@ class HomeController extends Controller {
             'featured' => $featured,
             'latest' => $latest,
             'popular' => $popular,
-            'allProducts' => $allProducts
+            'allProducts' => $allProducts,
+            'wishlistedIds' => $wishlistedIds
         ]);
     }
 
@@ -89,6 +91,7 @@ class HomeController extends Controller {
         }
 
         $totalProducts = count($this->productModel->all());
+        $wishlistedIds = $this->wishlistModel->getProductIds(Session::getUserId());
 
         $this->render('customer/shop', [
             'title' => ($currentCategory ? $currentCategory['name'] . ' - ' : 'Shop - ') . 'E-Shop',
@@ -97,7 +100,8 @@ class HomeController extends Controller {
             'categoryTree' => $categoryTree,
             'currentCategory' => $currentCategory,
             'categoryPath' => $categoryPath,
-            'totalProducts' => $totalProducts
+            'totalProducts' => $totalProducts,
+            'wishlistedIds' => $wishlistedIds
         ]);
     }
 
@@ -126,6 +130,9 @@ class HomeController extends Controller {
             $galleryImages = json_decode($product['gallery_images'], true) ?? [];
         }
 
+        $sizes = $this->productModel->getSizesWithNames($product['id']);
+        $colors = $this->productModel->getColorsWithNames($product['id']);
+
         $this->render('customer/product_detail', [
             'title' => $product['name'] . ' - E-Shop',
             'product' => $product,
@@ -134,7 +141,9 @@ class HomeController extends Controller {
             'distribution' => $distribution,
             'isWishlisted' => $isWishlisted,
             'relatedProducts' => $relatedProducts,
-            'galleryImages' => $galleryImages
+            'galleryImages' => $galleryImages,
+            'sizes' => $sizes,
+            'colors' => $colors
         ]);
     }
 

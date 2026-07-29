@@ -64,6 +64,7 @@
                     strpos($currentUrl, 'country') !== false ||
                     strpos($currentUrl, 'shipping') !== false
                 );
+                $smActive = strpos($currentUrl, 'shipping-method') !== false;
                 ?>
                 <button id="shopSettingsBtn" onclick="toggleShopSettings()"
                     class="w-full flex items-center justify-between px-4 py-3 rounded-lg hover:bg-gray-700 transition <?= $shopSettingsActive ? 'bg-gray-800/50' : '' ?>">
@@ -82,8 +83,11 @@
                     <a href="<?= BASE_URL ?>admin/countries" class="block py-2 text-sm <?= (strpos($currentUrl, 'country') !== false) ? 'text-blue-400 font-semibold' : 'text-gray-400' ?> hover:text-white transition">
                         <i class="far fa-circle text-[8px] mr-2"></i><?= t('country') ?>
                     </a>
-                    <a href="<?= BASE_URL ?>admin/shipping-costs" class="block py-2 text-sm <?= (strpos($currentUrl, 'shipping') !== false) ? 'text-blue-400 font-semibold' : 'text-gray-400' ?> hover:text-white transition">
+                    <a href="<?= BASE_URL ?>admin/shipping-costs" class="block py-2 text-sm <?= (strpos($currentUrl, 'shipping-cost') !== false) ? 'text-blue-400 font-semibold' : 'text-gray-400' ?> hover:text-white transition">
                         <i class="far fa-circle text-[8px] mr-2"></i><?= t('shipping_cost') ?>
+                    </a>
+                    <a href="<?= BASE_URL ?>admin/shipping-methods" class="block py-2 text-sm <?= $smActive ? 'text-blue-400 font-semibold' : 'text-gray-400' ?> hover:text-white transition">
+                        <i class="fas fa-truck text-[10px] mr-2"></i><?= t('shipping_method') ?>
                     </a>
                     <a href="<?= BASE_URL ?>admin/top-categories" class="block py-2 text-sm <?= (strpos($currentUrl, 'top-categor') !== false) ? 'text-blue-400 font-semibold' : 'text-gray-400' ?> hover:text-white transition">
                         <i class="far fa-circle text-[8px] mr-2"></i><?= t('top_level_category') ?>

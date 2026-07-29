@@ -16,10 +16,11 @@
 
         <!-- Floating Actions -->
         <!-- Wishlist Button (Top Right) -->
+        <?php $isWishlisted = !empty($wishlistedIds) && in_array($product['id'], $wishlistedIds); ?>
         <div class="absolute top-3 right-3 z-10 translate-x-12 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-300">
-            <button onclick="event.preventDefault(); toggleWishlist(<?= $product['id'] ?>)"
-                    class="w-9 h-9 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-full flex items-center justify-center shadow-lg hover:bg-red-500 hover:text-white dark:hover:bg-red-500 transition-colors">
-                <i class="far fa-heart"></i>
+            <button onclick="event.preventDefault(); toggleWishlist(<?= $product['id'] ?>, this)"
+                    class="w-9 h-9 bg-white dark:bg-gray-700 rounded-full flex items-center justify-center shadow-lg transition-colors <?= $isWishlisted ? 'bg-red-500 text-white' : 'text-gray-900 dark:text-white hover:bg-red-500 hover:text-white dark:hover:bg-red-500' ?>">
+                <i class="<?= $isWishlisted ? 'fas' : 'far' ?> fa-heart"></i>
             </button>
         </div>
 
@@ -67,7 +68,7 @@
         <!-- Add to Cart Button -->
         <div class="mt-auto">
             <?php if ($product['stock'] > 0): ?>
-            <a href="<?= BASE_URL ?>cart/add?id=<?= $product['id'] ?>"
+            <a href="<?= BASE_URL ?>product?id=<?= $product['id'] ?>"
                class="w-full bg-gray-900 dark:bg-gray-700 hover:bg-blue-600 dark:hover:bg-blue-600 text-white text-xs font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition shadow-md">
                 <i class="fas fa-shopping-cart"></i>
                 Add to Cart

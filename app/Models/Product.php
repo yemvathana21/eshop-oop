@@ -154,6 +154,30 @@ class Product {
         return $stmt->fetchAll(PDO::FETCH_COLUMN);
     }
 
+    public function getSizesWithNames($productId) {
+        $stmt = $this->db->prepare("
+            SELECT s.id, s.name
+            FROM sizes s
+            INNER JOIN product_size ps ON s.id = ps.size_id
+            WHERE ps.product_id = ?
+            ORDER BY s.id ASC
+        ");
+        $stmt->execute([$productId]);
+        return $stmt->fetchAll();
+    }
+
+    public function getColorsWithNames($productId) {
+        $stmt = $this->db->prepare("
+            SELECT c.id, c.name
+            FROM colors c
+            INNER JOIN product_color pc ON c.id = pc.color_id
+            WHERE pc.product_id = ?
+            ORDER BY c.id ASC
+        ");
+        $stmt->execute([$productId]);
+        return $stmt->fetchAll();
+    }
+
     public function relatedByCategory($categoryId, $limit = 4) {
         $stmt = $this->db->prepare("SELECT p.*, c.name as category_name, c.slug as category_slug FROM products p LEFT JOIN categories c ON p.category_id = c.id WHERE p.category_id = ? ORDER BY RAND() LIMIT ?");
         $stmt->execute([$categoryId, $limit]);

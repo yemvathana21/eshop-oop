@@ -186,8 +186,16 @@ class ProfileController extends Controller {
         $items = $this->wishlistModel->byUser($userId);
         $this->render('customer/account/wishlist', [
             'title' => t('my_wishlist') . ' - ' . t('my_account'),
-            'wishlistItems' => $items
+            'wishlist' => $items
         ]);
+    }
+
+    public function wishlistRemove() {
+        $this->requireLogin();
+        $userId = Session::getUserId();
+        $id = $_GET['id'] ?? null;
+        if ($id) $this->wishlistModel->remove($id, $userId);
+        $this->redirect('account/wishlist');
     }
 
     // ===== USERNAME =====

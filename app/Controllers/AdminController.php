@@ -12,6 +12,7 @@ use App\Models\Size;
 use App\Models\Color;
 use App\Models\Country;
 use App\Models\ShippingCost;
+use App\Models\ShippingMethod;
 
 class AdminController extends Controller {
     private $productModel;
@@ -340,13 +341,24 @@ class AdminController extends Controller {
             $orders = array_values($orders);
         }
 
+        $orderIds = array_column($orders, 'id');
+        $itemsGrouped = $this->orderModel->getItemsForOrders($orderIds);
+        $enriched = [];
+        foreach ($orders as $o) {
+            $o['items'] = $itemsGrouped[$o['id']] ?? [];
+            $enriched[] = $o;
+        }
+
+        $flow = ['pending' => 'confirmed', 'confirmed' => 'shipping', 'shipping' => 'delivery', 'delivery' => 'delivered'];
+
         $this->render('admin/orders', [
             'title' => 'Order Management - E-Shop',
-            'orders' => $orders,
+            'orders' => $enriched,
             'statusFilter' => $statusFilter,
             'search' => $search,
             'totalOrders' => count($allOrders),
-            'statusCounts' => $statusCounts
+            'statusCounts' => $statusCounts,
+            'flow' => $flow,
         ], 'admin');
     }
 
@@ -369,6 +381,30 @@ class AdminController extends Controller {
             'order' => $order,
             'items' => $items
         ], 'admin');
+    }
+
+    public function orderUpdateStatus() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->redirect('admin/orders');
+        }
+
+        $orderId = $_POST['id'] ?? null;
+        $newStatus = $_POST['status'] ?? null;
+
+        if (!$orderId || !$newStatus) {
+            Session::setFlash('error', 'Invalid request.');
+            $this->redirect('admin/orders');
+        }
+
+        $order = $this->orderModel->findById($orderId);
+        if (!$order) {
+            Session::setFlash('error', 'Order not found.');
+            $this->redirect('admin/orders');
+        }
+
+        $this->orderModel->updateStatus($orderId, $newStatus);
+        Session::setFlash('success', 'Order status updated to ' . ucfirst($newStatus) . '.');
+        $this->redirect('admin/order?id=' . $orderId);
     }
 
     // Inventory
@@ -679,6 +715,13 @@ class AdminController extends Controller {
         $role = $_POST['role'] ?? 'customer';
         $phone = trim($_POST['phone'] ?? '');
         $address = trim($_POST['address'] ?? '');
+        $username = trim($_POST['username'] ?? '');
+        $first_name = trim($_POST['first_name'] ?? '');
+        $last_name = trim($_POST['last_name'] ?? '');
+        $gender = trim($_POST['gender'] ?? '');
+        $date_of_birth = trim($_POST['date_of_birth'] ?? '');
+        $company = trim($_POST['company'] ?? '');
+        $location = trim($_POST['location'] ?? '');
 
         if (!$id || empty($name) || empty($email)) {
             Session::setFlash('error', 'Name and email are required.');
@@ -721,7 +764,19 @@ class AdminController extends Controller {
             }
         }
 
-        $this->userModel->updateProfile($id, ['name' => $name, 'email' => $email, 'phone' => $phone ?: null, 'address' => $address ?: null]);
+        $this->userModel->updateProfile($id, [
+            'name' => $name,
+            'email' => $email,
+            'phone' => $phone ?: null,
+            'address' => $address ?: null,
+            'username' => $username ?: null,
+            'first_name' => $first_name ?: null,
+            'last_name' => $last_name ?: null,
+            'gender' => $gender ?: null,
+            'date_of_birth' => $date_of_birth ?: null,
+            'company' => $company ?: null,
+            'location' => $location ?: null,
+        ]);
 
         if ($password) {
             $this->userModel->update($id, $name, $email, $role, $password);
@@ -1142,6 +1197,50 @@ class AdminController extends Controller {
             }
         }
         $this->redirect('admin/end-categories');
+    }
+
+    // ===== SHIPPING METHODS CRUD =====
+    public function shippingMethods() {
+        $model = new ShippingMethod();
+        $this->render('admin/settings/shipping_methods', [
+            'title' => 'Manage Shipping Methods - E-Shop',
+            'methods' => $model->all()
+        ], 'admin');
+    }
+
+    public function shippingMethodSave() {
+        $model = new ShippingMethod();
+        $id = $_POST['id'] ?? null;
+        $code = trim($_POST['code'] ?? '');
+        $label = trim($_POST['label'] ?? '');
+        $days = trim($_POST['days'] ?? '');
+        $cost = (float)($_POST['cost'] ?? 0);
+        $isActive = (int)($_POST['is_active'] ?? 1);
+        $sortOrder = (int)($_POST['sort_order'] ?? 0);
+
+        if (empty($code) || empty($label)) {
+            Session::setFlash('error', 'Code and label are required.');
+        } elseif ($model->codeExists($code, $id)) {
+            Session::setFlash('error', 'Code already exists. Use a unique code.');
+        } else {
+            if ($id) {
+                $model->update($id, $code, $label, $days, $cost, $isActive, $sortOrder);
+                Session::setFlash('success', 'Shipping method updated.');
+            } else {
+                $model->create($code, $label, $days, $cost, $isActive, $sortOrder);
+                Session::setFlash('success', 'Shipping method added.');
+            }
+        }
+        $this->redirect('admin/shipping-methods');
+    }
+
+    public function shippingMethodDelete() {
+        $id = $_GET['id'] ?? null;
+        if ($id) {
+            (new ShippingMethod())->delete($id);
+            Session::setFlash('success', 'Shipping method deleted.');
+        }
+        $this->redirect('admin/shipping-methods');
     }
 
     public function getSubcategories() {

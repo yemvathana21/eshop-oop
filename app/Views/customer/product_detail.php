@@ -123,6 +123,16 @@
             <!-- Add to Cart + Buy Now -->
             <div class="flex gap-2.5 mb-6">
                 <?php if ($product['stock'] > 0): ?>
+                <?php if (!empty($sizes) || !empty($colors)): ?>
+                <button type="button" onclick="openProductModal('add')" class="flex-1 px-5 py-2.5 bg-gray-900 dark:bg-gray-700 text-white text-sm font-bold rounded-lg hover:bg-blue-600 dark:hover:bg-blue-600 transition flex items-center justify-center gap-2 shadow-sm">
+                    <i class="fas fa-shopping-cart text-xs"></i>
+                    <?= t('add_to_cart') ?>
+                </button>
+                <button type="button" onclick="openProductModal('buy')" class="flex-1 px-5 py-2.5 bg-blue-600 text-white text-sm font-bold rounded-lg hover:bg-blue-700 transition flex items-center justify-center gap-2 shadow-sm">
+                    <i class="fas fa-bolt text-xs"></i>
+                    <?= t('buy_now') ?>
+                </button>
+                <?php else: ?>
                 <form method="POST" action="<?= BASE_URL ?>cart/add" class="flex-1">
                     <input type="hidden" name="product_id" value="<?= $product['id'] ?>">
                     <input type="hidden" name="quantity" value="1">
@@ -131,11 +141,16 @@
                         <?= t('add_to_cart') ?>
                     </button>
                 </form>
-                <a href="<?= BASE_URL ?>cart/buy?product_id=<?= $product['id'] ?>&qty=1"
-                   class="flex-1 w-full px-5 py-2.5 bg-blue-600 text-white text-sm font-bold rounded-lg hover:bg-blue-700 transition flex items-center justify-center gap-2 shadow-sm">
-                    <i class="fas fa-bolt text-xs"></i>
-                    <?= t('buy_now') ?>
-                </a>
+                <form method="POST" action="<?= BASE_URL ?>cart/add" class="flex-1">
+                    <input type="hidden" name="product_id" value="<?= $product['id'] ?>">
+                    <input type="hidden" name="quantity" value="1">
+                    <input type="hidden" name="buy_now" value="1">
+                    <button type="submit" class="w-full px-5 py-2.5 bg-blue-600 text-white text-sm font-bold rounded-lg hover:bg-blue-700 transition flex items-center justify-center gap-2 shadow-sm">
+                        <i class="fas fa-bolt text-xs"></i>
+                        <?= t('buy_now') ?>
+                    </button>
+                </form>
+                <?php endif; ?>
                 <?php else: ?>
                 <button disabled class="w-full px-5 py-2.5 bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-600 text-sm font-bold rounded-lg cursor-not-allowed flex items-center justify-center gap-2">
                     <i class="fas fa-ban text-xs"></i>
@@ -166,24 +181,6 @@
             <?php endif; ?>
         </div>
     </div>
-
-    <!-- Product Gallery
-    <?php if (!empty($allImages)): ?>
-    <section class="mb-12">
-        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6"><i class="fas fa-images mr-2 text-blue-500"></i><?= t('image_gallery') ?></h2>
-        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
-            <?php foreach ($allImages as $gIdx => $gImg): ?>
-            <button onclick="switchImage(<?= $gIdx ?>); window.scrollTo({top: 0, behavior: 'smooth'})"
-                    class="aspect-square rounded-xl overflow-hidden border-2 border-gray-200 dark:border-gray-700 hover:border-blue-500 hover:ring-2 hover:ring-blue-200 dark:hover:ring-blue-800 transition-all group">
-                <img src="<?= BASE_URL . 'uploads/' . rawurlencode($gImg) ?>"
-                     onerror="this.src='<?= BASE_URL . 'images/' . rawurlencode($gImg) ?>'; this.onerror=null;"
-                     alt="<?= htmlspecialchars($product['name']) ?> <?= $gIdx + 1 ?>"
-                     class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" loading="lazy">
-            </button>
-            <?php endforeach; ?>
-        </div>
-    </section>
-    <?php endif; ?> -->
 
     <!-- Customer Reviews -->
     <section class="mt-12">
@@ -327,8 +324,76 @@
     <?php endif; ?>
 </div>
 
+<!-- Product Options Modal -->
+<div id="productModal" class="fixed inset-0 z-50 bg-black/50 flex items-center justify-center hidden" onclick="if (event.target === this) closeProductModal()">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-sm mx-4 overflow-hidden">
+        <div class="p-4 border-b border-gray-100 dark:border-gray-700 flex items-center gap-3">
+            <img src="<?= BASE_URL . 'uploads/' . rawurlencode($product['image']) ?>"
+                 onerror="this.src='<?= BASE_URL . 'images/' . rawurlencode($product['image']) ?>'; this.onerror=null;"
+                 class="w-14 h-14 rounded-lg object-cover bg-gray-50 dark:bg-gray-700 shrink-0" alt="">
+            <div class="min-w-0 flex-1">
+                <h3 class="font-bold text-gray-900 dark:text-white text-sm truncate"><?= htmlspecialchars($product['name']) ?></h3>
+                <p class="text-blue-600 dark:text-blue-400 font-extrabold text-sm">$<?= number_format($product['price'], 2) ?></p>
+            </div>
+            <button onclick="closeProductModal()" class="w-7 h-7 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 hover:text-gray-600 transition shrink-0">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+        <div class="p-5 space-y-4">
+            <input type="hidden" id="modalMode" value="add">
+
+            <?php if (!empty($colors)): ?>
+            <div>
+                <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2"><?= t('color') ?></label>
+                <div class="flex flex-wrap gap-2" id="colorOptions">
+                    <?php foreach ($colors as $c): ?>
+                    <button type="button" data-value="<?= htmlspecialchars($c['name']) ?>"
+                        onclick="selectOption(this)"
+                        class="color-btn px-4 py-2 text-xs font-semibold rounded-lg border-2 border-gray-200 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-500 text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition">
+                        <?= htmlspecialchars($c['name']) ?>
+                    </button>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+            <?php endif; ?>
+
+            <?php if (!empty($sizes)): ?>
+            <div>
+                <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2"><?= t('size') ?></label>
+                <div class="flex flex-wrap gap-2" id="sizeOptions">
+                    <?php foreach ($sizes as $s): ?>
+                    <button type="button" data-value="<?= htmlspecialchars($s['name']) ?>"
+                        onclick="selectOption(this)"
+                        class="size-btn px-4 py-2 text-xs font-semibold rounded-lg border-2 border-gray-200 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-500 text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition">
+                        <?= htmlspecialchars($s['name']) ?>
+                    </button>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+            <?php endif; ?>
+
+            <div>
+                <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2"><?= t('quantity') ?></label>
+                <div class="flex items-center gap-3">
+                    <button type="button" onclick="modalQty(-1)" class="w-9 h-9 flex items-center justify-center rounded-lg border-2 border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition font-bold text-sm">-</button>
+                    <span id="modalQty" class="w-10 text-center font-bold text-gray-900 dark:text-white text-base">1</span>
+                    <button type="button" onclick="modalQty(1)" class="w-9 h-9 flex items-center justify-center rounded-lg border-2 border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition font-bold text-sm">+</button>
+                </div>
+            </div>
+        </div>
+        <div class="px-5 pb-5 flex gap-2.5">
+            <button onclick="confirmProductModal()" id="modalConfirmBtn" class="flex-1 px-5 py-3 bg-blue-600 text-white text-sm font-bold rounded-xl hover:bg-blue-700 transition shadow-sm">
+                <i class="fas fa-shopping-cart text-xs mr-2"></i><?= t('add_to_cart') ?>
+            </button>
+            <button onclick="closeProductModal()" class="px-5 py-3 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-sm font-bold rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition">
+                <?= t('cancel') ?>
+            </button>
+        </div>
+    </div>
+</div>
+
 <!-- Lightbox -->
-<div id="lightbox" class="fixed inset-0 z-50 bg-black/95 flex items-center justify-center hidden" onclick="closeLightbox()">
+<div id="lightbox" class="fixed inset-0 z-[60] bg-black/95 flex items-center justify-center hidden" onclick="closeLightbox()">
     <button class="absolute top-4 right-4 text-white/70 hover:text-white z-20 p-2 transition" onclick="closeLightbox()">
         <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
     </button>
@@ -428,6 +493,91 @@ document.addEventListener('keydown', function(e) {
     if (e.key === 'ArrowRight') lightboxNext();
 });
 
+// Product Options Modal
+var modalMode = 'add';
+
+function openProductModal(mode) {
+    modalMode = mode;
+    document.getElementById('modalMode').value = mode;
+    document.getElementById('modalQty').textContent = '1';
+    // Reset selections
+    document.querySelectorAll('.color-btn, .size-btn').forEach(function(b) {
+        b.classList.remove('border-blue-500', 'bg-blue-50', 'dark:bg-blue-900/20');
+        b.classList.add('border-gray-200', 'dark:border-gray-600');
+    });
+    var btn = document.getElementById('modalConfirmBtn');
+    if (mode === 'buy') {
+        btn.innerHTML = '<i class="fas fa-bolt text-xs mr-2"></i><?= t('buy_now') ?>';
+        btn.className = 'flex-1 px-5 py-3 bg-blue-600 text-white text-sm font-bold rounded-xl hover:bg-blue-700 transition shadow-sm';
+    } else {
+        btn.innerHTML = '<i class="fas fa-shopping-cart text-xs mr-2"></i><?= t('add_to_cart') ?>';
+        btn.className = 'flex-1 px-5 py-3 bg-gray-900 dark:bg-gray-700 text-white text-sm font-bold rounded-xl hover:bg-blue-600 transition shadow-sm';
+    }
+    document.getElementById('productModal').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeProductModal() {
+    document.getElementById('productModal').classList.add('hidden');
+    document.body.style.overflow = '';
+}
+
+function modalQty(delta) {
+    var span = document.getElementById('modalQty');
+    var qty = parseInt(span.textContent) + delta;
+    if (qty < 1) qty = 1;
+    if (qty > <?= $product['stock'] ?>) qty = <?= $product['stock'] ?>;
+    span.textContent = qty;
+}
+
+function confirmProductModal() {
+    var colorEl = document.querySelector('.color-btn.border-blue-500');
+    var sizeEl = document.querySelector('.size-btn.border-blue-500');
+    var colorName = colorEl ? colorEl.getAttribute('data-value') : '';
+    var sizeName = sizeEl ? sizeEl.getAttribute('data-value') : '';
+    var qty = parseInt(document.getElementById('modalQty').textContent);
+    var mode = document.getElementById('modalMode').value;
+
+    <?php if (!empty($colors)): ?>
+    if (!colorEl) { alert('Please select a color.'); return; }
+    <?php endif; ?>
+    <?php if (!empty($sizes)): ?>
+    if (!sizeEl) { alert('Please select a size.'); return; }
+    <?php endif; ?>
+
+    var form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '<?= BASE_URL ?>' + 'cart/add';
+    var fields = {
+        'product_id': '<?= $product['id'] ?>',
+        'quantity': qty,
+        'size_name': sizeName,
+        'color_name': colorName
+    };
+    if (mode === 'buy') fields['buy_now'] = '1';
+    for (var key in fields) {
+        var input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = key;
+        input.value = fields[key];
+        form.appendChild(input);
+    }
+    document.body.appendChild(form);
+    form.submit();
+}
+
+// Color/size selection
+function selectOption(el) {
+    var container = el.closest('#colorOptions, #sizeOptions');
+    if (!container) return;
+    container.querySelectorAll('.color-btn, .size-btn').forEach(function(b) {
+        b.classList.remove('border-blue-500', 'bg-blue-50', 'dark:bg-blue-900/20');
+        b.classList.add('border-gray-200', 'dark:border-gray-600');
+    });
+    el.classList.remove('border-gray-200', 'dark:border-gray-600');
+    el.classList.add('border-blue-500', 'bg-blue-50', 'dark:bg-blue-900/20');
+}
+
 // Star Rating
 function setRating(rating) {
     document.getElementById('ratingInput').value = rating;
@@ -443,34 +593,4 @@ function setRating(rating) {
     });
 }
 
-// Wishlist
-function toggleWishlist(productId) {
-    fetch('<?= BASE_URL ?>wishlist/toggle', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: 'product_id=' + productId
-    })
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-        if (!data.success) {
-            if (data.message.indexOf('login') !== -1) {
-                window.location.href = '<?= BASE_URL ?>login';
-            }
-            return;
-        }
-        var btn = document.getElementById('wishlistBtn');
-        var icon = document.getElementById('wishlistIcon');
-        if (data.wishlisted) {
-            btn.classList.add('bg-red-500', 'text-white');
-            btn.classList.remove('bg-white/80', 'dark:bg-gray-800/80', 'text-gray-400');
-            icon.classList.add('fas');
-            icon.classList.remove('far');
-        } else {
-            btn.classList.remove('bg-red-500', 'text-white');
-            btn.classList.add('bg-white/80', 'dark:bg-gray-800/80', 'text-gray-400');
-            icon.classList.remove('fas');
-            icon.classList.add('far');
-        }
-    });
-}
 </script>

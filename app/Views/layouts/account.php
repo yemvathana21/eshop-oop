@@ -127,13 +127,13 @@ $isDark = $savedTheme === 'dark' || $savedTheme === 'amoled';
             setTimeout(function() { t.style.opacity = '0'; t.style.transition = 'all 0.3s'; setTimeout(function() { t.remove(); }, 300); }, 2600);
         }
         <?php if (\App\Core\Session::hasFlash('success')): ?>
-            showToast('<?= \App\Core\Session::getFlash('success') ?>', 'success');
+            showToast('<?= addslashes(\App\Core\Session::getFlash('success')) ?>', 'success');
         <?php endif; ?>
         <?php if (\App\Core\Session::hasFlash('error')): ?>
-            showToast('<?= \App\Core\Session::getFlash('error') ?>', 'error');
+            showToast('<?= addslashes(\App\Core\Session::getFlash('error')) ?>', 'error');
         <?php endif; ?>
         <?php if (\App\Core\Session::hasFlash('info')): ?>
-            showToast('<?= \App\Core\Session::getFlash('info') ?>', 'info');
+            showToast('<?= addslashes(\App\Core\Session::getFlash('info')) ?>', 'info');
         <?php endif; ?>
     </script>
 </body>

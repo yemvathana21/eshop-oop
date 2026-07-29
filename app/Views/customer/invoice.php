@@ -26,10 +26,28 @@
         </div>
 
         <div class="p-6">
-            <div class="mb-6">
-                <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Bill To</p>
-                <p class="font-bold text-gray-900"><?= htmlspecialchars($order['user_name']) ?></p>
-                <p class="text-gray-600 text-sm"><?= htmlspecialchars($order['user_email']) ?></p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
+                <div>
+                    <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Bill To</p>
+                    <p class="font-bold text-gray-900"><?= htmlspecialchars($order['user_name']) ?></p>
+                    <p class="text-gray-600 text-sm"><?= htmlspecialchars($order['user_email']) ?></p>
+                </div>
+                <?php if (!empty($order['shipping_name'])): ?>
+                <div>
+                    <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Ship To</p>
+                    <p class="font-bold text-gray-900"><?= htmlspecialchars($order['shipping_name']) ?></p>
+                    <p class="text-gray-600 text-sm"><?= htmlspecialchars($order['shipping_address']) ?></p>
+                    <?php if (!empty($order['shipping_method'])): ?>
+                    <p class="text-gray-500 text-xs mt-1">via <?= htmlspecialchars($order['shipping_method']) ?></p>
+                    <?php endif; ?>
+                </div>
+                <?php endif; ?>
+                <?php if (!empty($order['payment_method'])): ?>
+                <div>
+                    <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Payment</p>
+                    <p class="font-bold text-gray-900"><?= $order['payment_method'] === 'cod' ? 'Cash on Delivery' : 'Credit / Debit Card' ?></p>
+                </div>
+                <?php endif; ?>
             </div>
 
             <table class="w-full text-sm mb-6">
@@ -46,6 +64,13 @@
                     <tr>
                         <td class="py-3 px-4">
                             <span class="font-medium text-gray-900"><?= htmlspecialchars($item['product_name']) ?></span>
+                            <?php if (!empty($item['color_name']) || !empty($item['size_name'])): ?>
+                            <p class="text-[10px] text-gray-400 mt-0.5">
+                                <?= !empty($item['color_name']) ? htmlspecialchars($item['color_name']) : '' ?>
+                                <?= !empty($item['color_name']) && !empty($item['size_name']) ? ' / ' : '' ?>
+                                <?= !empty($item['size_name']) ? htmlspecialchars($item['size_name']) : '' ?>
+                            </p>
+                            <?php endif; ?>
                         </td>
                         <td class="py-3 px-4 text-center text-gray-600"><?= $item['quantity'] ?></td>
                         <td class="py-3 px-4 text-right text-gray-600">$<?= number_format($item['price'], 2) ?></td>
@@ -90,7 +115,7 @@ function downloadPDF() {
     const customerEmail = <?= json_encode($order['user_email']) ?>;
     const totalPrice = <?= json_encode(number_format($order['total_price'], 2, '.', '')) ?>;
     const items = <?= json_encode(array_map(fn($i) => [
-        'name' => $i['product_name'],
+        'name' => $i['product_name'] . (!empty($i['color_name']) || !empty($i['size_name']) ? ' (' . trim(($i['color_name'] ?? '') . ' ' . ($i['size_name'] ?? '')) . ')' : ''),
         'qty' => (int)$i['quantity'],
         'price' => number_format($i['price'], 2, '.', ''),
         'total' => number_format($i['price'] * $i['quantity'], 2, '.', '')

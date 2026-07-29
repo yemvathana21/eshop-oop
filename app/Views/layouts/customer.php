@@ -392,12 +392,47 @@ $count = array_sum(array_column($cart, 'quantity'));
             }, 4000);
         }
 
+        // Wishlist Toggle
+        function toggleWishlist(productId, btn) {
+            fetch('<?= BASE_URL ?>wishlist/toggle', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: 'product_id=' + productId
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (!data.success) {
+                    if (data.message.indexOf('login') !== -1) {
+                        window.location.href = '<?= BASE_URL ?>login';
+                    }
+                    return;
+                }
+                if (!btn) {
+                    btn = document.getElementById('wishlistBtn');
+                }
+                if (btn) {
+                    var icon = btn.querySelector('.fa-heart') || document.getElementById('wishlistIcon');
+                    if (data.wishlisted) {
+                        btn.classList.add('bg-red-500', 'text-white');
+                        btn.classList.remove('bg-white/80', 'dark:bg-gray-800/80', 'text-gray-400', 'hover:bg-red-500');
+                        icon.classList.add('fas');
+                        icon.classList.remove('far');
+                    } else {
+                        btn.classList.remove('bg-red-500', 'text-white');
+                        icon.classList.remove('fas');
+                        icon.classList.add('far');
+                    }
+                }
+                showToast(data.message, data.wishlisted ? 'success' : 'error');
+            });
+        }
+
         // Show flash messages as toasts
         <?php if (\App\Core\Session::hasFlash('success')): ?>
-            showToast('<?= \App\Core\Session::getFlash('success') ?>', 'success');
+            showToast('<?= addslashes(\App\Core\Session::getFlash('success')) ?>', 'success');
         <?php endif; ?>
         <?php if (\App\Core\Session::hasFlash('error')): ?>
-            showToast('<?= \App\Core\Session::getFlash('error') ?>', 'error');
+            showToast('<?= addslashes(\App\Core\Session::getFlash('error')) ?>', 'error');
         <?php endif; ?>
     </script>
 </body>

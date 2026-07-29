@@ -18,13 +18,15 @@
             <div class="flex items-center gap-3">
                 <div class="w-16 h-16 rounded-lg overflow-hidden shrink-0 bg-gray-100 dark:bg-gray-700">
                     <?php if (!empty($item['image'])): ?>
-                    <img src="<?= BASE_URL ?>uploads/products/<?= htmlspecialchars($item['image']) ?>" alt="" class="w-full h-full object-cover">
+                    <img src="<?= BASE_URL . 'uploads/' . rawurlencode($item['image']) ?>"
+                         onerror="this.src='<?= BASE_URL . 'images/' . rawurlencode($item['image']) ?>'; this.onerror=null;"
+                         alt="" class="w-full h-full object-cover">
                     <?php else: ?>
                     <div class="w-full h-full flex items-center justify-center text-gray-400"><i class="fas fa-box"></i></div>
                     <?php endif; ?>
                 </div>
                 <div class="flex-1 min-w-0">
-                    <p class="text-sm font-medium text-gray-900 dark:text-white truncate"><?= htmlspecialchars($item['product_name'] ?? $item['name'] ?? 'Product') ?></p>
+                    <p class="text-sm font-medium text-gray-900 dark:text-white truncate"><?= htmlspecialchars($item['name'] ?? 'Product') ?></p>
                     <?php if (!empty($item['price'])): ?>
                     <p class="text-sm font-bold text-gray-900 dark:text-white mt-0.5">$<?= number_format((float)$item['price'], 2) ?></p>
                     <?php endif; ?>

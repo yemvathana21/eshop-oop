@@ -20,6 +20,7 @@
                     <tr>
                         <th class="text-left py-3 px-4 font-semibold text-gray-600 dark:text-gray-300">#</th>
                         <th class="text-left py-3 px-4 font-semibold text-gray-600 dark:text-gray-300"><?= t('user') ?></th>
+                        <th class="text-left py-3 px-4 font-semibold text-gray-600 dark:text-gray-300"><?= t('username') ?></th>
                         <th class="text-left py-3 px-4 font-semibold text-gray-600 dark:text-gray-300"><?= t('email') ?></th>
                         <th class="text-left py-3 px-4 font-semibold text-gray-600 dark:text-gray-300"><?= t('role') ?></th>
                         <th class="text-center py-3 px-4 font-semibold text-gray-600 dark:text-gray-300"><?= t('orders') ?></th>
@@ -39,6 +40,7 @@
                                 <span class="font-medium text-gray-900 dark:text-white"><?= htmlspecialchars($u['name']) ?></span>
                             </div>
                         </td>
+                        <td class="py-3 px-4 text-gray-500 dark:text-gray-400"><?= htmlspecialchars($u['username'] ?? '—') ?></td>
                         <td class="py-3 px-4 text-gray-500 dark:text-gray-400"><?= htmlspecialchars($u['email']) ?></td>
                         <td class="py-3 px-4">
                             <span class="inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold <?= $u['role'] === 'admin' ? 'bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-400' : 'bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-400' ?>">

@@ -5,8 +5,15 @@
 
     <div class="flex items-center justify-between mb-6">
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white">#<?= htmlspecialchars($order['invoice_number']) ?></h1>
-        <?php $badgeMap = ['pending' => 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-600', 'processing' => 'bg-blue-50 dark:bg-blue-900/20 text-blue-600', 'shipped' => 'bg-blue-50 dark:bg-blue-900/20 text-blue-600', 'delivered' => 'bg-green-50 dark:bg-green-900/20 text-green-600', 'completed' => 'bg-green-50 dark:bg-green-900/20 text-green-600', 'cancelled' => 'bg-red-50 dark:bg-red-900/20 text-red-600']; ?>
-        <span class="text-xs px-2.5 py-1 rounded <?= $badgeMap[$order['status']] ?? 'bg-gray-100 text-gray-600' ?>"><?= t($order['status']) ?></span>
+        <div class="flex items-center gap-2">
+            <?php if ($order['status'] !== 'pending'): ?>
+            <a href="<?= BASE_URL ?>invoice?inv=<?= htmlspecialchars($order['invoice_number']) ?>" class="text-xs bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400 hover:bg-green-200 dark:hover:bg-green-800 px-2.5 py-1 rounded font-medium transition">
+                <i class="fas fa-file-invoice mr-1"></i>Invoice
+            </a>
+            <?php endif; ?>
+            <?php $badgeMap = ['pending' => 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-600', 'confirmed' => 'bg-blue-50 dark:bg-blue-900/20 text-blue-600', 'shipping' => 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600', 'delivery' => 'bg-purple-50 dark:bg-purple-900/20 text-purple-600', 'delivered' => 'bg-green-50 dark:bg-green-900/20 text-green-600', 'completed' => 'bg-green-50 dark:bg-green-900/20 text-green-600', 'cancelled' => 'bg-red-50 dark:bg-red-900/20 text-red-600']; ?>
+            <span class="text-xs px-2.5 py-1 rounded <?= $badgeMap[$order['status']] ?? 'bg-gray-100 text-gray-600' ?>"><?= t($order['status']) ?></span>
+        </div>
     </div>
 
     <!-- Total Card -->
@@ -43,6 +50,13 @@
                 </div>
                 <div class="flex-1 min-w-0">
                     <p class="text-sm font-medium text-gray-900 dark:text-white truncate"><?= htmlspecialchars($item['product_name']) ?></p>
+                    <?php if (!empty($item['color_name']) || !empty($item['size_name'])): ?>
+                    <p class="text-[10px] text-gray-400">
+                        <?= !empty($item['color_name']) ? htmlspecialchars($item['color_name']) : '' ?>
+                        <?= !empty($item['color_name']) && !empty($item['size_name']) ? ' / ' : '' ?>
+                        <?= !empty($item['size_name']) ? htmlspecialchars($item['size_name']) : '' ?>
+                    </p>
+                    <?php endif; ?>
                     <p class="text-xs text-gray-500"><?= (int)$item['quantity'] ?> x $<?= number_format((float)$item['price'], 2) ?></p>
                 </div>
                 <p class="text-sm font-semibold text-gray-900 dark:text-white">$<?= number_format((float)$item['price'] * (int)$item['quantity'], 2) ?></p>

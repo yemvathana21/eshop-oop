@@ -9,7 +9,7 @@
     <div class="flex flex-col lg:flex-row justify-between items-end gap-4 mb-8">
         <div>
             <h1 class="text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight"><?= t('shopping_cart') ?></h1>
-            <p class="text-gray-500 dark:text-gray-400 mt-1"><?= count($cart) ?> item(s) in your cart</p>
+            <p class="text-gray-500 dark:text-gray-400 mt-1"><span id="cartCount"><?= count($cart) ?></span> item(s) in your cart</p>
         </div>
         <?php if (!empty($cart)): ?>
         <a href="<?= BASE_URL ?>cart/clear" onclick="return confirm('Are you sure you want to clear your cart?')" class="text-sm text-red-500 hover:text-red-600 font-medium transition flex items-center gap-2">
@@ -30,6 +30,7 @@
         </a>
     </div>
     <?php else: ?>
+    <form id="checkoutForm" method="POST" action="<?= BASE_URL ?>cart/checkout-selected">
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <!-- Cart Items Table -->
         <div class="lg:col-span-2">
@@ -38,6 +39,10 @@
                     <table class="w-full text-left border-collapse">
                         <thead class="bg-gray-50 dark:bg-gray-700/50 border-b border-gray-100 dark:border-gray-700">
                             <tr>
+                                <th class="py-4 px-4 w-12">
+                                    <input type="checkbox" id="selectAll" onchange="toggleAll(this)"
+                                           class="w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500 cursor-pointer">
+                                </th>
                                 <th class="py-4 px-6 text-xs font-bold text-gray-400 uppercase tracking-widest"><?= t('product') ?></th>
                                 <th class="py-4 px-6 text-xs font-bold text-gray-400 uppercase tracking-widest text-center"><?= t('quantity') ?></th>
                                 <th class="py-4 px-6 text-xs font-bold text-gray-400 uppercase tracking-widest text-right"><?= t('total') ?></th>
@@ -45,8 +50,15 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
-                            <?php foreach ($cart as $productId => $item): ?>
+                            <?php foreach ($cart as $itemKey => $item):
+                                $pid = $item['product_id'] ?? $itemKey;
+                            ?>
                             <tr class="hover:bg-gray-50/50 dark:hover:bg-gray-700/30 transition">
+                                <td class="py-6 px-4">
+                                    <input type="checkbox" name="selected[]" value="<?= htmlspecialchars($itemKey) ?>"
+                                           class="item-checkbox w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                                           onchange="updateSummary()">
+                                </td>
                                 <td class="py-6 px-6">
                                     <div class="flex items-center gap-4">
                                         <div class="w-20 h-24 bg-gray-50 dark:bg-gray-700 rounded-xl overflow-hidden shrink-0 flex items-center justify-center border border-gray-100 dark:border-gray-600">
@@ -59,30 +71,36 @@
                                             <?php endif; ?>
                                         </div>
                                         <div class="min-w-0">
-                                            <a href="<?= BASE_URL ?>product?id=<?= $productId ?>" class="font-bold text-gray-900 dark:text-white hover:text-blue-600 transition block truncate mb-1">
+                                            <a href="<?= BASE_URL ?>product?id=<?= $pid ?>" class="font-bold text-gray-900 dark:text-white hover:text-blue-600 transition block truncate mb-1">
                                                 <?= htmlspecialchars($item['name']) ?>
                                             </a>
+                                            <?php if (!empty($item['color_name']) || !empty($item['size_name'])): ?>
+                                            <p class="text-[10px] text-gray-400 dark:text-gray-500 mb-0.5">
+                                                <?= !empty($item['color_name']) ? htmlspecialchars($item['color_name']) : '' ?>
+                                                <?= !empty($item['color_name']) && !empty($item['size_name']) ? ' / ' : '' ?>
+                                                <?= !empty($item['size_name']) ? htmlspecialchars($item['size_name']) : '' ?>
+                                            </p>
+                                            <?php endif; ?>
                                             <p class="text-sm text-blue-600 dark:text-blue-400 font-bold">$<?= number_format($item['price'], 2) ?></p>
                                         </div>
                                     </div>
                                 </td>
                                 <td class="py-6 px-6">
                                     <div class="flex flex-col items-center gap-2">
-                                        <form method="POST" action="<?= BASE_URL ?>cart/update" class="flex items-center bg-gray-100 dark:bg-gray-700 rounded-xl p-1">
-                                            <input type="hidden" name="product_id" value="<?= $productId ?>">
-                                            <button type="submit" name="quantity" value="<?= $item['quantity'] - 1 ?>"
+                                        <div class="flex items-center bg-gray-100 dark:bg-gray-700 rounded-xl p-1">
+                                            <button type="button" onclick="updateCartQty('<?= htmlspecialchars($itemKey) ?>', <?= $item['quantity'] - 1 ?>)"
                                                 class="w-8 h-8 flex items-center justify-center text-gray-500 hover:bg-white dark:hover:bg-gray-600 rounded-lg transition shadow-sm">-</button>
                                             <span class="w-10 text-center font-bold text-sm text-gray-900 dark:text-white"><?= $item['quantity'] ?></span>
-                                            <button type="submit" name="quantity" value="<?= $item['quantity'] + 1 ?>"
+                                            <button type="button" onclick="updateCartQty('<?= htmlspecialchars($itemKey) ?>', <?= $item['quantity'] + 1 ?>)"
                                                 class="w-8 h-8 flex items-center justify-center text-gray-500 hover:bg-white dark:hover:bg-gray-600 rounded-lg transition shadow-sm">+</button>
-                                        </form>
+                                        </div>
                                     </div>
                                 </td>
-                                <td class="py-6 px-6 text-right font-black text-gray-900 dark:text-white text-base">
+                                <td class="py-6 px-6 text-right font-black text-gray-900 dark:text-white text-base item-total" data-price="<?= $item['price'] * $item['quantity'] ?>">
                                     $<?= number_format($item['price'] * $item['quantity'], 2) ?>
                                 </td>
                                 <td class="py-6 px-6 text-right">
-                                    <a href="<?= BASE_URL ?>cart/remove?id=<?= $productId ?>"
+                                    <a href="<?= BASE_URL ?>cart/remove?id=<?= urlencode($itemKey) ?>"
                                        class="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition"
                                        title="<?= t('remove') ?>">
                                         <i class="fas fa-times"></i>
@@ -99,7 +117,6 @@
         <!-- Order Summary -->
         <div class="lg:col-span-1">
             <div class="bg-[#232f3e] text-white rounded-3xl p-8 sticky top-24 shadow-2xl overflow-hidden">
-                <!-- Background Decoration -->
                 <div class="absolute top-0 right-0 w-32 h-32 bg-blue-600/10 rounded-full -mr-16 -mt-16"></div>
 
                 <h2 class="text-xl font-bold mb-6 flex items-center gap-3">
@@ -109,8 +126,8 @@
 
                 <div class="space-y-4 mb-8">
                     <div class="flex justify-between text-sm">
-                        <span class="text-gray-400"><?= t('items') ?> (<?= array_sum(array_column($cart, 'quantity')) ?>)</span>
-                        <span class="font-bold">$<?= number_format(array_sum(array_map(fn($i) => $i['price'] * $i['quantity'], $cart)), 2) ?></span>
+                        <span class="text-gray-400"><?= t('items') ?> (<span id="selectedCount">0</span> selected)</span>
+                        <span class="font-bold">$<span id="selectedTotal">0.00</span></span>
                     </div>
                     <div class="flex justify-between text-sm">
                         <span class="text-gray-400"><?= t('shipping') ?></span>
@@ -120,7 +137,7 @@
                         <div class="flex justify-between items-end">
                             <span class="text-gray-400 text-sm font-medium"><?= t('total') ?></span>
                             <span class="text-3xl font-black text-white leading-none">
-                                <span class="text-sm text-blue-400 mr-1">$</span><?= number_format(array_sum(array_map(fn($i) => $i['price'] * $i['quantity'], $cart)), 2) ?>
+                                <span class="text-sm text-blue-400 mr-1">$</span><span id="grandTotal">0.00</span>
                             </span>
                         </div>
                     </div>
@@ -128,9 +145,11 @@
 
                 <div class="space-y-3">
                     <?php if (App\Core\Session::isLoggedIn()): ?>
-                    <a href="<?= BASE_URL ?>checkout" class="block w-full text-center bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-2xl font-bold transition transform hover:scale-[1.02] shadow-xl shadow-blue-500/20">
+                    <button type="submit" id="checkoutBtn"
+                            class="block w-full text-center bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-2xl font-bold transition transform hover:scale-[1.02] shadow-xl shadow-blue-500/20 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                            disabled>
                         <?= t('proceed_to_checkout') ?>
-                    </a>
+                    </button>
                     <?php else: ?>
                     <a href="<?= BASE_URL ?>login" class="block w-full text-center bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-2xl font-bold transition transform hover:scale-[1.02] shadow-xl shadow-blue-500/20">
                         <?= t('login_to_checkout') ?>
@@ -151,5 +170,66 @@
             </div>
         </div>
     </div>
+    </form>
     <?php endif; ?>
 </div>
+
+<script>
+function toggleAll(source) {
+    document.querySelectorAll('.item-checkbox').forEach(function(cb) {
+        cb.checked = source.checked;
+    });
+    updateSummary();
+}
+
+function updateSummary() {
+    var checkboxes = document.querySelectorAll('.item-checkbox:checked');
+    var count = checkboxes.length;
+    var total = 0;
+    checkboxes.forEach(function(cb) {
+        var row = cb.closest('tr');
+        var totalEl = row.querySelector('.item-total');
+        if (totalEl) {
+            total += parseFloat(totalEl.getAttribute('data-price'));
+        }
+    });
+    document.getElementById('selectedCount').textContent = count;
+    document.getElementById('selectedTotal').textContent = total.toFixed(2);
+    document.getElementById('grandTotal').textContent = total.toFixed(2);
+    var btn = document.getElementById('checkoutBtn');
+    if (btn) {
+        btn.disabled = count === 0;
+    }
+}
+
+function updateCartQty(itemKey, qty) {
+    if (qty <= 0) {
+        window.location.href = '<?= BASE_URL ?>cart/remove?id=' + encodeURIComponent(itemKey);
+        return;
+    }
+    var form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '<?= BASE_URL ?>cart/update';
+    var k = document.createElement('input');
+    k.type = 'hidden';
+    k.name = 'item_key';
+    k.value = itemKey;
+    form.appendChild(k);
+    var q = document.createElement('input');
+    q.type = 'hidden';
+    q.name = 'quantity';
+    q.value = qty;
+    form.appendChild(q);
+    document.body.appendChild(form);
+    form.submit();
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Check all by default
+    document.querySelectorAll('.item-checkbox').forEach(function(cb) { cb.checked = true; });
+    if (document.querySelectorAll('.item-checkbox').length > 0) {
+        document.getElementById('selectAll').checked = true;
+    }
+    updateSummary();
+});
+</script>

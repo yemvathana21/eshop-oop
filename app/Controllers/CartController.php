@@ -31,6 +31,8 @@ class CartController extends Controller {
     public function add() {
         $productId = $_GET['id'] ?? $_POST['product_id'] ?? null;
         $quantity = (int)($_POST['quantity'] ?? 1);
+        $sizeName = trim($_POST['size_name'] ?? '');
+        $colorName = trim($_POST['color_name'] ?? '');
 
         if (!$productId) {
             Session::setFlash('error', 'Invalid product.');
@@ -49,25 +51,36 @@ class CartController extends Controller {
         }
 
         $cart = $this->getCart();
+        $itemKey = $productId;
+        if ($sizeName || $colorName) {
+            $itemKey .= '|' . $sizeName . '|' . $colorName;
+        }
 
-        if (isset($cart[$productId])) {
-            $newQty = $cart[$productId]['quantity'] + $quantity;
+        if (isset($cart[$itemKey])) {
+            $newQty = $cart[$itemKey]['quantity'] + $quantity;
             if (!$this->productModel->hasSufficientStock($productId, $newQty)) {
-                Session::setFlash('error', 'Not enough stock available. Current in cart: ' . $cart[$productId]['quantity']);
+                Session::setFlash('error', 'Not enough stock available. Current in cart: ' . $cart[$itemKey]['quantity']);
                 $this->redirect('product?id=' . $productId);
             }
-            $cart[$productId]['quantity'] = $newQty;
+            $cart[$itemKey]['quantity'] = $newQty;
         } else {
-            $cart[$productId] = [
+            $cart[$itemKey] = [
+                'product_id' => $productId,
                 'name' => $product['name'],
                 'price' => $product['price'],
                 'image' => $product['image'],
-                'quantity' => $quantity
+                'quantity' => $quantity,
+                'size_name' => $sizeName,
+                'color_name' => $colorName
             ];
         }
 
         $this->saveCart($cart);
         Session::setFlash('success', $product['name'] . ' added to cart.');
+
+        if (!empty($_POST['buy_now'])) {
+            $this->redirect('checkout');
+        }
 
         // Stay on the same page (shop or product detail)
         $referer = $_SERVER['HTTP_REFERER'] ?? '';
@@ -88,24 +101,25 @@ class CartController extends Controller {
     }
 
     public function update() {
-        $productId = $_POST['product_id'] ?? null;
+        $itemKey = $_POST['item_key'] ?? $_POST['product_id'] ?? null;
         $quantity = (int)($_POST['quantity'] ?? 0);
 
         $cart = $this->getCart();
 
-        if (!$productId || !isset($cart[$productId])) {
+        if (!$itemKey || !isset($cart[$itemKey])) {
             Session::setFlash('error', 'Product not in cart.');
             $this->redirect('cart');
         }
 
         if ($quantity <= 0) {
-            unset($cart[$productId]);
+            unset($cart[$itemKey]);
         } else {
-            if (!$this->productModel->hasSufficientStock($productId, $quantity)) {
+            $pid = $cart[$itemKey]['product_id'] ?? $itemKey;
+            if (!$this->productModel->hasSufficientStock($pid, $quantity)) {
                 Session::setFlash('error', 'Not enough stock available.');
                 $this->redirect('cart');
             }
-            $cart[$productId]['quantity'] = $quantity;
+            $cart[$itemKey]['quantity'] = $quantity;
         }
 
         $this->saveCart($cart);
@@ -114,13 +128,13 @@ class CartController extends Controller {
     }
 
     public function remove() {
-        $productId = $_GET['id'] ?? $_POST['product_id'] ?? null;
+        $itemKey = $_GET['id'] ?? $_POST['item_key'] ?? $_POST['product_id'] ?? null;
 
         $cart = $this->getCart();
 
-        if ($productId && isset($cart[$productId])) {
-            $name = $cart[$productId]['name'];
-            unset($cart[$productId]);
+        if ($itemKey && isset($cart[$itemKey])) {
+            $name = $cart[$itemKey]['name'];
+            unset($cart[$itemKey]);
             $this->saveCart($cart);
             Session::setFlash('success', $name . ' removed from cart.');
         }
@@ -132,6 +146,27 @@ class CartController extends Controller {
         Session::remove('cart');
         Session::setFlash('success', 'Cart cleared.');
         $this->redirect('cart');
+    }
+
+    public function checkoutSelected() {
+        $selected = $_POST['selected'] ?? [];
+        if (empty($selected)) {
+            Session::setFlash('error', 'Please select at least one item.');
+            $this->redirect('cart');
+        }
+        $cart = $this->getCart();
+        $valid = [];
+        foreach ($selected as $key) {
+            if (isset($cart[$key])) {
+                $valid[] = $key;
+            }
+        }
+        if (empty($valid)) {
+            Session::setFlash('error', 'Selected items are no longer in your cart.');
+            $this->redirect('cart');
+        }
+        Session::set('checkout_selected', $valid);
+        $this->redirect('checkout');
     }
 
     private function calculateTotal($cart) {

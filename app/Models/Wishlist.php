@@ -30,10 +30,22 @@ class Wishlist {
         }
     }
 
+    public function remove($id, $userId) {
+        $stmt = $this->db->prepare("DELETE FROM wishlist WHERE id = ? AND user_id = ?");
+        return $stmt->execute([$id, $userId]);
+    }
+
     public function getcount($userId) {
         $stmt = $this->db->prepare("SELECT COUNT(*) FROM wishlist WHERE user_id = ?");
         $stmt->execute([$userId]);
         return (int)$stmt->fetchColumn();
+    }
+
+    public function getProductIds($userId) {
+        if (!$userId) return [];
+        $stmt = $this->db->prepare("SELECT product_id FROM wishlist WHERE user_id = ?");
+        $stmt->execute([$userId]);
+        return $stmt->fetchAll(PDO::FETCH_COLUMN);
     }
 
     public function byUser($userId) {

@@ -68,16 +68,6 @@ $accountStatus = fn($p) => accountConnected($p, $connectedAccounts) ? 'Connected
                     <i class="fas fa-chevron-right text-xs text-gray-400"></i>
                 </div>
             </div>
-            <div class="flex items-center justify-between px-4 py-3" data-search="auto update profile picture">
-                <div class="flex items-center gap-3">
-                    <i class="fas fa-rotate w-5 text-center text-gray-500"></i>
-                    <span class="text-sm font-medium text-gray-900 dark:text-white">Auto Update Photo</span>
-                </div>
-                <label class="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" class="sr-only peer" id="autoUpdateAvatar" <?= !empty($prefs['auto_update_avatar']) ? 'checked' : '' ?> onchange="toggleAutoUpdate(this)">
-                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                </label>
-            </div>
             <a href="<?= BASE_URL ?>account/orders" class="flex items-center justify-between px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-700">
                 <div class="flex items-center gap-3">
                     <i class="fas fa-receipt w-5 text-center text-gray-500"></i>
@@ -247,15 +237,6 @@ document.getElementById('settingsSearch').addEventListener('input', function() {
         el.style.display = (!q || text.includes(q)) ? '' : 'none';
     });
 });
-
-function toggleAutoUpdate(el) {
-    var val = el.checked ? 1 : 0;
-    fetch('<?= BASE_URL ?>account/preference/save', {
-        method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: 'key=auto_update_avatar&value=' + val
-    }).then(function(r) { return r.json(); }).then(function(d) { showToast(d.message || (val ? 'Enabled' : 'Disabled')); })
-    .catch(function() { showToast('Saved'); });
-}
 
 var modalContents = {};
 

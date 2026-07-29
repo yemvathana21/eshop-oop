@@ -23,31 +23,40 @@ class Order {
     }
 
     // Business Logic: Create order and deduct stock in a single transaction
-    public function createOrder($userId, $totalPrice, $cartItems) {
+    public function createOrder($userId, $totalPrice, $cartItems, $options = []) {
         try {
             $this->db->beginTransaction();
 
             // Generate invoice number
             $invoiceNumber = $this->generateInvoiceNumber();
 
+            $shippingName = $options['shipping_name'] ?? null;
+            $shippingAddress = $options['shipping_address'] ?? null;
+            $shippingMethod = $options['shipping_method'] ?? null;
+            $shippingCost = $options['shipping_cost'] ?? 0.00;
+            $paymentMethod = $options['payment_method'] ?? 'cod';
+
             // Create main order record
-            $stmt = $this->db->prepare("INSERT INTO orders (user_id, total_price, status, invoice_number) VALUES (?, ?, 'completed', ?)");
-            $stmt->execute([$userId, $totalPrice, $invoiceNumber]);
+            $stmt = $this->db->prepare("INSERT INTO orders (user_id, total_price, status, invoice_number, shipping_name, shipping_address, shipping_method, shipping_cost, payment_method) VALUES (?, ?, 'pending', ?, ?, ?, ?, ?, ?)");
+            $stmt->execute([$userId, $totalPrice, $invoiceNumber, $shippingName, $shippingAddress, $shippingMethod, $shippingCost, $paymentMethod]);
             $orderId = $this->db->lastInsertId();
 
             $productModel = new Product();
 
             // Create order items and deduct stock
-            $stmtItem = $this->db->prepare("INSERT INTO order_items (order_id, product_id, price, quantity) VALUES (?, ?, ?, ?)");
-            foreach ($cartItems as $productId => $item) {
+            $stmtItem = $this->db->prepare("INSERT INTO order_items (order_id, product_id, price, quantity, size_name, color_name) VALUES (?, ?, ?, ?, ?, ?)");
+            foreach ($cartItems as $itemKey => $item) {
+                $pid = $item['product_id'] ?? $itemKey;
                 // Deduct stock in real-time
-                $deducted = $productModel->deductStock($productId, $item['quantity']);
+                $deducted = $productModel->deductStock($pid, $item['quantity']);
                 if (!$deducted) {
                     throw new Exception("Error: Insufficient stock for product '{$item['name']}'. Please check your cart.");
                 }
 
                 // Insert into order_items
-                $stmtItem->execute([$orderId, $productId, $item['price'], $item['quantity']]);
+                $sizeName = $item['size_name'] ?? null;
+                $colorName = $item['color_name'] ?? null;
+                $stmtItem->execute([$orderId, $pid, $item['price'], $item['quantity'], $sizeName, $colorName]);
             }
 
             $this->db->commit();
@@ -112,6 +121,30 @@ class Order {
         ");
         $stmt->execute([$orderId]);
         return $stmt->fetchAll();
+    }
+
+    public function updateStatus($id, $status) {
+        $stmt = $this->db->prepare("UPDATE orders SET status = ? WHERE id = ?");
+        return $stmt->execute([$status, $id]);
+    }
+
+    public function getItemsForOrders($orderIds) {
+        if (empty($orderIds)) return [];
+        $placeholders = implode(',', array_fill(0, count($orderIds), '?'));
+        $stmt = $this->db->prepare("
+            SELECT oi.*, p.name as product_name, p.image as product_image
+            FROM order_items oi
+            JOIN products p ON oi.product_id = p.id
+            WHERE oi.order_id IN ($placeholders)
+            ORDER BY oi.id ASC
+        ");
+        $stmt->execute($orderIds);
+        $rows = $stmt->fetchAll();
+        $grouped = [];
+        foreach ($rows as $row) {
+            $grouped[$row['order_id']][] = $row;
+        }
+        return $grouped;
     }
 
     public function getCountByUser($userId) {

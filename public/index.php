@@ -70,6 +70,7 @@ $router->post('/account/profile/update', [ProfileController::class, 'update']);
 $router->get('/account/orders', [ProfileController::class, 'orders']);
 $router->get('/account/order', [ProfileController::class, 'orderDetail']);
 $router->get('/account/wishlist', [ProfileController::class, 'wishlist']);
+$router->get('/account/wishlist/remove', [ProfileController::class, 'wishlistRemove']);
 $router->get('/account/addresses', [ProfileController::class, 'addresses']);
 $router->post('/account/address/save', [ProfileController::class, 'addressSave']);
 $router->get('/account/address/delete', [ProfileController::class, 'addressDelete']);
@@ -127,10 +128,13 @@ $router->post('/cart/add', [CartController::class, 'add']);
 $router->post('/cart/update', [CartController::class, 'update']);
 $router->get('/cart/remove', [CartController::class, 'remove']);
 $router->get('/cart/clear', [CartController::class, 'clear']);
+$router->post('/cart/checkout-selected', [CartController::class, 'checkoutSelected']);
 
 // --- Checkout Routes ---
 $router->get('/checkout', [CheckoutController::class, 'index']);
+$router->post('/checkout/save-step', [CheckoutController::class, 'saveStep']);
 $router->post('/checkout/process', [CheckoutController::class, 'process']);
+$router->get('/order-confirmation', [CheckoutController::class, 'orderConfirmation']);
 $router->get('/invoice', [CheckoutController::class, 'invoice']);
 $router->get('/my-orders', [CheckoutController::class, 'myOrders']);
 
@@ -157,6 +161,7 @@ $router->post('/admin/inventory/adjust', [AdminController::class, 'inventoryAdju
 $router->get('/admin/orders', [AdminController::class, 'orders']);
 $router->get('/admin/order', [AdminController::class, 'orderDetail']);
 $router->get('/admin/order/invoice', [AdminController::class, 'orderInvoice']);
+$router->post('/admin/order/update-status', [AdminController::class, 'orderUpdateStatus']);
 $router->get('/admin/users', [AdminController::class, 'users']);
 $router->get('/admin/user/create', [AdminController::class, 'userCreate']);
 $router->post('/admin/user/save', [AdminController::class, 'userSave']);
@@ -184,6 +189,10 @@ $router->get('/admin/country/delete', [AdminController::class, 'countryDelete'])
 $router->get('/admin/shipping-costs', [AdminController::class, 'shippingCosts']);
 $router->post('/admin/shipping-cost/save', [AdminController::class, 'shippingCostSave']);
 $router->get('/admin/shipping-cost/delete', [AdminController::class, 'shippingCostDelete']);
+
+$router->get('/admin/shipping-methods', [AdminController::class, 'shippingMethods']);
+$router->post('/admin/shipping-method/save', [AdminController::class, 'shippingMethodSave']);
+$router->get('/admin/shipping-method/delete', [AdminController::class, 'shippingMethodDelete']);
 
 $router->get('/admin/top-categories', [AdminController::class, 'topCategories']);
 $router->post('/admin/top-category/save', [AdminController::class, 'topCategorySave']);

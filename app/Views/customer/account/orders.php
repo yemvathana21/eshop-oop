@@ -7,7 +7,7 @@
     <!-- Filter tabs -->
     <div class="flex gap-2 mb-6 overflow-x-auto scrollbar-hide">
         <?php
-        $statuses = ['all' => 'All', 'pending' => 'Pending', 'processing' => 'Processing', 'completed' => 'Completed', 'cancelled' => 'Cancelled'];
+        $statuses = ['all' => 'All', 'pending' => 'Pending', 'confirmed' => 'Confirmed', 'shipping' => 'Shipping', 'delivery' => 'Delivery', 'delivered' => 'Delivered', 'cancelled' => 'Cancelled'];
         foreach ($statuses as $key => $label):
             $active = $currentStatus === $key;
         ?>
@@ -29,7 +29,7 @@
     <?php else: ?>
     <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 divide-y divide-gray-100 dark:divide-gray-700">
         <?php foreach ($orders as $order): ?>
-        <?php $badgeMap = ['pending' => 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-600', 'processing' => 'bg-blue-50 dark:bg-blue-900/20 text-blue-600', 'shipped' => 'bg-blue-50 dark:bg-blue-900/20 text-blue-600', 'delivered' => 'bg-green-50 dark:bg-green-900/20 text-green-600', 'completed' => 'bg-green-50 dark:bg-green-900/20 text-green-600', 'cancelled' => 'bg-red-50 dark:bg-red-900/20 text-red-600']; ?>
+        <?php $badgeMap = ['pending' => 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-600', 'confirmed' => 'bg-blue-50 dark:bg-blue-900/20 text-blue-600', 'shipping' => 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600', 'delivery' => 'bg-purple-50 dark:bg-purple-900/20 text-purple-600', 'delivered' => 'bg-green-50 dark:bg-green-900/20 text-green-600', 'completed' => 'bg-green-50 dark:bg-green-900/20 text-green-600', 'cancelled' => 'bg-red-50 dark:bg-red-900/20 text-red-600']; ?>
         <a href="<?= BASE_URL ?>account/order?id=<?= (int)$order['id'] ?>" class="flex items-center justify-between px-4 py-4 hover:bg-gray-100 dark:hover:bg-gray-700 transition">
             <div class="flex items-center gap-3 min-w-0 pr-2">
                 <div class="w-10 h-10 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-500 shrink-0"><i class="fas fa-receipt"></i></div>

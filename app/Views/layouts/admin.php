@@ -23,6 +23,11 @@
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
+    <style>
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+
     <script>
         (function() {
             const saved = localStorage.getItem('theme');
@@ -45,18 +50,33 @@
             </a>
         </div>
         <nav class="flex-1 p-4 space-y-1 overflow-y-auto scrollbar-hide">
-            <a href="<?= BASE_URL ?>admin/dashboard" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-700 transition <?= (strpos($_SERVER['REQUEST_URI'], 'dashboard') !== false) ? 'bg-gray-700' : '' ?>">
+            <?php $currentUrl = $_SERVER['REQUEST_URI']; ?>
+            <a href="<?= BASE_URL ?>admin/dashboard" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-700 transition <?= (strpos($currentUrl, 'dashboard') !== false) ? 'bg-gray-700' : '' ?>">
                 <i class="fas fa-tachometer-alt w-5 text-blue-500"></i><span><?= t('dashboard') ?></span>
             </a>
 
-            <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-700 transition">
-                <i class="fas fa-sliders-h w-5 text-gray-400"></i><span><?= t('website_settings') ?></span>
-            </a>
+            <!-- Website Settings Dropdown -->
+            <div class="space-y-1">
+                <?php
+                $websiteSettingsActive = (strpos($currentUrl, 'admin/qrcode') !== false);
+                ?>
+                <button id="websiteSettingsBtn" onclick="toggleWebsiteSettings()"
+                    class="w-full flex items-center justify-between px-4 py-3 rounded-lg hover:bg-gray-700 transition <?= $websiteSettingsActive ? 'bg-gray-800/50' : '' ?>">
+                    <div class="flex items-center space-x-3">
+                        <i class="fas fa-sliders-h w-5 text-gray-400"></i><span><?= t('website_settings') ?></span>
+                    </div>
+                    <i class="fas fa-chevron-down text-[10px] transition-transform ws-chevron <?= $websiteSettingsActive ? 'rotate-180' : '' ?>"></i>
+                </button>
+                <div id="websiteSettingsMenu" class="<?= $websiteSettingsActive ? '' : 'hidden' ?> pl-10 space-y-1 overflow-hidden transition-all duration-300">
+                    <a href="<?= BASE_URL ?>admin/qrcode" class="block py-2 text-sm <?= (strpos($currentUrl, 'admin/qrcode') !== false) ? 'text-blue-400 font-semibold' : 'text-gray-400' ?> hover:text-white transition">
+                        <i class="fas fa-qrcode text-[10px] mr-2"></i><?= t('qr_code') ?>
+                    </a>
+                </div>
+            </div>
 
             <!-- Shop Settings Dropdown -->
             <div class="space-y-1">
                 <?php
-                $currentUrl = $_SERVER['REQUEST_URI'];
                 $shopSettingsActive = (
                     strpos($currentUrl, '-categor') !== false ||
                     strpos($currentUrl, 'size') !== false ||
@@ -200,6 +220,23 @@
         <!-- Toast Container -->
         <div id="toastContainer" class="fixed top-4 right-4 z-50 flex flex-col gap-3 max-w-sm"></div>
 
+        <!-- Custom Confirmation Modal -->
+        <div id="confirmModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm hidden opacity-0 transition-opacity duration-300 text-left">
+            <div class="bg-white dark:bg-gray-900 w-full max-w-sm rounded-2xl shadow-2xl transform scale-95 transition-transform duration-300 overflow-hidden">
+                <div class="p-6 text-center">
+                    <div class="w-16 h-16 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
+                        <i class="fas fa-question-circle"></i>
+                    </div>
+                    <h3 id="confirmTitle" class="text-xl font-bold text-gray-900 dark:text-white mb-2"><?= t('confirm_action') ?></h3>
+                    <p id="confirmMessage" class="text-gray-500 dark:text-gray-400 text-sm mb-6"></p>
+                    <div class="flex gap-3">
+                        <button id="confirmCancel" class="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-bold hover:bg-gray-50 dark:hover:bg-gray-800 transition"><?= t('cancel') ?></button>
+                        <button id="confirmOk" class="flex-1 px-4 py-2.5 rounded-xl bg-blue-600 text-white font-bold hover:bg-blue-700 transition shadow-lg shadow-blue-500/25"><?= t('ok') ?></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <main class="p-6">
             <?= $content ?>
         </main>
@@ -245,6 +282,45 @@
     <?php if (App\Core\Session::hasFlash('error')): ?>
         showToast('<?= App\Core\Session::getFlash('error') ?>', 'error');
     <?php endif; ?>
+
+    // Global Confirmation System
+    let confirmCallback = null;
+    const confirmModal = document.getElementById('confirmModal');
+    const confirmMsg = document.getElementById('confirmMessage');
+    const confirmOk = document.getElementById('confirmOk');
+    const confirmCancel = document.getElementById('confirmCancel');
+
+    window.confirmAction = function(message, callback) {
+        confirmMsg.textContent = message;
+        confirmCallback = callback;
+        confirmModal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+        requestAnimationFrame(() => {
+            confirmModal.classList.remove('opacity-0');
+            confirmModal.querySelector('div').classList.remove('scale-95');
+            confirmModal.querySelector('div').classList.add('scale-100');
+        });
+    };
+
+    function closeConfirm() {
+        confirmModal.classList.add('opacity-0');
+        confirmModal.querySelector('div').classList.remove('scale-100');
+        confirmModal.querySelector('div').classList.add('scale-95');
+        setTimeout(() => {
+            confirmModal.classList.add('hidden');
+            document.body.style.overflow = '';
+        }, 300);
+    }
+
+    confirmCancel.onclick = closeConfirm;
+    confirmOk.onclick = function() {
+        if (confirmCallback) confirmCallback();
+        closeConfirm();
+    };
+
+    confirmModal.onclick = function(e) {
+        if (e.target === confirmModal) closeConfirm();
+    };
 
     // === Dark/Light Mode ===
     const themeToggle = document.getElementById('themeToggle');
@@ -395,17 +471,41 @@
         localStorage.setItem('shopSettingsExpanded', isOpening ? 'true' : 'false');
     }
 
+    function toggleWebsiteSettings() {
+        const menu = document.getElementById('websiteSettingsMenu');
+        const btn = document.getElementById('websiteSettingsBtn');
+        const chevron = btn.querySelector('.ws-chevron');
+
+        const isOpening = menu.classList.contains('hidden');
+
+        menu.classList.toggle('hidden');
+        chevron.classList.toggle('rotate-180');
+
+        localStorage.setItem('websiteSettingsExpanded', isOpening ? 'true' : 'false');
+    }
+
     // Restore state on load
     document.addEventListener('DOMContentLoaded', () => {
-        const menu = document.getElementById('shopSettingsMenu');
-        const btn = document.getElementById('shopSettingsBtn');
-        const chevron = btn.querySelector('.chevron');
+        const shopMenu = document.getElementById('shopSettingsMenu');
+        const shopBtn = document.getElementById('shopSettingsBtn');
+        const shopChevron = shopBtn.querySelector('.chevron');
         const isShopActive = <?= $shopSettingsActive ? 'true' : 'false' ?>;
-        const savedState = localStorage.getItem('shopSettingsExpanded');
+        const savedShopState = localStorage.getItem('shopSettingsExpanded');
 
-        if (isShopActive || savedState === 'true') {
-            menu.classList.remove('hidden');
-            chevron.classList.add('rotate-180');
+        if (isShopActive || savedShopState === 'true') {
+            shopMenu.classList.remove('hidden');
+            shopChevron.classList.add('rotate-180');
+        }
+
+        const wsMenu = document.getElementById('websiteSettingsMenu');
+        const wsBtn = document.getElementById('websiteSettingsBtn');
+        const wsChevron = wsBtn.querySelector('.ws-chevron');
+        const isWsActive = <?= (strpos($currentUrl, 'admin/qrcode') !== false) ? 'true' : 'false' ?>;
+        const savedWsState = localStorage.getItem('websiteSettingsExpanded');
+
+        if (isWsActive || savedWsState === 'true') {
+            wsMenu.classList.remove('hidden');
+            wsChevron.classList.add('rotate-180');
         }
     });
     </script>

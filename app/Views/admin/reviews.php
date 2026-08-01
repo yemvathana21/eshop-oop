@@ -30,7 +30,7 @@
                     <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition">
                         <td class="py-3 px-4">
                             <p class="font-medium text-gray-900 dark:text-white"><?= htmlspecialchars($review['product_name']) ?></p>
-                            <a href="<?= BASE_URL ?>product?id=<?= $review['product_id'] ?>" class="text-xs text-blue-600 dark:text-blue-400 hover:underline" target="_blank"><?= t('view') ?> <i class="fas fa-external-link-alt text-[10px]"></i></a>
+                            <a href="<?= BASE_URL ?>admin/product/edit?id=<?= $review['product_id'] ?>" class="text-xs text-blue-600 dark:text-blue-400 hover:underline"><?= t('view') ?> <i class="fas fa-edit text-[10px]"></i></a>
                         </td>
                         <td class="py-3 px-4">
                             <p class="font-medium text-gray-900 dark:text-white"><?= htmlspecialchars($review['user_name']) ?></p>

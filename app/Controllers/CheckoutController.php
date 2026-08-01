@@ -53,18 +53,26 @@ class CheckoutController extends Controller {
             $this->redirect('login');
         }
 
-        $cart = Session::get('cart', []);
-        $cart = $this->filterSelectedCart($cart);
+        $userId = Session::getUserId();
+        $cartKey = $userId ? 'cart_' . $userId : 'cart_guest';
+
+        $buyNowItem = Session::get('buy_now_item');
+        if ($buyNowItem) {
+            $cart = $buyNowItem;
+        } else {
+            $cart = Session::get($cartKey, []);
+            $cart = $this->filterSelectedCart($cart);
+        }
+
         if (empty($cart)) {
             Session::setFlash('error', 'Your cart is empty.');
             $this->redirect('cart');
         }
 
-        $userId = Session::getUserId();
         $addresses = $this->addressModel->byUser($userId);
         $savedAddress = Session::get('checkout_address', []);
         $savedShipping = Session::get('checkout_shipping', []);
-        $savedPayment = Session::get('checkout_payment', 'cod');
+        $savedPayment = Session::get('checkout_payment');
 
         $provinces = (new Province())->all();
         $subtotal = 0;
@@ -172,8 +180,17 @@ class CheckoutController extends Controller {
             $this->redirect('checkout');
         }
 
-        $cart = Session::get('cart', []);
-        $cart = $this->filterSelectedCart($cart);
+        $userId = Session::getUserId();
+        $cartKey = $userId ? 'cart_' . $userId : 'cart_guest';
+
+        $buyNowItem = Session::get('buy_now_item');
+        if ($buyNowItem) {
+            $cart = $buyNowItem;
+        } else {
+            $cart = Session::get($cartKey, []);
+            $cart = $this->filterSelectedCart($cart);
+        }
+
         if (empty($cart)) {
             Session::setFlash('error', 'Your cart is empty.');
             $this->redirect('cart');
@@ -188,6 +205,17 @@ class CheckoutController extends Controller {
         }
 
         $userId = Session::getUserId();
+
+        // Safety Check: Verify user exists in database to avoid Foreign Key error
+        $db = \App\Core\Database::getInstance()->getConnection();
+        $stmt = $db->prepare("SELECT id FROM users WHERE id = ?");
+        $stmt->execute([$userId]);
+        if (!$stmt->fetch()) {
+            Session::logout('customer');
+            Session::setFlash('error', 'Your session has expired or user not found. Please login again.');
+            $this->redirect('login');
+        }
+
         $address = Session::get('checkout_address', []);
         $shipping = Session::get('checkout_shipping', []);
         $payment = Session::get('checkout_payment', 'cod');
@@ -255,7 +283,18 @@ class CheckoutController extends Controller {
         ]);
 
         if ($result['success']) {
-            Session::remove('cart');
+            if (Session::get('buy_now_item')) {
+                Session::remove('buy_now_item');
+            } else {
+                $selectedKeys = Session::get('checkout_selected', []);
+                if (!empty($selectedKeys)) {
+                    $fullCart = Session::get($cartKey, []);
+                    foreach ($selectedKeys as $sk) unset($fullCart[$sk]);
+                    Session::set($cartKey, $fullCart);
+                } else {
+                    Session::remove($cartKey);
+                }
+            }
             Session::remove('checkout_address');
             Session::remove('checkout_shipping');
             Session::remove('checkout_payment');

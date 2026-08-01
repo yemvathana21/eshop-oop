@@ -175,6 +175,10 @@ $router->get('/admin/search', [AdminController::class, 'search']);
 $router->get('/admin/get-subcategories', [AdminController::class, 'getSubcategories']);
 
 // --- Shop Settings Routes ---
+$router->get('/admin/qrcode', [AdminController::class, 'qrCode']);
+$router->post('/admin/qrcode/save', [AdminController::class, 'qrCodeSave']);
+$router->get('/admin/qrcode/delete', [AdminController::class, 'qrCodeDelete']);
+
 $router->get('/admin/sizes', [AdminController::class, 'sizes']);
 $router->post('/admin/size/save', [AdminController::class, 'sizeSave']);
 $router->get('/admin/size/delete', [AdminController::class, 'sizeDelete']);

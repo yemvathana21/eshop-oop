@@ -25,14 +25,31 @@ $baseUrl = 'https://cambo-gazetteer.manethpak.dev/api/v1';
 function fetchAll($url) {
     $all = [];
     $page = 1;
-    $perPage = 20;
+    $perPage = 250;
     do {
-        $json = file_get_contents("$url?page=$page&perPage=$perPage");
+        $fullUrl = "$url?page=$page&perPage=$perPage";
+        $context = stream_context_create([
+            'http' => ['ignore_errors' => true, 'timeout' => 30]
+        ]);
+        $json = @file_get_contents($fullUrl, false, $context);
+
+        if ($json === false) {
+            echo "  Error fetching page $page, retrying...\n";
+            sleep(1);
+            continue;
+        }
+
         $data = json_decode($json, true);
+        if (!$data || !isset($data['data'])) {
+            echo "  Invalid data on page $page, retrying...\n";
+            sleep(1);
+            continue;
+        }
+
         $items = $data['data'] ?? [];
         $all = array_merge($all, $items);
         $totalPages = $data['pagination']['totalPages'] ?? 1;
-        echo "  page $page/$totalPages (" . count($items) . " items)\n";
+        echo "  page $page/$totalPages (" . count($items) . " items, total " . count($all) . ")\n";
         $page++;
     } while (($data['pagination']['hasNextPage'] ?? false) && $page <= ($data['pagination']['totalPages'] ?? 1));
     return $all;

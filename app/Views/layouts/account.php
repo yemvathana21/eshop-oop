@@ -1,8 +1,9 @@
 <?php
 $currentLang = \App\Core\Lang\Language::current();
-$cart = \App\Core\Session::get('cart', []);
-$count = array_sum(array_column($cart, 'quantity'));
 $userId = \App\Core\Session::getUserId();
+$cartKey = $userId ? 'cart_' . $userId : 'cart_guest';
+$cart = \App\Core\Session::get($cartKey, []);
+$count = array_sum(array_column($cart, 'quantity'));
 $userModel = new \App\Models\User();
 $user = $userModel->findById($userId);
 $prefModel = new \App\Models\UserPreference();
@@ -84,7 +85,7 @@ $isDark = $savedTheme === 'dark' || $savedTheme === 'amoled';
                     <a href="<?= BASE_URL ?>cart" class="relative p-2.5 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-800 rounded-lg transition" title="<?= t('cart') ?>">
                         <i class="fas fa-shopping-cart text-lg"></i>
                         <?php if ($count > 0): ?>
-                        <span class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] w-4.5 h-4.5 rounded-full flex items-center justify-center font-bold ring-2 ring-white dark:ring-gray-900"><?= $count ?></span>
+                        <span class="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center ring-2 ring-white dark:ring-gray-900"><?= $count ?></span>
                         <?php endif; ?>
                     </a>
                 </div>
@@ -114,6 +115,23 @@ $isDark = $savedTheme === 'dark' || $savedTheme === 'amoled';
 
     <div id="toastContainer" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none px-4"></div>
 
+    <!-- Custom Confirmation Modal -->
+    <div id="confirmModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm hidden opacity-0 transition-opacity duration-300">
+        <div class="bg-white dark:bg-gray-900 w-full max-w-sm rounded-2xl shadow-2xl transform scale-95 transition-transform duration-300 overflow-hidden">
+            <div class="p-6 text-center">
+                <div class="w-16 h-16 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
+                    <i class="fas fa-question-circle"></i>
+                </div>
+                <h3 id="confirmTitle" class="text-xl font-bold text-gray-900 dark:text-white mb-2"><?= t('confirm_action') ?></h3>
+                <p id="confirmMessage" class="text-gray-500 dark:text-gray-400 text-sm mb-6"></p>
+                <div class="flex gap-3">
+                    <button id="confirmCancel" class="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-bold hover:bg-gray-50 dark:hover:bg-gray-800 transition"><?= t('cancel') ?></button>
+                    <button id="confirmOk" class="flex-1 px-4 py-2.5 rounded-xl bg-blue-600 text-white font-bold hover:bg-blue-700 transition shadow-lg shadow-blue-500/25"><?= t('ok') ?></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         function showToast(message, type) {
             type = type || 'success';
@@ -135,6 +153,46 @@ $isDark = $savedTheme === 'dark' || $savedTheme === 'amoled';
         <?php if (\App\Core\Session::hasFlash('info')): ?>
             showToast('<?= addslashes(\App\Core\Session::getFlash('info')) ?>', 'info');
         <?php endif; ?>
+
+        // Global Confirmation System
+        let confirmCallback = null;
+        const confirmModal = document.getElementById('confirmModal');
+        const confirmMsg = document.getElementById('confirmMessage');
+        const confirmOk = document.getElementById('confirmOk');
+        const confirmCancel = document.getElementById('confirmCancel');
+
+        window.confirmAction = function(message, callback) {
+            confirmMsg.textContent = message;
+            confirmCallback = callback;
+            confirmModal.classList.remove('hidden');
+            document.body.classList.add('modal-open');
+            requestAnimationFrame(() => {
+                confirmModal.classList.remove('opacity-0');
+                confirmModal.querySelector('div').classList.remove('scale-95');
+                confirmModal.querySelector('div').classList.add('scale-100');
+            });
+        };
+
+        function closeConfirm() {
+            confirmModal.classList.add('opacity-0');
+            confirmModal.querySelector('div').classList.remove('scale-100');
+            confirmModal.querySelector('div').classList.add('scale-95');
+            setTimeout(() => {
+                confirmModal.classList.add('hidden');
+                document.body.classList.remove('modal-open');
+            }, 300);
+        }
+
+        confirmCancel.onclick = closeConfirm;
+        confirmOk.onclick = function() {
+            if (confirmCallback) confirmCallback();
+            closeConfirm();
+        };
+
+        // Close on outside click
+        confirmModal.onclick = function(e) {
+            if (e.target === confirmModal) closeConfirm();
+        };
     </script>
 </body>
 </html>

@@ -30,7 +30,7 @@
                     <span class="text-xl font-bold text-blue-600">$<?= number_format($order['total_price'], 2) ?></span>
                     <span class="text-sm text-gray-400"><?= count($order['items']) ?> item(s)</span>
                     <?php if (!empty($order['payment_method'])): ?>
-                    <span class="text-xs text-gray-400 hidden sm:inline">| <?= $order['payment_method'] === 'cod' ? 'COD' : 'Card' ?></span>
+                    <span class="text-xs text-gray-400 hidden sm:inline">| <?= $order['payment_method'] === 'cod' ? 'COD' : t('qr_code') ?></span>
                     <?php endif; ?>
                 </div>
             </div>

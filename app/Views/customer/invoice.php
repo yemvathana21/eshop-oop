@@ -1,10 +1,138 @@
-<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+    @media print {
+        @page {
+            size: 80mm auto;
+            margin: 0;
+        }
+        body {
+            background: white !important;
+            margin: 0;
+            padding: 0;
+        }
+        body * { visibility: hidden; }
+
+        #receipt, #receipt * { visibility: visible; }
+        #receipt {
+            display: block !important;
+            width: 80mm !important;
+            padding: 10mm 5mm !important;
+            margin: 0 !important;
+            position: absolute !important;
+            left: 0 !important;
+            top: 0 !important;
+            box-shadow: none !important;
+            border: none !important;
+        }
+        .no-print { display: none !important; }
+    }
+
+    #receipt {
+        display: none;
+        width: 85mm;
+        margin: 20px auto;
+        background: white;
+        padding: 30px 20px;
+        font-family: 'Inter', sans-serif;
+        color: #1a1a1a;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e5e7eb;
+    }
+
+    .receipt-header { text-align: center; margin-bottom: 20px; }
+    .receipt-logo { font-size: 24px; font-weight: 800; letter-spacing: -0.025em; margin-bottom: 4px; color: #111; }
+    .receipt-subtitle { font-size: 11px; color: #666; text-transform: uppercase; letter-spacing: 0.05em; }
+
+    .receipt-info { font-size: 12px; margin-bottom: 20px; color: #444; line-height: 1.6; }
+    .receipt-info p { display: flex; justify-content: space-between; }
+    .receipt-info span:first-child { color: #888; }
+    .receipt-info span:last-child { font-weight: 500; color: #000; }
+
+    .receipt-divider { border-top: 1px dashed #e0e0e0; margin: 15px 0; }
+    .receipt-divider-thick { border-top: 2px solid #000; margin: 15px 0; }
+
+    .receipt-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .receipt-table th { text-align: left; font-weight: 600; color: #888; padding-bottom: 8px; text-transform: uppercase; font-size: 10px; }
+    .receipt-table td { padding: 8px 0; vertical-align: top; }
+    .receipt-item-name { font-weight: 600; color: #111; display: block; margin-bottom: 2px; }
+    .receipt-item-meta { font-size: 10px; color: #666; }
+
+    .receipt-totals { margin-top: 15px; }
+    .receipt-total-row { display: flex; justify-content: space-between; padding: 4px 0; font-size: 13px; }
+    .receipt-total-row.grand-total { font-size: 18px; font-weight: 800; margin-top: 10px; padding-top: 10px; border-top: 1px solid #000; }
+
+    .receipt-footer { text-align: center; margin-top: 30px; font-size: 11px; color: #999; line-height: 1.5; }
+</style>
+
+<!-- Modern Thermal Receipt View -->
+<div id="receipt">
+    <div class="receipt-header">
+        <div class="receipt-logo">E-SHOP</div>
+        <div class="receipt-subtitle">Thank you for your visit</div>
+    </div>
+
+    <div class="receipt-divider"></div>
+
+    <div class="receipt-info">
+        <p><span>Receipt #</span> <span><?= htmlspecialchars($order['invoice_number']) ?></span></p>
+        <p><span>Date</span> <span><?= date('M d, Y H:i', strtotime($order['created_at'])) ?></span></p>
+        <p><span>Customer</span> <span><?= htmlspecialchars($order['user_name']) ?></span></p>
+    </div>
+
+    <table class="receipt-table">
+        <thead>
+            <tr>
+                <th style="width: 60%;">Description</th>
+                <th style="width: 10%; text-align: center;">Qty</th>
+                <th style="width: 30%; text-align: right;">Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach ($items as $item): ?>
+            <tr>
+                <td>
+                    <span class="receipt-item-name"><?= htmlspecialchars($item['product_name']) ?></span>
+                    <?php if (!empty($item['color_name']) || !empty($item['size_name'])): ?>
+                    <span class="receipt-item-meta">
+                        <?= trim(($item['color_name'] ?? '') . ' ' . ($item['size_name'] ?? '')) ?>
+                    </span>
+                    <?php endif; ?>
+                </td>
+                <td style="text-align: center; color: #666;"><?= $item['quantity'] ?></td>
+                <td style="text-align: right; font-weight: 500;">$<?= number_format($item['price'] * $item['quantity'], 2) ?></td>
+            </tr>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
+
+    <div class="receipt-divider"></div>
+
+    <div class="receipt-totals">
+        <div class="receipt-total-row">
+            <span>Subtotal</span>
+            <span>$<?= number_format($order['total_price'], 2) ?></span>
+        </div>
+        <div class="receipt-total-row grand-total">
+            <span>TOTAL</span>
+            <span>$<?= number_format($order['total_price'], 2) ?></span>
+        </div>
+    </div>
+
+    <div class="receipt-footer">
+        <p>Items once sold are non-refundable.</p>
+        <p>www.e-shop.com</p>
+        <div style="margin-top: 10px; font-weight: 600; color: #000;">SEE YOU AGAIN!</div>
+    </div>
+</div>
+
+<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 no-print">
     <div class="text-center mb-6">
         <div class="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-3">
             <i class="fas fa-check text-3xl text-green-600"></i>
         </div>
-        <h1 class="text-3xl font-bold text-gray-900">Invoice</h1>
-        <p class="text-gray-500 mt-1"><?= htmlspecialchars($order['invoice_number']) ?></p>
+        <h1 class="text-3xl font-bold text-gray-900">Receipt</h1>
+        <p class="text-gray-500 mt-1">Receipt #<?= htmlspecialchars($order['invoice_number']) ?></p>
     </div>
 
     <div id="invoiceContent" class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
@@ -18,7 +146,7 @@
                     <p class="text-gray-500 text-sm">Your trusted online store</p>
                 </div>
                 <div class="text-right">
-                    <p class="text-sm text-gray-500">Invoice Number</p>
+                    <p class="text-sm text-gray-500">Receipt Number</p>
                     <p class="font-bold text-gray-900"><?= htmlspecialchars($order['invoice_number']) ?></p>
                     <p class="text-sm text-gray-500 mt-1"><?= date('M d, Y', strtotime($order['created_at'])) ?></p>
                 </div>
@@ -45,7 +173,7 @@
                 <?php if (!empty($order['payment_method'])): ?>
                 <div>
                     <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Payment</p>
-                    <p class="font-bold text-gray-900"><?= $order['payment_method'] === 'cod' ? 'Cash on Delivery' : 'Credit / Debit Card' ?></p>
+                    <p class="font-bold text-gray-900"><?= $order['payment_method'] === 'cod' ? t('cash_on_delivery') : t('credit_debit_card') ?></p>
                 </div>
                 <?php endif; ?>
             </div>
@@ -104,12 +232,12 @@
         </div>
     </div>
 
-    <div class="text-center mt-6 space-x-4">
+    <div class="text-center mt-6 space-x-4 no-print">
         <button onclick="downloadPDF()" class="inline-block bg-green-600 hover:bg-green-700 text-white px-6 py-2.5 rounded-lg font-medium transition text-sm">
-            <i class="fas fa-download mr-2"></i>Download PDF
+            <i class="fas fa-download mr-2"></i>Download Receipt (PDF)
         </button>
         <button onclick="window.print()" class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-lg font-medium transition text-sm">
-            <i class="fas fa-print mr-2"></i>Print
+            <i class="fas fa-print mr-2"></i>Print Receipt
         </button>
     </div>
 </div>
@@ -119,13 +247,14 @@
 <script>
 function downloadPDF() {
     const { jsPDF } = window.jspdf;
-    const doc = new jsPDF('p', 'mm', 'a4');
-    const pageWidth = doc.internal.pageSize.getWidth();
 
+    // Receipt dimensions (80mm width)
+    const receiptWidth = 80;
+
+    // Calculate content height dynamically
     const invoiceNumber = <?= json_encode($order['invoice_number']) ?>;
-    const orderDate = <?= json_encode(date('M d, Y', strtotime($order['created_at']))) ?>;
+    const orderDate = <?= json_encode(date('M d, Y H:i', strtotime($order['created_at']))) ?>;
     const customerName = <?= json_encode($order['user_name']) ?>;
-    const customerEmail = <?= json_encode($order['user_email']) ?>;
     const totalPrice = <?= json_encode(number_format($order['total_price'], 2, '.', '')) ?>;
     const items = <?= json_encode(array_map(fn($i) => [
         'name' => $i['product_name'] . (!empty($i['color_name']) || !empty($i['size_name']) ? ' (' . trim(($i['color_name'] ?? '') . ' ' . ($i['size_name'] ?? '')) . ')' : ''),
@@ -134,119 +263,92 @@ function downloadPDF() {
         'total' => number_format($i['price'] * $i['quantity'], 2, '.', '')
     ], $items)) ?>;
 
-    // Background
-    doc.setFillColor(245, 245, 245);
-    doc.rect(0, 0, pageWidth, 297, 'F');
+    // Estimate total height needed
+    const headerH = 45;
+    const itemH = items.length * 8;
+    const footerH = 40;
+    const totalHeight = headerH + itemH + footerH + 20;
 
-    // White paper
-    doc.setFillColor(255, 255, 255);
-    doc.roundedRect(15, 15, pageWidth - 30, 267, 3, 3, 'F');
+    // Initialize PDF with custom size
+    const doc = new jsPDF('p', 'mm', [receiptWidth, totalHeight]);
 
-    // Blue header bar
-    doc.setFillColor(37, 99, 235);
-    doc.rect(15, 15, pageWidth - 30, 30, 'F');
-
-    // Company name
-    doc.setTextColor(255, 255, 255);
+    // Content Styling
+    doc.setFont('helvetica', 'bold');
     doc.setFontSize(22);
-    doc.setFont('helvetica', 'bold');
-    doc.text('E-Shop', 25, 34);
-
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'normal');
-    doc.text('INVOICE', pageWidth - 25, 28, { align: 'right' });
-    doc.text(invoiceNumber, pageWidth - 25, 34, { align: 'right' });
-
-    // Invoice details section
-    let y = 58;
-    doc.setTextColor(100, 100, 100);
-    doc.setFontSize(9);
-    doc.setFont('helvetica', 'bold');
-    doc.text('BILL TO', 25, y);
-    doc.text('INVOICE DETAILS', pageWidth - 25, y, { align: 'right' });
-
-    y += 6;
-    doc.setTextColor(40, 40, 40);
-    doc.setFontSize(11);
-    doc.setFont('helvetica', 'bold');
-    doc.text(customerName, 25, y);
+    doc.text('E-SHOP', receiptWidth / 2, 15, { align: 'center' });
     
-    doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
-    doc.text('Date: ' + orderDate, pageWidth - 25, y, { align: 'right' });
-
-    y += 6;
-    doc.setTextColor(100, 100, 100);
     doc.setFontSize(9);
-    doc.text(customerEmail, 25, y);
-    doc.text('Invoice: ' + invoiceNumber, pageWidth - 25, y, { align: 'right' });
+    doc.text('THANK YOU FOR YOUR VISIT', receiptWidth / 2, 20, { align: 'center' });
 
-    // Divider
-    y += 10;
-    doc.setDrawColor(220, 220, 220);
-    doc.line(25, y, pageWidth - 25, y);
+    doc.setLineWidth(0.5);
+    doc.line(5, 25, 75, 25);
 
-    // Table
-    y += 5;
-    const tableData = items.map(item => [
-        item.name,
-        item.qty.toString(),
-        '$' + item.price,
-        '$' + item.total
-    ]);
+    // Info Section
+    doc.setFontSize(8);
+    let currY = 32;
+    doc.text('Receipt #:', 5, currY);
+    doc.setFont('helvetica', 'bold');
+    doc.text(invoiceNumber, 75, currY, { align: 'right' });
 
+    doc.setFont('helvetica', 'normal');
+    currY += 5;
+    doc.text('Date:', 5, currY);
+    doc.text(orderDate, 75, currY, { align: 'right' });
+
+    currY += 5;
+    doc.text('Customer:', 5, currY);
+    doc.text(customerName, 75, currY, { align: 'right' });
+
+    currY += 5;
+    doc.setLineWidth(0.1);
+    doc.line(5, currY, 75, currY);
+
+    // Items Table
     doc.autoTable({
-        startY: y,
-        margin: { left: 25, right: 25 },
-        head: [['Item', 'Qty', 'Unit Price', 'Total']],
-        body: tableData,
+        startY: currY + 2,
+        margin: { left: 5, right: 5 },
+        head: [['DESCRIPTION', 'QTY', 'AMOUNT']],
+        body: items.map(i => [i.name.toUpperCase(), i.qty, '$' + i.total]),
         theme: 'plain',
-        styles: {
-            fontSize: 10,
-            cellPadding: 5,
-            textColor: [40, 40, 40],
-            lineColor: [230, 230, 230],
-            lineWidth: 0.1
-        },
-        headStyles: {
-            fillColor: [245, 245, 245],
-            textColor: [80, 80, 80],
-            fontStyle: 'bold',
-            fontSize: 9
-        },
-        alternateRowStyles: {
-            fillColor: [252, 252, 252]
-        },
+        styles: { fontSize: 7, cellPadding: 2, font: 'helvetica' },
+        headStyles: { fontStyle: 'bold', textColor: [100, 100, 100] },
         columnStyles: {
-            0: { cellWidth: 'auto', fontStyle: 'bold' },
-            1: { halign: 'center', cellWidth: 25 },
-            2: { halign: 'right', cellWidth: 35 },
-            3: { halign: 'right', cellWidth: 35, fontStyle: 'bold' }
+            0: { cellWidth: 40 },
+            1: { halign: 'center', cellWidth: 10 },
+            2: { halign: 'right', cellWidth: 20 }
         }
     });
 
-    // Total
-    y = doc.lastAutoTable.finalY + 8;
-    doc.setFillColor(239, 246, 255);
-    doc.roundedRect(25, y, pageWidth - 50, 16, 2, 2, 'F');
+    // Totals Section
+    currY = doc.lastAutoTable.finalY + 5;
+    doc.setLineWidth(0.5);
+    doc.line(5, currY, 75, currY);
 
-    doc.setFontSize(12);
+    currY += 7;
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.text('Subtotal', 5, currY);
+    doc.text('$' + totalPrice, 75, currY, { align: 'right' });
+
+    currY += 8;
+    doc.setLineWidth(1);
+    doc.line(5, currY - 2, 75, currY - 2);
+    doc.setFontSize(14);
     doc.setFont('helvetica', 'bold');
-    doc.setTextColor(40, 40, 40);
-    doc.text('TOTAL', 35, y + 11);
-
-    doc.setTextColor(37, 99, 235);
-    doc.setFontSize(16);
-    doc.text('$' + totalPrice, pageWidth - 35, y + 11, { align: 'right' });
+    doc.text('TOTAL', 5, currY + 4);
+    doc.text('$' + totalPrice, 75, currY + 4, { align: 'right' });
 
     // Footer
-    doc.setTextColor(160, 160, 160);
+    currY += 20;
     doc.setFontSize(8);
     doc.setFont('helvetica', 'normal');
-    doc.text('Thank you for shopping with us!', pageWidth / 2, 272, { align: 'center' });
-    doc.text('E-Shop - Your trusted online store', pageWidth / 2, 277, { align: 'center' });
+    doc.text('Items once sold are non-refundable.', receiptWidth / 2, currY, { align: 'center' });
+    doc.text('www.e-shop.com', receiptWidth / 2, currY + 5, { align: 'center' });
+    doc.setFont('helvetica', 'bold');
+    doc.text('SEE YOU AGAIN!', receiptWidth / 2, currY + 12, { align: 'center' });
 
     // Save
-    doc.save('Invoice-' + invoiceNumber + '.pdf');
+    doc.save('Receipt-' + invoiceNumber + '.pdf');
 }
 </script>

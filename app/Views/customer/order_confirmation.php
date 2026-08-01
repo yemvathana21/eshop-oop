@@ -3,8 +3,14 @@
         <i class="fas fa-clock text-3xl text-yellow-600 dark:text-yellow-400"></i>
     </div>
 
-    <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">Order Placed!</h1>
-    <p class="text-gray-500 dark:text-gray-400 mb-6">Your order has been submitted. Please wait for the seller to confirm it.</p>
+    <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2"><?= t('order_placed') ?>!</h1>
+    <p class="text-gray-500 dark:text-gray-400 mb-6">
+        <?php if ($order['payment_method'] === 'card'): ?>
+            <?= t('payment_qr_info') ?>
+        <?php else: ?>
+            <?= t('payment_cod_info') ?>
+        <?php endif; ?>
+    </p>
 
     <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 text-left mb-8">
         <div class="flex items-center justify-between mb-4 pb-4 border-b border-gray-100 dark:border-gray-700">
@@ -53,7 +59,7 @@
         </a>
         <?php endif; ?>
         <?php if ($order['status'] === 'pending'): ?>
-        <form method="post" action="<?= BASE_URL ?>account/order/cancel" onsubmit="return confirm('<?= t('cancel_order_confirm') ?>')">
+        <form method="post" action="<?= BASE_URL ?>account/order/cancel" onsubmit="const f=this; event.preventDefault(); confirmAction('<?= t('cancel_order_confirm') ?>', () => f.submit());">
             <input type="hidden" name="id" value="<?= (int)$order['id'] ?>">
             <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-6 py-2.5 rounded-lg font-medium transition text-sm">
                 <i class="fas fa-times mr-2"></i><?= t('cancel_order') ?>

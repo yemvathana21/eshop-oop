@@ -12,7 +12,7 @@
             </a>
             <?php endif; ?>
             <?php if ($order['status'] === 'pending'): ?>
-            <form method="post" action="<?= BASE_URL ?>account/order/cancel" onsubmit="return confirm('<?= t('cancel_order_confirm') ?>')">
+            <form method="post" action="<?= BASE_URL ?>account/order/cancel" onsubmit="const f=this; event.preventDefault(); confirmAction('<?= t('cancel_order_confirm') ?>', () => f.submit());">
                 <input type="hidden" name="id" value="<?= (int)$order['id'] ?>">
                 <button type="submit" class="text-xs bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-800 px-2.5 py-1 rounded font-medium transition">
                     <i class="fas fa-times mr-1"></i><?= t('cancel_order') ?>

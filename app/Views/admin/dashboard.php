@@ -1,46 +1,64 @@
+<style>
+    @keyframes barGrow {
+        from { transform: scaleY(0); opacity: 0; }
+        to { transform: scaleY(1); opacity: 1; }
+    }
+    @keyframes slideRight {
+        from { width: 0; }
+        to { width: var(--progress-width); }
+    }
+    .animate-bar {
+        transform-origin: bottom;
+        animation: barGrow 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+    .progress-bar-fill {
+        animation: slideRight 1s ease-out forwards;
+    }
+</style>
+
 <div class="space-y-6">
     <!-- Stats Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5 transition-colors">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5 transition-all hover:shadow-md hover:-translate-y-1 group">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm text-gray-500 dark:text-gray-400"><?= t('total_sales') ?></p>
                     <p class="text-2xl font-bold text-gray-900 dark:text-white mt-1">$<?= number_format($totalSales, 2) ?></p>
                 </div>
-                <div class="w-12 h-12 bg-green-100 dark:bg-green-900/50 rounded-xl flex items-center justify-center">
+                <div class="w-12 h-12 bg-green-100 dark:bg-green-900/50 rounded-xl flex items-center justify-center transition-transform group-hover:rotate-12">
                     <i class="fas fa-dollar-sign text-green-600 dark:text-green-400 text-xl"></i>
                 </div>
             </div>
         </div>
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5 transition-colors">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5 transition-all hover:shadow-md hover:-translate-y-1 group">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm text-gray-500 dark:text-gray-400"><?= t('total_orders') ?></p>
                     <p class="text-2xl font-bold text-gray-900 dark:text-white mt-1"><?= $ordersCount ?></p>
                 </div>
-                <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900/50 rounded-xl flex items-center justify-center">
+                <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900/50 rounded-xl flex items-center justify-center transition-transform group-hover:rotate-12">
                     <i class="fas fa-file-invoice text-blue-600 dark:text-blue-400 text-xl"></i>
                 </div>
             </div>
         </div>
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5 transition-colors">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5 transition-all hover:shadow-md hover:-translate-y-1 group">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm text-gray-500 dark:text-gray-400"><?= t('total_products') ?></p>
                     <p class="text-2xl font-bold text-gray-900 dark:text-white mt-1"><?= $totalProducts ?></p>
                 </div>
-                <div class="w-12 h-12 bg-purple-100 dark:bg-purple-900/50 rounded-xl flex items-center justify-center">
+                <div class="w-12 h-12 bg-purple-100 dark:bg-purple-900/50 rounded-xl flex items-center justify-center transition-transform group-hover:rotate-12">
                     <i class="fas fa-box text-purple-600 dark:text-purple-400 text-xl"></i>
                 </div>
             </div>
         </div>
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5 transition-colors">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5 transition-all hover:shadow-md hover:-translate-y-1 group">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm text-gray-500 dark:text-gray-400"><?= t('total_users') ?></p>
                     <p class="text-2xl font-bold text-gray-900 dark:text-white mt-1"><?= $totalUsers ?></p>
                 </div>
-                <div class="w-12 h-12 bg-cyan-100 dark:bg-cyan-900/50 rounded-xl flex items-center justify-center">
+                <div class="w-12 h-12 bg-cyan-100 dark:bg-cyan-900/50 rounded-xl flex items-center justify-center transition-transform group-hover:rotate-12">
                     <i class="fas fa-users text-cyan-600 dark:text-cyan-400 text-xl"></i>
                 </div>
             </div>
@@ -49,35 +67,35 @@
 
     <!-- Second Row Stats -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5 transition-colors">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5 transition-all hover:shadow-md hover:-translate-y-1 group">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm text-gray-500 dark:text-gray-400"><?= t('low_stock_items') ?></p>
                     <p class="text-2xl font-bold <?= count($lowStockProducts) > 0 ? 'text-red-600 dark:text-red-400' : 'text-gray-900 dark:text-white' ?> mt-1"><?= count($lowStockProducts) ?></p>
                 </div>
-                <div class="w-12 h-12 <?= count($lowStockProducts) > 0 ? 'bg-red-100 dark:bg-red-900/50' : 'bg-gray-100 dark:bg-gray-700' ?> rounded-xl flex items-center justify-center">
+                <div class="w-12 h-12 <?= count($lowStockProducts) > 0 ? 'bg-red-100 dark:bg-red-900/50' : 'bg-gray-100 dark:bg-gray-700' ?> rounded-xl flex items-center justify-center transition-transform group-hover:rotate-12">
                     <i class="fas fa-exclamation-triangle <?= count($lowStockProducts) > 0 ? 'text-red-600 dark:text-red-400' : 'text-gray-400 dark:text-gray-500' ?> text-xl"></i>
                 </div>
             </div>
         </div>
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5 transition-colors">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5 transition-all hover:shadow-md hover:-translate-y-1 group">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm text-gray-500 dark:text-gray-400"><?= t('reviews') ?></p>
                     <p class="text-2xl font-bold text-gray-900 dark:text-white mt-1"><?= $totalReviews ?></p>
                 </div>
-                <div class="w-12 h-12 bg-yellow-100 dark:bg-yellow-900/50 rounded-xl flex items-center justify-center">
+                <div class="w-12 h-12 bg-yellow-100 dark:bg-yellow-900/50 rounded-xl flex items-center justify-center transition-transform group-hover:rotate-12">
                     <i class="fas fa-star text-yellow-600 dark:text-yellow-400 text-xl"></i>
                 </div>
             </div>
         </div>
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5 transition-colors">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5 transition-all hover:shadow-md hover:-translate-y-1 group">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm text-gray-500 dark:text-gray-400"><?= t('revenue_avg') ?></p>
                     <p class="text-2xl font-bold text-gray-900 dark:text-white mt-1">$<?= $ordersCount > 0 ? number_format($totalSales / $ordersCount, 2) : '0.00' ?></p>
                 </div>
-                <div class="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/50 rounded-xl flex items-center justify-center">
+                <div class="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/50 rounded-xl flex items-center justify-center transition-transform group-hover:rotate-12">
                     <i class="fas fa-chart-line text-indigo-600 dark:text-indigo-400 text-xl"></i>
                 </div>
             </div>
@@ -91,13 +109,33 @@
                 <h2 class="font-bold text-gray-900 dark:text-white"><?= t('sales_last_7_days') ?></h2>
             </div>
             <div class="p-5">
-                <div class="flex items-end gap-2 h-48">
+                <div class="flex items-end gap-3 h-56 px-2">
                     <?php foreach ($salesChart as $day): ?>
-                    <div class="flex-1 flex flex-col items-center gap-1">
-                        <span class="text-xs font-bold text-gray-700 dark:text-gray-300">$<?= $day['amount'] >= 1000 ? number_format($day['amount'] / 1000, 1) . 'k' : number_format($day['amount'], 0) ?></span>
-                        <div class="w-full rounded-t-lg transition-all duration-500 <?= $day['amount'] > 0 ? 'bg-blue-500 dark:bg-blue-400 hover:bg-blue-600 dark:hover:bg-blue-300' : 'bg-gray-200 dark:bg-gray-700' ?>" 
-                             style="height: <?= $day['amount'] > 0 ? max(8, ($day['amount'] / $maxSales) * 100) : 4 ?>%"></div>
-                        <span class="text-xs text-gray-500 dark:text-gray-400 font-medium"><?= $day['label'] ?></span>
+                    <div class="flex-1 flex flex-col items-center gap-2 group relative h-full justify-end">
+                        <!-- Tooltip -->
+                        <div class="absolute -top-10 left-1/2 -translate-x-1/2 bg-gray-900 dark:bg-gray-700 text-white text-[10px] px-2 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none whitespace-nowrap z-10 shadow-xl border border-white/10 -translate-y-1 group-hover:translate-y-0">
+                            $<?= number_format($day['amount'], 2) ?>
+                            <div class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900 dark:border-t-gray-700"></div>
+                        </div>
+
+                        <span class="text-[10px] font-bold text-gray-500 dark:text-gray-400">$<?= $day['amount'] >= 1000 ? number_format($day['amount'] / 1000, 1) . 'k' : number_format($day['amount'], 0) ?></span>
+
+                        <div class="relative w-full max-w-[40px] flex flex-col justify-end" style="height: 100%;">
+                            <!-- Bar Track -->
+                            <div class="absolute inset-0 bg-gray-100 dark:bg-gray-700/50 rounded-t-lg -z-0"></div>
+
+                            <!-- Actual Bar -->
+                            <?php
+                                $heightPercent = $day['amount'] > 0 ? ($day['amount'] / $maxSales) * 100 : 0;
+                                // Minimum visible height for non-zero values
+                                if ($day['amount'] > 0 && $heightPercent < 5) $heightPercent = 5;
+                            ?>
+                            <div class="w-full rounded-t-lg transition-all duration-300 animate-bar z-10 <?= $day['amount'] > 0 ? 'bg-gradient-to-t from-blue-600 to-blue-400 shadow-md group-hover:from-blue-500 group-hover:to-blue-300' : 'bg-gray-200 dark:bg-gray-700' ?>"
+                                 style="height: <?= $day['amount'] > 0 ? $heightPercent : 4 ?>%">
+                            </div>
+                        </div>
+
+                        <span class="text-xs text-gray-500 dark:text-gray-400 font-semibold"><?= $day['label'] ?></span>
                     </div>
                     <?php endforeach; ?>
                 </div>
@@ -130,7 +168,7 @@
                         <span class="text-sm font-bold text-gray-900 dark:text-white"><?= $count ?></span>
                     </div>
                     <div class="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                        <div class="h-full bg-<?= $sConf['color'] ?>-500 rounded-full transition-all duration-500" style="width: <?= $pct ?>%"></div>
+                        <div class="h-full bg-<?= $sConf['color'] ?>-500 rounded-full progress-bar-fill" style="--progress-width: <?= $pct ?>%; width: 0;"></div>
                     </div>
                 </div>
                 <?php endforeach; ?>

@@ -12,15 +12,22 @@ class CartController extends Controller {
         $this->productModel = new Product();
     }
 
+    private function getCartKey() {
+        $userId = Session::getUserId();
+        return $userId ? 'cart_' . $userId : 'cart_guest';
+    }
+
     private function getCart() {
-        return Session::get('cart', []);
+        return Session::get($this->getCartKey(), []);
     }
 
     private function saveCart($cart) {
-        Session::set('cart', $cart);
+        Session::set($this->getCartKey(), $cart);
     }
 
     public function view() {
+        Session::remove('buy_now_item');
+        Session::remove('checkout_selected');
         $cart = $this->getCart();
         $this->render('customer/cart', [
             'title' => 'Shopping Cart - E-Shop',
@@ -75,12 +82,21 @@ class CartController extends Controller {
             ];
         }
 
-        $this->saveCart($cart);
-        Session::setFlash('success', $product['name'] . ' added to cart.');
-
         if (!empty($_POST['buy_now'])) {
+            Session::set('buy_now_item', [$itemKey => [
+                'product_id' => $productId,
+                'name' => $product['name'],
+                'price' => $product['price'],
+                'image' => $product['image'],
+                'quantity' => $quantity,
+                'size_name' => $sizeName,
+                'color_name' => $colorName
+            ]]);
             $this->redirect('checkout');
         }
+
+        $this->saveCart($cart);
+        Session::setFlash('success', $product['name'] . ' added to cart.');
 
         // Stay on the same page (shop or product detail)
         $referer = $_SERVER['HTTP_REFERER'] ?? '';
@@ -143,7 +159,7 @@ class CartController extends Controller {
     }
 
     public function clear() {
-        Session::remove('cart');
+        Session::remove($this->getCartKey());
         Session::setFlash('success', 'Cart cleared.');
         $this->redirect('cart');
     }

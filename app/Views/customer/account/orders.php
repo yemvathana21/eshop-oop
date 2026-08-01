@@ -43,7 +43,7 @@
             </a>
             <div class="flex items-center gap-3 shrink-0">
                 <?php if ($order['status'] === 'pending'): ?>
-                <form method="post" action="<?= BASE_URL ?>account/order/cancel" onsubmit="return confirm('<?= t('cancel_order_confirm') ?>')" class="opacity-0 group-hover:opacity-100 transition">
+                <form method="post" action="<?= BASE_URL ?>account/order/cancel" onsubmit="const f=this; event.preventDefault(); confirmAction('<?= t('cancel_order_confirm') ?>', () => f.submit());" class="opacity-0 group-hover:opacity-100 transition">
                     <input type="hidden" name="id" value="<?= (int)$order['id'] ?>">
                     <button type="submit" class="text-xs bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-800 px-2 py-1 rounded font-medium whitespace-nowrap">
                         <?= t('cancel_order') ?>

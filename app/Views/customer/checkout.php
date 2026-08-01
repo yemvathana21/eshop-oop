@@ -88,47 +88,54 @@
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"><?= t('full_name') ?> <span class="text-red-500">*</span></label>
-                                <input type="text" id="addr_name" value="<?= htmlspecialchars($savedAddress['full_name'] ?? '') ?>" class="w-full px-3.5 py-2.5 rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-sm text-gray-900 dark:text-white outline-none focus:border-blue-500">
+                                <input type="text" id="addr_name" value="<?= htmlspecialchars($savedAddress['full_name'] ?? '') ?>" class="w-full px-3.5 py-2.5 rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-sm text-gray-900 dark:text-white outline-none focus:border-blue-500 transition-all">
+                                <p id="nameError" class="text-[10px] text-red-500 mt-1 hidden flex items-center gap-1"><i class="fas fa-exclamation-circle"></i> <?= t('please_enter_name') ?></p>
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"><?= t('phone') ?> <span class="text-red-500">*</span></label>
-                                <input type="tel" id="addr_phone" value="<?= htmlspecialchars($savedAddress['phone'] ?? '') ?>" class="w-full px-3.5 py-2.5 rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-sm text-gray-900 dark:text-white outline-none focus:border-blue-500">
+                                <input type="tel" id="addr_phone" value="<?= htmlspecialchars($savedAddress['phone'] ?? '') ?>" class="w-full px-3.5 py-2.5 rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-sm text-gray-900 dark:text-white outline-none focus:border-blue-500 transition-all">
+                                <p id="phoneError" class="text-[10px] text-red-500 mt-1 hidden flex items-center gap-1"><i class="fas fa-exclamation-circle"></i> <?= t('please_enter_phone') ?></p>
                             </div>
                         </div>
 
                         <div>
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"><?= t('province') ?></label>
-                            <select id="selProvince" onchange="loadDistricts(this.value)" class="w-full px-3.5 py-2.5 rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-sm text-gray-900 dark:text-white outline-none focus:border-blue-500">
+                            <select id="selProvince" onchange="loadDistricts(this.value); clearError(this, 'provinceError')" class="w-full px-3.5 py-2.5 rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-sm text-gray-900 dark:text-white outline-none focus:border-blue-500 transition-all">
                                 <option value=""><?= t('select_province') ?></option>
                                 <?php foreach ($provinces as $p): ?>
                                 <option value="<?= htmlspecialchars($p['code']) ?>" <?= (!empty($savedAddress['province_code']) && $savedAddress['province_code'] == $p['code']) ? 'selected' : '' ?>><?= htmlspecialchars($p['name_en']) ?></option>
                                 <?php endforeach; ?>
                             </select>
+                            <p id="provinceError" class="text-[10px] text-red-500 mt-1 hidden flex items-center gap-1"><i class="fas fa-exclamation-circle"></i> <?= t('please_select_province') ?></p>
                         </div>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"><?= t('district') ?></label>
-                                <select id="selDistrict" onchange="loadCommunes(this.value)" disabled class="w-full px-3.5 py-2.5 rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-sm text-gray-900 dark:text-white outline-none focus:border-blue-500">
+                                <select id="selDistrict" onchange="loadCommunes(this.value); clearError(this, 'districtError')" disabled class="w-full px-3.5 py-2.5 rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-sm text-gray-900 dark:text-white outline-none focus:border-blue-500 transition-all">
                                     <option value=""><?= t('select_district') ?></option>
                                 </select>
+                                <p id="districtError" class="text-[10px] text-red-500 mt-1 hidden flex items-center gap-1"><i class="fas fa-exclamation-circle"></i> <?= t('please_select_district') ?></p>
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"><?= t('commune') ?></label>
-                                <select id="selCommune" onchange="loadVillages(this.value)" disabled class="w-full px-3.5 py-2.5 rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-sm text-gray-900 dark:text-white outline-none focus:border-blue-500">
+                                <select id="selCommune" onchange="loadVillages(this.value); clearError(this, 'communeError')" disabled class="w-full px-3.5 py-2.5 rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-sm text-gray-900 dark:text-white outline-none focus:border-blue-500 transition-all">
                                     <option value=""><?= t('select_commune') ?></option>
                                 </select>
+                                <p id="communeError" class="text-[10px] text-red-500 mt-1 hidden flex items-center gap-1"><i class="fas fa-exclamation-circle"></i> <?= t('please_select_commune') ?></p>
                             </div>
                         </div>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"><?= t('village') ?></label>
-                                <select id="selVillage" disabled class="w-full px-3.5 py-2.5 rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-sm text-gray-900 dark:text-white outline-none focus:border-blue-500">
+                                <select id="selVillage" onchange="clearError(this, 'villageError')" disabled class="w-full px-3.5 py-2.5 rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-sm text-gray-900 dark:text-white outline-none focus:border-blue-500 transition-all">
                                     <option value=""><?= t('select_village') ?></option>
                                 </select>
+                                <p id="villageError" class="text-[10px] text-red-500 mt-1 hidden flex items-center gap-1"><i class="fas fa-exclamation-circle"></i> <?= t('please_select_village') ?></p>
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Street Address <span class="text-red-500">*</span></label>
-                                <input type="text" id="addr_street" value="<?= htmlspecialchars($savedAddress['street'] ?? '') ?>" placeholder="House/Street No." class="w-full px-3.5 py-2.5 rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-sm text-gray-900 dark:text-white outline-none focus:border-blue-500">
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"><?= t('street_address') ?> <span class="text-red-500">*</span></label>
+                                <input type="text" id="addr_street" value="<?= htmlspecialchars($savedAddress['street'] ?? '') ?>" placeholder="House/Street No." class="w-full px-3.5 py-2.5 rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-sm text-gray-900 dark:text-white outline-none focus:border-blue-500 transition-all">
+                                <p id="streetError" class="text-[10px] text-red-500 mt-1 hidden flex items-center gap-1"><i class="fas fa-exclamation-circle"></i> <?= t('please_enter_street') ?></p>
                             </div>
                         </div>
 
@@ -158,7 +165,7 @@
                             $checked = (!empty($savedShipping) && ($savedShipping['key'] ?? '') === $key);
                         ?>
                         <label class="shipping-radio flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all <?= $checked ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'border-gray-200 dark:border-gray-600 hover:border-blue-300 dark:hover:border-blue-700' ?>">
-                            <input type="radio" name="shipping_method" value="<?= $key ?>" <?= $checked ? 'checked' : '' ?> class="mt-1 accent-blue-600">
+                            <input type="radio" name="shipping_method" value="<?= $key ?>" <?= $checked ? 'checked' : '' ?> onchange="clearShippingError()" class="mt-1 accent-blue-600">
                             <div class="flex-1">
                                 <span class="font-semibold text-gray-900 dark:text-white text-sm"><?= $method['label'] ?></span>
                                 <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5"><?= $method['days'] ?></p>
@@ -169,6 +176,7 @@
                         </label>
                         <?php endforeach; ?>
                     </div>
+                    <p id="shippingError" class="text-[10px] text-red-500 mt-2 hidden flex items-center gap-1"><i class="fas fa-exclamation-circle"></i> <?= t('please_select_shipping') ?></p>
 
                     <div class="flex items-center justify-between pt-4">
                         <button onclick="goToStep(1)" class="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 text-sm font-medium flex items-center gap-1">
@@ -247,8 +255,18 @@
                     <p class="text-sm text-gray-500 dark:text-gray-400 mb-5">Select how you'd like to pay.</p>
 
                     <div class="space-y-3" id="paymentOptions">
+                        <label class="payment-radio flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all <?= ($savedPayment === 'card') ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'border-gray-200 dark:border-gray-600 hover:border-blue-300 dark:hover:border-blue-700' ?>">
+                            <input type="radio" name="payment_method" value="card" <?= ($savedPayment === 'card') ? 'checked' : '' ?> onchange="toggleQrCode(true); clearPaymentError();" class="accent-blue-600 payment-select">
+                            <div class="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
+                                <i class="fas fa-qrcode"></i>
+                            </div>
+                            <div class="flex-1">
+                                <span class="font-semibold text-gray-900 dark:text-white text-sm"><?= t('credit_debit_card') ?></span>
+                                <p class="text-xs text-gray-500 dark:text-gray-400"><?= t('pay_with_card') ?></p>
+                            </div>
+                        </label>
                         <label class="payment-radio flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all <?= ($savedPayment === 'cod') ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'border-gray-200 dark:border-gray-600 hover:border-blue-300 dark:hover:border-blue-700' ?>">
-                            <input type="radio" name="payment_method" value="cod" <?= ($savedPayment === 'cod') ? 'checked' : '' ?> class="accent-blue-600">
+                            <input type="radio" name="payment_method" value="cod" <?= ($savedPayment === 'cod') ? 'checked' : '' ?> onchange="toggleQrCode(false); clearPaymentError();" class="accent-blue-600">
                             <div class="w-10 h-10 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center text-green-600 dark:text-green-400">
                                 <i class="fas fa-money-bill-wave"></i>
                             </div>
@@ -257,17 +275,20 @@
                                 <p class="text-xs text-gray-500 dark:text-gray-400"><?= t('pay_on_delivery') ?></p>
                             </div>
                         </label>
-                        <label class="payment-radio flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all <?= ($savedPayment === 'card') ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'border-gray-200 dark:border-gray-600 hover:border-blue-300 dark:hover:border-blue-700' ?>">
-                            <input type="radio" name="payment_method" value="card" <?= ($savedPayment === 'card') ? 'checked' : '' ?> class="accent-blue-600">
-                            <div class="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
-                                <i class="fas fa-credit-card"></i>
-                            </div>
-                            <div class="flex-1">
-                                <span class="font-semibold text-gray-900 dark:text-white text-sm"><?= t('credit_debit_card') ?></span>
-                                <p class="text-xs text-gray-500 dark:text-gray-400"><?= t('pay_with_card') ?></p>
-                            </div>
-                        </label>
                     </div>
+
+                    <!-- QR Code Display -->
+                    <div id="qrCodeContainer" class="<?= ($savedPayment === 'card' && !empty($savedPayment)) ? '' : 'hidden' ?> mt-6 p-6 bg-gray-50 dark:bg-gray-900/50 rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-700 text-center animate-fadeIn">
+                        <p class="text-sm font-bold text-gray-700 dark:text-gray-300 mb-4"><?= t('scan_to_pay') ?: 'Scan to Pay' ?></p>
+                        <div class="inline-block p-4 bg-white rounded-2xl shadow-xl mb-4">
+                            <img src="<?= BASE_URL ?>uploads/qr_code.png" alt="Payment QR Code" class="w-48 h-48 object-contain mx-auto" onerror="this.src='https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=YourShopPayment';">
+                        </div>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 max-w-xs mx-auto">
+                            <?= t('qr_upload_instruction') ?>
+                        </p>
+                    </div>
+
+                    <p id="paymentError" class="text-[10px] text-red-500 mt-2 hidden flex items-center gap-1"><i class="fas fa-exclamation-circle"></i> <?= t('please_select_payment') ?></p>
 
                     <div class="flex items-center justify-between pt-4">
                         <button onclick="goToStep(3)" class="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 text-sm font-medium flex items-center gap-1">
@@ -433,19 +454,41 @@ function saveStep1() {
     if (addrRadio) {
         form.append('address_id', addrRadio.value);
     } else {
-        var name = document.getElementById('addr_name').value.trim();
-        var phone = document.getElementById('addr_phone').value.trim();
-        var street = document.getElementById('addr_street').value.trim();
-        if (!name) { showToast('Please enter your full name.', 'error'); return; }
-        if (!phone) { showToast('Please enter your phone number.', 'error'); return; }
-        if (!street) { showToast('Please enter your street address.', 'error'); return; }
+        var nameInput = document.getElementById('addr_name');
+        var phoneInput = document.getElementById('addr_phone');
+        var streetInput = document.getElementById('addr_street');
+        var provinceInput = document.getElementById('selProvince');
+        var districtInput = document.getElementById('selDistrict');
+        var communeInput = document.getElementById('selCommune');
+        var villageInput = document.getElementById('selVillage');
+
+        var name = nameInput.value.trim();
+        var phone = phoneInput.value.trim();
+        var street = streetInput.value.trim();
+        var province = provinceInput.value;
+        var district = districtInput.value;
+        var commune = communeInput.value;
+        var village = villageInput.value;
+
+        var isValid = true;
+
+        if (!name) { applyError(nameInput, 'nameError'); isValid = false; }
+        if (!phone) { applyError(phoneInput, 'phoneError'); isValid = false; }
+        if (!street) { applyError(streetInput, 'streetError'); isValid = false; }
+        if (!province) { applyError(provinceInput, 'provinceError'); isValid = false; }
+        if (!district) { applyError(districtInput, 'districtError'); isValid = false; }
+        if (!commune) { applyError(communeInput, 'communeError'); isValid = false; }
+        if (!village) { applyError(villageInput, 'villageError'); isValid = false; }
+
+        if (!isValid) return;
+
         form.append('full_name', name);
         form.append('phone', phone);
         form.append('street', street);
-        form.append('province_code', document.getElementById('selProvince').value);
-        form.append('district_code', document.getElementById('selDistrict').value);
-        form.append('commune_code', document.getElementById('selCommune').value);
-        form.append('village_code', document.getElementById('selVillage').value);
+        form.append('province_code', province);
+        form.append('district_code', district);
+        form.append('commune_code', commune);
+        form.append('village_code', village);
         form.append('latitude', document.getElementById('addr_latitude').value);
         form.append('longitude', document.getElementById('addr_longitude').value);
     }
@@ -466,7 +509,14 @@ function saveStep1() {
 // ====== STEP 2: SHIPPING ======
 function saveStep2() {
     var selected = document.querySelector('input[name="shipping_method"]:checked');
-    if (!selected) { showToast('Please select a shipping method.', 'error'); return; }
+    if (!selected) {
+        document.querySelectorAll('.shipping-radio').forEach(function(el) {
+            el.classList.add('border-red-500', 'ring-2', 'ring-red-50', 'dark:ring-red-900/20');
+            el.classList.remove('border-gray-200', 'dark:border-gray-600');
+        });
+        document.getElementById('shippingError').classList.remove('hidden');
+        return;
+    }
 
     var form = new FormData();
     form.append('step', 'shipping');
@@ -494,7 +544,14 @@ var orderInProgress = false;
 function placeOrder() {
     if (orderInProgress) return;
     var selected = document.querySelector('input[name="payment_method"]:checked');
-    if (!selected) { showToast('Please select a payment method.', 'error'); return; }
+    if (!selected) {
+        document.querySelectorAll('.payment-radio').forEach(function(el) {
+            el.classList.add('border-red-500', 'ring-2', 'ring-red-50', 'dark:ring-red-900/20');
+            el.classList.remove('border-gray-200', 'dark:border-gray-600');
+        });
+        document.getElementById('paymentError').classList.remove('hidden');
+        return;
+    }
 
     orderInProgress = true;
     var btn = document.querySelector('.bg-green-600');
@@ -522,6 +579,46 @@ function placeOrder() {
     });
 }
 
+function clearShippingError() {
+    document.querySelectorAll('.shipping-radio').forEach(function(el) {
+        el.classList.remove('border-red-500', 'ring-2', 'ring-red-50', 'dark:ring-red-900/20');
+        el.classList.add('border-gray-200', 'dark:border-gray-600');
+    });
+    document.getElementById('shippingError').classList.add('hidden');
+}
+
+function clearPaymentError() {
+    document.querySelectorAll('.payment-radio').forEach(function(el) {
+        el.classList.remove('border-red-500', 'ring-2', 'ring-red-50', 'dark:ring-red-900/20');
+        el.classList.add('border-gray-200', 'dark:border-gray-600');
+    });
+    document.getElementById('paymentError').classList.add('hidden');
+}
+
+function toggleQrCode(show) {
+    const container = document.getElementById('qrCodeContainer');
+    if (!container) return;
+
+    if (show) {
+        container.classList.remove('hidden');
+        container.style.animation = 'fadeIn 0.5s ease forwards';
+    } else {
+        container.classList.add('hidden');
+    }
+
+    // Update radio styles
+    document.querySelectorAll('.payment-radio').forEach(function(label) {
+        const radio = label.querySelector('input');
+        if (radio.checked) {
+            label.classList.add('border-blue-500', 'bg-blue-50', 'dark:bg-blue-900/20');
+            label.classList.remove('border-gray-200', 'dark:border-gray-600');
+        } else {
+            label.classList.remove('border-blue-500', 'bg-blue-50', 'dark:bg-blue-900/20');
+            label.classList.add('border-gray-200', 'dark:border-gray-600');
+        }
+    });
+}
+
 // ====== LOCATION CASCADING ======
 function loadDistricts(pc, sd, sc, sv) {
     var s = document.getElementById('selDistrict'), c = document.getElementById('selCommune'), v = document.getElementById('selVillage');
@@ -529,13 +626,30 @@ function loadDistricts(pc, sd, sc, sv) {
     c.innerHTML = '<option value=""><?= addslashes(t('select_commune')) ?></option>'; c.disabled = true;
     v.innerHTML = '<option value=""><?= addslashes(t('select_village')) ?></option>'; v.disabled = true;
     if (!pc) { s.innerHTML = '<option value=""><?= addslashes(t('select_district')) ?></option>'; return; }
-    fetch('<?= BASE_URL ?>api/districts?province_code=' + encodeURIComponent(pc))
-    .then(function(r) { return r.json(); })
+
+    var url = '<?= BASE_URL ?>api/districts?province_code=' + encodeURIComponent(pc);
+    console.log('Fetching districts from:', url);
+
+    fetch(url)
+    .then(function(r) {
+        if (!r.ok) throw new Error('Network response was not ok: ' + r.statusText);
+        return r.json();
+    })
     .then(function(d) {
+        console.log('Districts received:', d);
         s.innerHTML = '<option value=""><?= addslashes(t('select_district')) ?></option>';
-        d.forEach(function(x) { s.innerHTML += '<option value="' + x.code + '">' + x.name_en + '</option>'; });
-        s.disabled = false;
+        if (d && d.length > 0) {
+            d.forEach(function(x) { s.innerHTML += '<option value="' + x.code + '">' + x.name_en + '</option>'; });
+            s.disabled = false;
+        } else {
+            s.innerHTML = '<option value="">No districts found</option>';
+        }
         if (sd) { s.value = sd; loadCommunes(sd, sc, sv); }
+    })
+    .catch(function(err) {
+        console.error('Fetch error:', err);
+        s.innerHTML = '<option value="">Error loading districts</option>';
+        showToast('Failed to load districts. Check console for details.', 'error');
     });
 }
 
@@ -544,13 +658,26 @@ function loadCommunes(dc, sc, sv) {
     s.innerHTML = '<option value="">Loading...</option>'; s.disabled = true;
     v.innerHTML = '<option value=""><?= addslashes(t('select_village')) ?></option>'; v.disabled = true;
     if (!dc) { s.innerHTML = '<option value=""><?= addslashes(t('select_commune')) ?></option>'; return; }
-    fetch('<?= BASE_URL ?>api/communes?district_code=' + encodeURIComponent(dc))
-    .then(function(r) { return r.json(); })
+
+    var url = '<?= BASE_URL ?>api/communes?district_code=' + encodeURIComponent(dc);
+    fetch(url)
+    .then(function(r) {
+        if (!r.ok) throw new Error('Network response was not ok');
+        return r.json();
+    })
     .then(function(d) {
         s.innerHTML = '<option value=""><?= addslashes(t('select_commune')) ?></option>';
-        d.forEach(function(x) { s.innerHTML += '<option value="' + x.code + '">' + x.name_en + '</option>'; });
-        s.disabled = false;
+        if (d && d.length > 0) {
+            d.forEach(function(x) { s.innerHTML += '<option value="' + x.code + '">' + x.name_en + '</option>'; });
+            s.disabled = false;
+        } else {
+            s.innerHTML = '<option value="">No communes found</option>';
+        }
         if (sc) { s.value = sc; loadVillages(sc, sv); }
+    })
+    .catch(function(err) {
+        console.error('Fetch error:', err);
+        s.innerHTML = '<option value="">Error loading communes</option>';
     });
 }
 
@@ -558,17 +685,75 @@ function loadVillages(cc, sv) {
     var s = document.getElementById('selVillage');
     s.innerHTML = '<option value="">Loading...</option>'; s.disabled = true;
     if (!cc) { s.innerHTML = '<option value=""><?= addslashes(t('select_village')) ?></option>'; return; }
-    fetch('<?= BASE_URL ?>api/villages?commune_code=' + encodeURIComponent(cc))
-    .then(function(r) { return r.json(); })
+
+    var url = '<?= BASE_URL ?>api/villages?commune_code=' + encodeURIComponent(cc);
+    fetch(url)
+    .then(function(r) {
+        if (!r.ok) throw new Error('Network response was not ok');
+        return r.json();
+    })
     .then(function(d) {
         s.innerHTML = '<option value=""><?= addslashes(t('select_village')) ?></option>';
-        d.forEach(function(x) { s.innerHTML += '<option value="' + x.code + '">' + x.name_en + '</option>'; });
-        s.disabled = false;
+        if (d && d.length > 0) {
+            d.forEach(function(x) { s.innerHTML += '<option value="' + x.code + '">' + x.name_en + '</option>'; });
+            s.disabled = false;
+        } else {
+            s.innerHTML = '<option value="">No villages found</option>';
+        }
         if (sv) { s.value = sv; }
+    })
+    .catch(function(err) {
+        console.error('Fetch error:', err);
+        s.innerHTML = '<option value="">Error loading villages</option>';
     });
 }
 
 // ====== UTILITY ======
+function applyError(input, errorId) {
+    input.classList.add('border-red-500', 'ring-2', 'ring-red-50', 'dark:ring-red-900/20');
+    input.classList.remove('border-gray-200', 'dark:border-gray-600', 'bg-gray-50', 'dark:bg-gray-700');
+    var err = document.getElementById(errorId);
+    if (err) err.classList.remove('hidden');
+}
+
+function clearError(input, errorId) {
+    input.classList.remove('border-red-500', 'ring-2', 'ring-red-50', 'dark:ring-red-900/20');
+    input.classList.add('border-gray-200', 'dark:border-gray-600', 'bg-gray-50', 'dark:bg-gray-700');
+    var err = document.getElementById(errorId);
+    if (err) err.classList.add('hidden');
+}
+
+// Add event listeners to clear errors on input
+document.addEventListener('DOMContentLoaded', function() {
+    ['addr_name', 'addr_phone', 'addr_street'].forEach(function(id) {
+        var input = document.getElementById(id);
+        if (input) {
+            input.addEventListener('input', function() {
+                clearError(this, id.replace('addr_', '') + 'Error');
+            });
+        }
+    });
+
+    // Clear all errors when a saved address is selected
+    document.querySelectorAll('.address-select').forEach(function(radio) {
+        radio.addEventListener('change', function() {
+            if (this.checked) {
+                ['nameError', 'phoneError', 'streetError', 'provinceError', 'districtError', 'communeError', 'villageError'].forEach(function(eid) {
+                    var err = document.getElementById(eid);
+                    if (err) err.classList.add('hidden');
+                });
+                ['addr_name', 'addr_phone', 'addr_street', 'selProvince', 'selDistrict', 'selCommune', 'selVillage'].forEach(function(id) {
+                    var input = document.getElementById(id);
+                    if (input) {
+                        input.classList.remove('border-red-500', 'ring-2', 'ring-red-50', 'dark:ring-red-900/20');
+                        input.classList.add('border-gray-200', 'dark:border-gray-600', 'bg-gray-50', 'dark:bg-gray-700');
+                    }
+                });
+            }
+        });
+    });
+});
+
 var style = document.createElement('style');
 style.textContent = '@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }';
 document.head.appendChild(style);

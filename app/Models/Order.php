@@ -154,14 +154,14 @@ class Order {
     }
 
     public function getTotalSpentByUser($userId) {
-        $stmt = $this->db->prepare("SELECT COALESCE(SUM(total_price), 0) FROM orders WHERE user_id = ? AND status = 'completed'");
+        $stmt = $this->db->prepare("SELECT COALESCE(SUM(total_price), 0) FROM orders WHERE user_id = ? AND status IN ('delivered', 'completed')");
         $stmt->execute([$userId]);
         return (float)$stmt->fetchColumn();
     }
 
     // Analytics Methods
     public function getTotalSales() {
-        $stmt = $this->db->query("SELECT SUM(total_price) as total FROM orders WHERE status = 'completed'");
+        $stmt = $this->db->query("SELECT SUM(total_price) as total FROM orders WHERE status IN ('delivered', 'completed')");
         $row = $stmt->fetch();
         return $row['total'] ?? 0.00;
     }

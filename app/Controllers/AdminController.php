@@ -317,6 +317,9 @@ class AdminController extends Controller {
     public function orders() {
         $statusFilter = $_GET['status'] ?? null;
         $search = trim($_GET['search'] ?? '');
+        $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+        if ($page < 1) $page = 1;
+        $limit = 10;
 
         $allOrders = $this->orderModel->all();
         $statusCounts = [];
@@ -341,10 +344,17 @@ class AdminController extends Controller {
             $orders = array_values($orders);
         }
 
-        $orderIds = array_column($orders, 'id');
+        $totalFiltered = count($orders);
+        $totalPages = ceil($totalFiltered / $limit);
+        if ($page > $totalPages && $totalPages > 0) $page = $totalPages;
+        $offset = ($page - 1) * $limit;
+
+        $paginatedOrders = array_slice($orders, $offset, $limit);
+
+        $orderIds = array_column($paginatedOrders, 'id');
         $itemsGrouped = $this->orderModel->getItemsForOrders($orderIds);
         $enriched = [];
-        foreach ($orders as $o) {
+        foreach ($paginatedOrders as $o) {
             $o['items'] = $itemsGrouped[$o['id']] ?? [];
             $enriched[] = $o;
         }
@@ -359,6 +369,9 @@ class AdminController extends Controller {
             'totalOrders' => count($allOrders),
             'statusCounts' => $statusCounts,
             'flow' => $flow,
+            'currentPage' => $page,
+            'totalPages' => $totalPages,
+            'totalFiltered' => $totalFiltered
         ], 'admin');
     }
 
@@ -1250,6 +1263,64 @@ class AdminController extends Controller {
         $categoryModel = new Category();
         $subs = $categoryModel->childrenOf($parentId);
         $this->json($subs);
+    }
+
+    // QR Code Management
+    public function qrCode() {
+        $qrPath = UPLOAD_PATH . 'qr_code.png';
+        $hasQr = file_exists($qrPath);
+
+        $this->render('admin/settings/qrcode', [
+            'title' => 'Manage QR Code - E-Shop',
+            'hasQr' => $hasQr,
+            'qrUrl' => BASE_URL . 'uploads/qr_code.png?v=' . ($hasQr ? filemtime($qrPath) : time())
+        ], 'admin');
+    }
+
+    public function qrCodeSave() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->redirect('admin/qrcode');
+        }
+
+        if (isset($_FILES['qr_code']) && $_FILES['qr_code']['error'] === UPLOAD_ERR_OK) {
+            $tempFile = $_FILES['qr_code']['tmp_name'];
+            $targetFile = UPLOAD_PATH . 'qr_code.png';
+
+            // Ensure directory exists
+            if (!is_dir(UPLOAD_PATH)) {
+                mkdir(UPLOAD_PATH, 0777, true);
+            }
+
+            // Simple validation: check if it's an image
+            $check = getimagesize($tempFile);
+            if ($check !== false) {
+                if (move_uploaded_file($tempFile, $targetFile)) {
+                    Session::setFlash('success', 'QR Code image updated successfully.');
+                } else {
+                    Session::setFlash('error', 'Failed to move uploaded file. Check folder permissions.');
+                }
+            } else {
+                Session::setFlash('error', 'File is not a valid image.');
+            }
+        } else {
+            Session::setFlash('error', 'No file uploaded or upload error.');
+        }
+
+        $this->redirect('admin/qrcode');
+    }
+
+    public function qrCodeDelete() {
+        $targetFile = UPLOAD_PATH . 'qr_code.png';
+        if (file_exists($targetFile)) {
+            if (unlink($targetFile)) {
+                Session::setFlash('success', 'QR Code image deleted.');
+            } else {
+                Session::setFlash('error', 'Failed to delete QR Code image.');
+            }
+        } else {
+            Session::setFlash('error', 'QR Code image not found.');
+        }
+        $this->redirect('admin/qrcode');
     }
 
 }

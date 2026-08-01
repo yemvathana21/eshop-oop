@@ -1,23 +1,28 @@
 <div class="space-y-6">
-    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-4 transition-colors">
-        <form method="GET" action="<?= BASE_URL ?>admin/orders" class="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-            <div class="flex items-center gap-2 flex-wrap">
-                <span class="text-sm font-medium text-gray-600 dark:text-gray-300"><?= t('status') ?>:</span>
-                <a href="<?= BASE_URL ?>admin/orders" class="px-3 py-1.5 rounded-lg text-sm font-medium transition <?= !$statusFilter ? 'bg-blue-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600' ?>">
-                    <?= t('all') ?> (<?= $totalOrders ?>)
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-2 transition-colors">
+        <form method="GET" action="<?= BASE_URL ?>admin/orders" class="flex flex-col lg:flex-row items-center gap-4">
+            <!-- Status Tabs -->
+            <div class="flex items-center gap-1 p-1 bg-gray-50 dark:bg-gray-900/50 rounded-xl overflow-x-auto scrollbar-hide w-full lg:w-auto">
+                <a href="<?= BASE_URL ?>admin/orders"
+                   class="px-4 py-2 rounded-lg text-sm font-semibold transition-all whitespace-nowrap <?= !$statusFilter ? 'bg-white dark:bg-gray-800 text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400' ?>">
+                    <?= t('all') ?> <span class="ml-1 text-[10px] opacity-60"><?= $totalOrders ?></span>
                 </a>
                 <?php
-                foreach (['pending', 'confirmed', 'shipping', 'delivery', 'delivered', 'cancelled'] as $sf):
+                $orderFlow = ['pending', 'confirmed', 'shipping', 'delivery', 'delivered', 'completed', 'cancelled'];
+                foreach ($orderFlow as $sf):
                 ?>
-                <a href="<?= BASE_URL ?>admin/orders?status=<?= $sf ?>" class="px-3 py-1.5 rounded-lg text-sm font-medium transition <?= $statusFilter === $sf ? 'bg-blue-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600' ?>">
-                    <?= t($sf) ?> (<?= $statusCounts[$sf] ?? 0 ?>)
+                <a href="<?= BASE_URL ?>admin/orders?status=<?= $sf ?>"
+                   class="px-4 py-2 rounded-lg text-sm font-semibold transition-all whitespace-nowrap <?= $statusFilter === $sf ? 'bg-white dark:bg-gray-800 text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400' ?>">
+                    <?= t($sf) ?> <span class="ml-1 text-[10px] opacity-60"><?= $statusCounts[$sf] ?? 0 ?></span>
                 </a>
                 <?php endforeach; ?>
             </div>
-            <div class="relative sm:ml-auto">
+
+            <!-- Search -->
+            <div class="relative w-full lg:w-64 lg:ml-auto">
                 <input type="text" name="search" value="<?= htmlspecialchars($search) ?>" placeholder="<?= t('search') ?>"
-                    class="pl-9 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition w-64">
-                <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                    class="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-gray-900/50 border-none rounded-xl text-sm focus:ring-2 focus:ring-blue-500 transition-all">
+                <i class="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
             </div>
         </form>
     </div>
@@ -79,6 +84,7 @@
                                         'shipping'  => 'bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-400',
                                         'delivery'  => 'bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-400',
                                         'delivered' => 'bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-400',
+                                        'completed' => 'bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-400',
                                         'cancelled' => 'bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-400',
                                     ];
                                     echo $sc[$order['status']] ?? 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300';
@@ -102,6 +108,41 @@
                 </tbody>
             </table>
         </div>
+
+        <!-- Pagination -->
+        <?php if ($totalPages > 1): ?>
+        <div class="px-4 py-4 bg-gray-50 dark:bg-gray-700/50 border-t border-gray-100 dark:border-gray-700 flex items-center justify-between">
+            <p class="text-xs text-gray-500 dark:text-gray-400">
+                Showing <?= ($currentPage - 1) * 10 + 1 ?> to <?= min($currentPage * 10, $totalFiltered) ?> of <?= $totalFiltered ?> orders
+            </p>
+            <div class="flex items-center gap-1">
+                <?php if ($currentPage > 1): ?>
+                <a href="<?= BASE_URL ?>admin/orders?page=<?= $currentPage - 1 ?><?= $statusFilter ? '&status='.$statusFilter : '' ?><?= $search ? '&search='.$search : '' ?>"
+                   class="w-8 h-8 flex items-center justify-center rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 text-gray-500 hover:bg-gray-50 transition shadow-sm">
+                    <i class="fas fa-chevron-left text-[10px]"></i>
+                </a>
+                <?php endif; ?>
+
+                <?php
+                $start = max(1, $currentPage - 2);
+                $end = min($totalPages, $currentPage + 2);
+                for ($i = $start; $i <= $end; $i++):
+                ?>
+                <a href="<?= BASE_URL ?>admin/orders?page=<?= $i ?><?= $statusFilter ? '&status='.$statusFilter : '' ?><?= $search ? '&search='.$search : '' ?>"
+                   class="w-8 h-8 flex items-center justify-center rounded-lg text-sm font-bold transition shadow-sm <?= $i === $currentPage ? 'bg-blue-600 text-white shadow-blue-500/30' : 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 text-gray-500 hover:bg-gray-50' ?>">
+                    <?= $i ?>
+                </a>
+                <?php endfor; ?>
+
+                <?php if ($currentPage < $totalPages): ?>
+                <a href="<?= BASE_URL ?>admin/orders?page=<?= $currentPage + 1 ?><?= $statusFilter ? '&status='.$statusFilter : '' ?><?= $search ? '&search='.$search : '' ?>"
+                   class="w-8 h-8 flex items-center justify-center rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 text-gray-500 hover:bg-gray-50 transition shadow-sm">
+                    <i class="fas fa-chevron-right text-[10px]"></i>
+                </a>
+                <?php endif; ?>
+            </div>
+        </div>
+        <?php endif; ?>
     </div>
     <?php endif; ?>
 </div>

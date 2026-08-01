@@ -26,23 +26,43 @@ class LocationController extends Controller {
     }
 
     public function districts() {
-        $provinceCode = $_GET['province_code'] ?? null;
-        if (!$provinceCode) $this->json([]);
-        $districts = $this->districtModel->byProvince($provinceCode);
-        $this->json($districts);
+        try {
+            // បិទការបង្ហាញ Error ជា HTML ដើម្បីកុំឲ្យខូច JSON
+            ini_set('display_errors', 0);
+
+            $provinceCode = $_GET['province_code'] ?? null;
+            if (!$provinceCode) $this->json([]);
+
+            $districts = $this->districtModel->byProvince($provinceCode);
+            $this->json($districts);
+        } catch (\Throwable $e) {
+            header('Content-Type: application/json', true, 500);
+            echo json_encode(['error' => $e->getMessage(), 'file' => $e->getFile(), 'line' => $e->getLine()]);
+            exit;
+        }
     }
 
     public function communes() {
-        $districtCode = $_GET['district_code'] ?? null;
-        if (!$districtCode) $this->json([]);
-        $communes = $this->communeModel->byDistrict($districtCode);
-        $this->json($communes);
+        try {
+            $districtCode = $_GET['district_code'] ?? null;
+            if (!$districtCode) $this->json([]);
+            $communes = $this->communeModel->byDistrict($districtCode);
+            $this->json($communes);
+        } catch (\Exception $e) {
+            header('HTTP/1.1 500 Internal Server Error');
+            $this->json(['error' => $e->getMessage()]);
+        }
     }
 
     public function villages() {
-        $communeCode = $_GET['commune_code'] ?? null;
-        if (!$communeCode) $this->json([]);
-        $villages = $this->villageModel->byCommune($communeCode);
-        $this->json($villages);
+        try {
+            $communeCode = $_GET['commune_code'] ?? null;
+            if (!$communeCode) $this->json([]);
+            $villages = $this->villageModel->byCommune($communeCode);
+            $this->json($villages);
+        } catch (\Exception $e) {
+            header('HTTP/1.1 500 Internal Server Error');
+            $this->json(['error' => $e->getMessage()]);
+        }
     }
 }

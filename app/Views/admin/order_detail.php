@@ -46,7 +46,7 @@
                 <p class="text-gray-500 dark:text-gray-400 text-xs mt-1">via <?= htmlspecialchars($order['shipping_method']) ?> <?= !empty($order['shipping_cost']) ? '(+$' . number_format($order['shipping_cost'], 2) . ')' : '' ?></p>
                 <?php endif; ?>
                 <?php if (!empty($order['payment_method'])): ?>
-                <p class="text-gray-500 dark:text-gray-400 text-xs">Payment: <?= htmlspecialchars($order['payment_method']) ?></p>
+                <p class="text-gray-500 dark:text-gray-400 text-xs mt-1">Payment: <?= $order['payment_method'] === 'cod' ? t('cash_on_delivery') : t('credit_debit_card') ?></p>
                 <?php endif; ?>
             </div>
             <?php endif; ?>
@@ -106,7 +106,7 @@
     </div>
 
     <?php
-        $allStatuses = ['pending', 'confirmed', 'shipping', 'delivery', 'delivered'];
+        $allStatuses = ['pending', 'confirmed', 'shipping', 'delivery', 'delivered', 'completed'];
         $currentIdx = array_search($order['status'], $allStatuses);
         $statusOptions = [
             'pending'   => ['label' => 'Pending',     'icon' => 'fa-clock',     'color' => 'bg-yellow-500'],
@@ -114,6 +114,7 @@
             'shipping'  => ['label' => 'Shipping',    'icon' => 'fa-truck',     'color' => 'bg-indigo-500'],
             'delivery'  => ['label' => 'Delivery',    'icon' => 'fa-road',      'color' => 'bg-purple-500'],
             'delivered' => ['label' => 'Delivered',   'icon' => 'fa-home',      'color' => 'bg-green-500'],
+            'completed' => ['label' => 'Completed',   'icon' => 'fa-check-double', 'color' => 'bg-emerald-500'],
             'cancelled' => ['label' => 'Cancelled',   'icon' => 'fa-times',     'color' => 'bg-red-500'],
         ];
     ?>
@@ -147,7 +148,7 @@
             <input type="hidden" name="id" value="<?= $order['id'] ?>">
             <input type="hidden" name="status" value="cancelled">
             <button type="submit" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/40 transition"
-                    onclick="return confirm('Cancel this order?')">
+                    onclick="const f=this.form; event.preventDefault(); confirmAction('<?= t('cancel_order_confirm') ?>', () => f.submit());">
                 <i class="fas fa-times"></i> Cancel
             </button>
         </form>

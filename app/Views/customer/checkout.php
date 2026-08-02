@@ -335,7 +335,7 @@
 <?php
 $initialAddressText = '—';
 if (!empty($savedAddress)) {
-    $addrModel = new \App\Models\UserAddress();
+    $addrModel = new \App\Models\User\UserAddress();
     $loc = $addrModel->getFullAddress($savedAddress);
     $name = $savedAddress['full_name'] ?? '';
     $phone = $savedAddress['phone'] ?? '';

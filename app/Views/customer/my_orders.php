@@ -98,7 +98,7 @@ function downloadOrderPDF(btn) {
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(22);
     doc.setFont('helvetica', 'bold');
-    doc.text('E-Shop', 25, 34);
+    doc.text('General Online Store', 25, 34);
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
     doc.text('INVOICE', pageWidth - 25, 28, { align: 'right' });
@@ -160,7 +160,7 @@ function downloadOrderPDF(btn) {
     doc.setFontSize(8);
     doc.setFont('helvetica', 'normal');
     doc.text('Thank you for shopping with us!', pageWidth / 2, 272, { align: 'center' });
-    doc.text('E-Shop - Your trusted online store', pageWidth / 2, 277, { align: 'center' });
+    doc.text('General Online Store - Your trusted online store', pageWidth / 2, 277, { align: 'center' });
 
     doc.save('Invoice-' + invoiceNumber + '.pdf');
 }

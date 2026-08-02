@@ -1,11 +1,11 @@
-# E-Shop — PHP MVC E-Commerce Store
+# General Online Store — PHP MVC E-Commerce Store
 
 A full-featured e-commerce web application built with **PHP 8**, **MySQL**, **MVC architecture**, and **OOP conventions**. Features a complete storefront with dark mode, bilingual support (English/Khmer), and a full admin panel.
 
 ## Demo
 
-- **Store:** `http://localhost/e-shop/`
-- **Admin Panel:** `http://localhost/e-shop/admin/dashboard`
+- **Store:** `http://localhost/project-php-oop/eshop-oop/`
+- **Admin Panel:** `http://localhost/project-php-oop/eshop-oop/admin/dashboard`
 
 ## Tech Stack
 
@@ -45,7 +45,7 @@ A full-featured e-commerce web application built with **PHP 8**, **MySQL**, **MV
 ## Project Structure
 
 ```
-e-shop/
+general-online-store/
 ├── app/
 │   ├── Controllers/
 │   │   ├── AdminController.php
@@ -104,18 +104,35 @@ e-shop/
 └── .htaccess
 ```
 
-## Setup
+## Setup & Installation
 
-1. Place the project in your XAMPP `htdocs` folder
-2. Import `config/database.sql` into MySQL (or let the app auto-create it)
-3. Start Apache and MySQL via XAMPP
-4. Visit `http://localhost/e-shop/`
+Follow these steps to set up the project on your local machine (XAMPP):
+
+1. **Move Project:** Place the `eshop-oop` folder inside your XAMPP `htdocs` directory.
+2. **Database Setup:** 
+   - Open **phpMyAdmin** (`http://localhost/phpmyadmin`).
+   - Create a new database named `eshop_db`.
+3. **Configuration:** 
+   - Open `config/config.php`.
+   - Update `DB_USER` and `DB_PASS` if they differ from your local MySQL settings.
+4. **Auto-Initialization:** 
+   - Start Apache and MySQL in your XAMPP Control Panel.
+   - Open your browser and visit `http://localhost/project-php-oop/eshop-oop/`.
+   - The system will automatically detect the empty database and create all required tables and default data.
+5. **Import Cambodia Address Data (Essential for Demo):**
+   - The project includes a complete location cascading system (Province -> District -> Commune -> Village).
+   - To populate the database with over 14,000 locations, open your terminal/command prompt in the project root and run:
+     ```bash
+     php database/seeds/seed_cambodia.php
+     ```
+   - *Wait 1-2 minutes until you see "Done! Cambodia address data seeded successfully."*
 
 ## Default Credentials
 
 | Role | Email | Password |
 |------|-------|----------|
-| Admin | admin@eshop.com | admin123 |
+| **Admin** | `admin@store.com` | `admin123` |
+| **Customer** | `john@gmail.com` | `customer123` |
 
 ## Database Tables
 

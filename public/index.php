@@ -32,13 +32,13 @@ function t($key) { return Language::get($key); }
 
 // Use the Router
 use App\Core\Router;
-use App\Controllers\HomeController;
-use App\Controllers\AuthController;
-use App\Controllers\CartController;
-use App\Controllers\CheckoutController;
-use App\Controllers\AdminController;
-use App\Controllers\ProfileController;
-use App\Controllers\LocationController;
+use App\Controllers\Customer\HomeController;
+use App\Controllers\Auth\AuthController;
+use App\Controllers\Customer\CartController;
+use App\Controllers\Customer\CheckoutController;
+use App\Controllers\Admin\AdminController;
+use App\Controllers\Customer\ProfileController;
+use App\Controllers\Api\LocationController;
 
 $router = new Router();
 
@@ -46,6 +46,10 @@ $router = new Router();
 $router->get('/', [HomeController::class, 'index']);
 $router->get('/shop', [HomeController::class, 'shop']);
 $router->get('/product', [HomeController::class, 'productDetail']);
+$router->get('/about', [HomeController::class, 'about']);
+$router->get('/contact', [HomeController::class, 'contact']);
+$router->get('/faq', [HomeController::class, 'faq']);
+$router->post('/contact/submit', [HomeController::class, 'contactSubmit']);
 $router->post('/review/submit', [HomeController::class, 'submitReview']);
 $router->get('/review/delete', [HomeController::class, 'deleteReview']);
 $router->post('/wishlist/toggle', [HomeController::class, 'toggleWishlist']);
@@ -75,28 +79,16 @@ $router->get('/account/wishlist/remove', [ProfileController::class, 'wishlistRem
 $router->get('/account/addresses', [ProfileController::class, 'addresses']);
 $router->post('/account/address/save', [ProfileController::class, 'addressSave']);
 $router->get('/account/address/delete', [ProfileController::class, 'addressDelete']);
-$router->get('/account/payment-methods', [ProfileController::class, 'paymentMethods']);
-$router->post('/account/payment-method/save', [ProfileController::class, 'paymentMethodSave']);
-$router->get('/account/payment-method/delete', [ProfileController::class, 'paymentMethodDelete']);
-$router->get('/account/payment-method/default', [ProfileController::class, 'paymentMethodSetDefault']);
 $router->get('/account/security', [ProfileController::class, 'security']);
 $router->post('/account/security/password', [ProfileController::class, 'password']);
-$router->get('/account/notifications', [ProfileController::class, 'notifications']);
-$router->post('/account/notifications/save', [ProfileController::class, 'notificationsSave']);
-$router->get('/account/connected', [ProfileController::class, 'connectedAccounts']);
-$router->get('/account/connected/delete', [ProfileController::class, 'connectedAccountDelete']);
 $router->get('/account/appearance', [ProfileController::class, 'appearance']);
 $router->post('/account/appearance/save', [ProfileController::class, 'appearanceSave']);
 $router->get('/account/privacy', [ProfileController::class, 'privacy']);
 $router->post('/account/delete-account', [ProfileController::class, 'deleteAccount']);
 $router->get('/account/username', [ProfileController::class, 'username']);
 $router->post('/account/username/save', [ProfileController::class, 'usernameSave']);
-$router->get('/account/devices', [ProfileController::class, 'devices']);
-$router->get('/account/passkeys', [ProfileController::class, 'passkeys']);
-$router->get('/account/membership', [ProfileController::class, 'membership']);
-$router->get('/account/download-data', [ProfileController::class, 'downloadData']);
+$router->get('/account/messages', [ProfileController::class, 'messages']);
 $router->post('/account/preference/save', [ProfileController::class, 'preferenceSave']);
-$router->post('/account/connected/toggle', [ProfileController::class, 'connectedAccountToggle']);
 $router->post('/account/device/revoke', [ProfileController::class, 'deviceRevoke']);
 
 // --- Location (AJAX) Routes ---
@@ -179,6 +171,14 @@ $router->get('/admin/qrcode', [AdminController::class, 'qrCode']);
 $router->post('/admin/qrcode/save', [AdminController::class, 'qrCodeSave']);
 $router->get('/admin/qrcode/delete', [AdminController::class, 'qrCodeDelete']);
 
+$router->get('/admin/settings/contact', [AdminController::class, 'contactSettings']);
+$router->post('/admin/settings/contact/save', [AdminController::class, 'contactSettingsSave']);
+
+$router->get('/admin/messages', [AdminController::class, 'messages']);
+$router->get('/admin/message', [AdminController::class, 'messageDetail']);
+$router->post('/admin/message/reply', [AdminController::class, 'messageReply']);
+$router->get('/admin/message/delete', [AdminController::class, 'messageDelete']);
+
 $router->get('/admin/sizes', [AdminController::class, 'sizes']);
 $router->post('/admin/size/save', [AdminController::class, 'sizeSave']);
 $router->get('/admin/size/delete', [AdminController::class, 'sizeDelete']);
@@ -186,14 +186,6 @@ $router->get('/admin/size/delete', [AdminController::class, 'sizeDelete']);
 $router->get('/admin/colors', [AdminController::class, 'colors']);
 $router->post('/admin/color/save', [AdminController::class, 'colorSave']);
 $router->get('/admin/color/delete', [AdminController::class, 'colorDelete']);
-
-$router->get('/admin/countries', [AdminController::class, 'countries']);
-$router->post('/admin/country/save', [AdminController::class, 'countrySave']);
-$router->get('/admin/country/delete', [AdminController::class, 'countryDelete']);
-
-$router->get('/admin/shipping-costs', [AdminController::class, 'shippingCosts']);
-$router->post('/admin/shipping-cost/save', [AdminController::class, 'shippingCostSave']);
-$router->get('/admin/shipping-cost/delete', [AdminController::class, 'shippingCostDelete']);
 
 $router->get('/admin/shipping-methods', [AdminController::class, 'shippingMethods']);
 $router->post('/admin/shipping-method/save', [AdminController::class, 'shippingMethodSave']);

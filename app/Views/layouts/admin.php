@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $data['title'] ?? 'Admin - E-Shop' ?></title>
+    <title><?= $data['title'] ?? 'Admin - General Online Store' ?></title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -24,8 +24,73 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
     <style>
-        .scrollbar-hide::-webkit-scrollbar { display: none; }
-        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+        /* Custom Scrollbar */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(156, 163, 175, 0.2);
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(156, 163, 175, 0.4);
+        }
+
+        /* Sidebar Transition */
+        #sidebar, #main-content {
+            transition: all 0.3s ease-in-out;
+        }
+
+        .sidebar-collapsed #sidebar {
+            width: 5rem; /* w-20 */
+        }
+
+        .sidebar-collapsed #sidebar .sidebar-text,
+        .sidebar-collapsed #sidebar .ws-chevron,
+        .sidebar-collapsed #sidebar .chevron,
+        .sidebar-collapsed #sidebar .sidebar-footer-text {
+            display: none;
+        }
+
+        .sidebar-collapsed #sidebar .sidebar-link {
+            justify-content: center;
+            padding-left: 0;
+            padding-right: 0;
+        }
+
+        .sidebar-collapsed #sidebar .sidebar-link i {
+            margin-right: 0;
+            width: auto;
+            font-size: 1.25rem;
+        }
+
+        .sidebar-collapsed #main-content {
+            margin-left: 5rem;
+        }
+
+        .sidebar-collapsed #sidebar .sidebar-header-text {
+            display: none;
+        }
+
+        .sidebar-collapsed #sidebar .sidebar-header-logo {
+            margin-right: 0;
+        }
+
+        .sidebar-collapsed #sidebar .dropdown-menu {
+            display: none !important;
+        }
+
+        .sidebar-collapsed #sidebar .sidebar-footer {
+            display: none;
+        }
+
+        .sidebar-collapsed #sidebar .sidebar-link {
+            width: 100% !important;
+            justify-content: center !important;
+        }
     </style>
 
     <script>
@@ -37,39 +102,67 @@
             } else {
                 document.documentElement.classList.remove('dark');
             }
+
+            // Sidebar state
+            if (localStorage.getItem('sidebarCollapsed') === 'true') {
+                document.documentElement.classList.add('sidebar-collapsed-init');
+            }
         })();
     </script>
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 min-h-screen flex transition-colors duration-300">
+    <script>
+        if (localStorage.getItem('sidebarCollapsed') === 'true') {
+            document.body.classList.add('sidebar-collapsed');
+        }
+    </script>
     <!-- Sidebar -->
-    <aside class="w-64 bg-gray-900 dark:bg-gray-950 text-white flex flex-col min-h-screen fixed z-30">
-        <div class="p-6 border-b border-gray-700">
-            <a href="<?= BASE_URL ?>admin/dashboard" class="flex items-center space-x-2">
-                <div class="bg-blue-600 text-white w-9 h-9 rounded-lg flex items-center justify-center font-bold text-lg">E</div>
-                <span class="text-lg font-bold"><?= t('admin_panel') ?></span>
+    <aside id="sidebar" class="w-64 bg-gray-900 dark:bg-gray-950 text-white flex flex-col h-screen fixed z-30">
+        <div class="p-6 border-b border-gray-700 flex items-center">
+            <a href="<?= BASE_URL ?>admin/dashboard" class="flex items-center space-x-2 sidebar-link">
+                <div class="bg-blue-600 text-white w-9 h-9 rounded-lg flex items-center justify-center font-bold text-lg flex-shrink-0 sidebar-header-logo">G</div>
+                <span class="text-lg font-bold sidebar-header-text"><?= t('admin_panel') ?></span>
             </a>
         </div>
-        <nav class="flex-1 p-4 space-y-1 overflow-y-auto scrollbar-hide">
+        <nav class="flex-1 p-4 space-y-1 overflow-y-auto custom-scrollbar">
             <?php $currentUrl = $_SERVER['REQUEST_URI']; ?>
-            <a href="<?= BASE_URL ?>admin/dashboard" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-700 transition <?= (strpos($currentUrl, 'dashboard') !== false) ? 'bg-gray-700' : '' ?>">
-                <i class="fas fa-tachometer-alt w-5 text-blue-500"></i><span><?= t('dashboard') ?></span>
+            <a href="<?= BASE_URL ?>admin/dashboard" class="group flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-700 transition sidebar-link <?= (strpos($currentUrl, 'dashboard') !== false) ? 'bg-gray-700' : '' ?>">
+                <i class="fas fa-tachometer-alt w-5 text-gray-400 group-hover:text-blue-400 transition-colors <?= (strpos($currentUrl, 'dashboard') !== false) ? 'text-blue-400' : '' ?>"></i>
+                <span class="sidebar-text"><?= t('dashboard') ?></span>
             </a>
 
             <!-- Website Settings Dropdown -->
             <div class="space-y-1">
                 <?php
-                $websiteSettingsActive = (strpos($currentUrl, 'admin/qrcode') !== false);
+                $cmModel = new \App\Models\Contact\ContactMessage();
+                $unreadMessages = $cmModel->countUnread();
+                $websiteSettingsActive = (strpos($currentUrl, 'admin/qrcode') !== false || strpos($currentUrl, 'admin/settings/contact') !== false || strpos($currentUrl, 'admin/message') !== false);
                 ?>
                 <button id="websiteSettingsBtn" onclick="toggleWebsiteSettings()"
-                    class="w-full flex items-center justify-between px-4 py-3 rounded-lg hover:bg-gray-700 transition <?= $websiteSettingsActive ? 'bg-gray-800/50' : '' ?>">
+                    class="group w-full flex items-center justify-between px-4 py-3 rounded-lg hover:bg-gray-700 transition sidebar-link <?= $websiteSettingsActive ? 'bg-gray-800/50' : '' ?>">
                     <div class="flex items-center space-x-3">
-                        <i class="fas fa-sliders-h w-5 text-gray-400"></i><span><?= t('website_settings') ?></span>
+                        <i class="fas fa-sliders-h w-5 text-gray-400 group-hover:text-blue-400 transition-colors <?= $websiteSettingsActive ? 'text-blue-400' : '' ?>"></i>
+                        <span class="sidebar-text"><?= t('website_settings') ?></span>
                     </div>
-                    <i class="fas fa-chevron-down text-[10px] transition-transform ws-chevron <?= $websiteSettingsActive ? 'rotate-180' : '' ?>"></i>
+                    <div class="flex items-center gap-2">
+                        <?php if ($unreadMessages > 0): ?>
+                            <span class="bg-blue-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full sidebar-text"><?= $unreadMessages ?></span>
+                        <?php endif; ?>
+                        <i class="fas fa-chevron-down text-[10px] transition-transform ws-chevron <?= $websiteSettingsActive ? 'rotate-180' : '' ?>"></i>
+                    </div>
                 </button>
-                <div id="websiteSettingsMenu" class="<?= $websiteSettingsActive ? '' : 'hidden' ?> pl-10 space-y-1 overflow-hidden transition-all duration-300">
+                <div id="websiteSettingsMenu" class="dropdown-menu <?= $websiteSettingsActive ? '' : 'hidden' ?> pl-10 space-y-1 overflow-hidden transition-all duration-300">
                     <a href="<?= BASE_URL ?>admin/qrcode" class="block py-2 text-sm <?= (strpos($currentUrl, 'admin/qrcode') !== false) ? 'text-blue-400 font-semibold' : 'text-gray-400' ?> hover:text-white transition">
                         <i class="fas fa-qrcode text-[10px] mr-2"></i><?= t('qr_code') ?>
+                    </a>
+                    <a href="<?= BASE_URL ?>admin/settings/contact" class="block py-2 text-sm <?= (strpos($currentUrl, 'admin/settings/contact') !== false) ? 'text-blue-400 font-semibold' : 'text-gray-400' ?> hover:text-white transition">
+                        <i class="fas fa-address-book text-[10px] mr-2"></i><?= t('contact_info') ?>
+                    </a>
+                    <a href="<?= BASE_URL ?>admin/messages" class="flex items-center justify-between py-2 text-sm <?= (strpos($currentUrl, 'admin/message') !== false) ? 'text-blue-400 font-semibold' : 'text-gray-400' ?> hover:text-white transition">
+                        <span><i class="fas fa-envelope text-[10px] mr-2"></i><?= t('customer_messages') ?></span>
+                        <?php if ($unreadMessages > 0): ?>
+                            <span class="bg-blue-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full mr-4"><?= $unreadMessages ?></span>
+                        <?php endif; ?>
                     </a>
                 </div>
             </div>
@@ -81,30 +174,24 @@
                     strpos($currentUrl, '-categor') !== false ||
                     strpos($currentUrl, 'size') !== false ||
                     strpos($currentUrl, 'color') !== false ||
-                    strpos($currentUrl, 'country') !== false ||
-                    strpos($currentUrl, 'shipping') !== false
+                    strpos($currentUrl, 'shipping-method') !== false
                 );
                 $smActive = strpos($currentUrl, 'shipping-method') !== false;
                 ?>
                 <button id="shopSettingsBtn" onclick="toggleShopSettings()"
-                    class="w-full flex items-center justify-between px-4 py-3 rounded-lg hover:bg-gray-700 transition <?= $shopSettingsActive ? 'bg-gray-800/50' : '' ?>">
+                    class="group w-full flex items-center justify-between px-4 py-3 rounded-lg hover:bg-gray-700 transition sidebar-link <?= $shopSettingsActive ? 'bg-gray-800/50' : '' ?>">
                     <div class="flex items-center space-x-3">
-                        <i class="fas fa-cogs w-5 text-purple-500"></i><span><?= t('shop_settings') ?></span>
+                        <i class="fas fa-cogs w-5 text-gray-400 group-hover:text-blue-400 transition-colors <?= $shopSettingsActive ? 'text-blue-400' : '' ?>"></i>
+                        <span class="sidebar-text"><?= t('shop_settings') ?></span>
                     </div>
                     <i class="fas fa-chevron-down text-[10px] transition-transform chevron <?= $shopSettingsActive ? 'rotate-180' : '' ?>"></i>
                 </button>
-                <div id="shopSettingsMenu" class="<?= $shopSettingsActive ? '' : 'hidden' ?> pl-10 space-y-1 overflow-hidden transition-all duration-300">
+                <div id="shopSettingsMenu" class="dropdown-menu <?= $shopSettingsActive ? '' : 'hidden' ?> pl-10 space-y-1 overflow-hidden transition-all duration-300">
                     <a href="<?= BASE_URL ?>admin/sizes" class="block py-2 text-sm <?= (strpos($currentUrl, 'size') !== false) ? 'text-blue-400 font-semibold' : 'text-gray-400' ?> hover:text-white transition">
                         <i class="far fa-circle text-[8px] mr-2"></i><?= t('size') ?>
                     </a>
                     <a href="<?= BASE_URL ?>admin/colors" class="block py-2 text-sm <?= (strpos($currentUrl, 'color') !== false) ? 'text-blue-400 font-semibold' : 'text-gray-400' ?> hover:text-white transition">
                         <i class="far fa-circle text-[8px] mr-2"></i><?= t('color') ?>
-                    </a>
-                    <a href="<?= BASE_URL ?>admin/countries" class="block py-2 text-sm <?= (strpos($currentUrl, 'country') !== false) ? 'text-blue-400 font-semibold' : 'text-gray-400' ?> hover:text-white transition">
-                        <i class="far fa-circle text-[8px] mr-2"></i><?= t('country') ?>
-                    </a>
-                    <a href="<?= BASE_URL ?>admin/shipping-costs" class="block py-2 text-sm <?= (strpos($currentUrl, 'shipping-cost') !== false) ? 'text-blue-400 font-semibold' : 'text-gray-400' ?> hover:text-white transition">
-                        <i class="far fa-circle text-[8px] mr-2"></i><?= t('shipping_cost') ?>
                     </a>
                     <a href="<?= BASE_URL ?>admin/shipping-methods" class="block py-2 text-sm <?= $smActive ? 'text-blue-400 font-semibold' : 'text-gray-400' ?> hover:text-white transition">
                         <i class="fas fa-truck text-[10px] mr-2"></i><?= t('shipping_method') ?>
@@ -121,41 +208,53 @@
                 </div>
             </div>
 
-            <a href="<?= BASE_URL ?>admin/products" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-700 transition <?= (strpos($_SERVER['REQUEST_URI'], 'product') !== false && strpos($_SERVER['REQUEST_URI'], 'dashboard') === false) ? 'bg-gray-700' : '' ?>">
-                <i class="fas fa-shopping-bag w-5 text-green-500"></i><span><?= t('product_management') ?></span>
+            <a href="<?= BASE_URL ?>admin/products" class="group flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-700 transition sidebar-link <?= (strpos($_SERVER['REQUEST_URI'], 'product') !== false && strpos($_SERVER['REQUEST_URI'], 'dashboard') === false) ? 'bg-gray-700' : '' ?>">
+                <i class="fas fa-shopping-bag w-5 text-gray-400 group-hover:text-blue-400 transition-colors <?= (strpos($_SERVER['REQUEST_URI'], 'product') !== false && strpos($_SERVER['REQUEST_URI'], 'dashboard') === false) ? 'text-blue-400' : '' ?>"></i>
+                <span class="sidebar-text"><?= t('product_management') ?></span>
             </a>
 
-            <a href="<?= BASE_URL ?>admin/inventory" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-700 transition <?= (strpos($_SERVER['REQUEST_URI'], 'inventory') !== false) ? 'bg-gray-700' : '' ?>">
-                <i class="fas fa-warehouse w-5 text-cyan-500"></i><span><?= t('inventory') ?></span>
+            <a href="<?= BASE_URL ?>admin/inventory" class="group flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-700 transition sidebar-link <?= (strpos($_SERVER['REQUEST_URI'], 'inventory') !== false) ? 'bg-gray-700' : '' ?>">
+                <i class="fas fa-warehouse w-5 text-gray-400 group-hover:text-blue-400 transition-colors <?= (strpos($_SERVER['REQUEST_URI'], 'inventory') !== false) ? 'text-blue-400' : '' ?>"></i>
+                <span class="sidebar-text"><?= t('inventory') ?></span>
             </a>
 
-            <a href="<?= BASE_URL ?>admin/orders" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-700 transition <?= (strpos($_SERVER['REQUEST_URI'], 'order') !== false && strpos($_SERVER['REQUEST_URI'], 'product') === false) ? 'bg-gray-700' : '' ?>">
-                <i class="fas fa-sticky-note w-5 text-yellow-500"></i><span><?= t('order_management') ?></span>
+            <a href="<?= BASE_URL ?>admin/orders" class="group flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-700 transition sidebar-link <?= (strpos($_SERVER['REQUEST_URI'], 'order') !== false && strpos($_SERVER['REQUEST_URI'], 'product') === false) ? 'bg-gray-700' : '' ?>">
+                <i class="fas fa-sticky-note w-5 text-gray-400 group-hover:text-blue-400 transition-colors <?= (strpos($_SERVER['REQUEST_URI'], 'order') !== false && strpos($_SERVER['REQUEST_URI'], 'product') === false) ? 'text-blue-400' : '' ?>"></i>
+                <span class="sidebar-text"><?= t('order_management') ?></span>
             </a>
 
-            <a href="<?= BASE_URL ?>admin/users" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-700 transition <?= (strpos($_SERVER['REQUEST_URI'], 'user') !== false) ? 'bg-gray-700' : '' ?>">
-                <i class="fas fa-user-plus w-5 text-indigo-500"></i><span><?= t('registered_users') ?></span>
+            <a href="<?= BASE_URL ?>admin/users" class="group flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-700 transition sidebar-link <?= (strpos($_SERVER['REQUEST_URI'], 'user') !== false) ? 'bg-gray-700' : '' ?>">
+                <i class="fas fa-user-plus w-5 text-gray-400 group-hover:text-blue-400 transition-colors <?= (strpos($_SERVER['REQUEST_URI'], 'user') !== false) ? 'text-blue-400' : '' ?>"></i>
+                <span class="sidebar-text"><?= t('registered_users') ?></span>
             </a>
 
-            <a href="<?= BASE_URL ?>admin/reviews" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-700 transition <?= (strpos($_SERVER['REQUEST_URI'], 'review') !== false) ? 'bg-gray-700' : '' ?>">
-                <i class="fas fa-star w-5 text-orange-500"></i><span><?= t('customer_reviews') ?></span>
+            <a href="<?= BASE_URL ?>admin/reviews" class="group flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-700 transition sidebar-link <?= (strpos($_SERVER['REQUEST_URI'], 'review') !== false) ? 'bg-gray-700' : '' ?>">
+                <i class="fas fa-star w-5 text-gray-400 group-hover:text-blue-400 transition-colors <?= (strpos($_SERVER['REQUEST_URI'], 'review') !== false) ? 'text-blue-400' : '' ?>"></i>
+                <span class="sidebar-text"><?= t('customer_reviews') ?></span>
             </a>
 
             <hr class="border-gray-700 my-3">
-            <a href="<?= BASE_URL ?>admin/logout" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-red-600 transition">
-                <i class="fas fa-sign-out-alt w-5 text-red-500"></i><span><?= t('logout') ?></span>
+            <a href="<?= BASE_URL ?>admin/logout" class="group flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-red-600 transition sidebar-link">
+                <i class="fas fa-sign-out-alt w-5 text-gray-400 group-hover:text-white transition-colors"></i>
+                <span class="sidebar-text"><?= t('logout') ?></span>
             </a>
         </nav>
-        <div class="p-4 border-t border-gray-700 text-xs text-gray-500">
-            <?= t('logged_in_as') ?> <?= htmlspecialchars(App\Core\Session::getUserName('admin')) ?>
+        <div class="p-4 border-t border-gray-700 text-xs text-gray-500 sidebar-footer">
+            <span class="sidebar-footer-text"><?= t('logged_in_as') ?></span> <?= htmlspecialchars(App\Core\Session::getUserName('admin')) ?>
         </div>
     </aside>
 
     <!-- Main Content -->
-    <div class="flex-1 ml-64">
+    <div id="main-content" class="flex-1 ml-64">
         <!-- Header -->
         <header class="bg-white dark:bg-gray-800 shadow-sm p-4 flex items-center justify-between transition-colors duration-300">
-            <h1 class="text-lg font-semibold text-gray-800 dark:text-gray-100"><?= $data['title'] ?? 'Admin Dashboard' ?></h1>
+            <div class="flex items-center gap-4">
+                <!-- Sidebar Toggle -->
+                <button id="sidebarToggle" class="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition text-gray-600 dark:text-gray-400">
+                    <i class="fas fa-bars text-lg"></i>
+                </button>
+                <h1 class="text-lg font-semibold text-gray-800 dark:text-gray-100"><?= $data['title'] ?? 'Admin Dashboard' ?></h1>
+            </div>
 
             <div class="flex items-center gap-3">
                 <!-- Search -->
@@ -322,6 +421,15 @@
         if (e.target === confirmModal) closeConfirm();
     };
 
+    // === Sidebar Toggle ===
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const body = document.body;
+
+    sidebarToggle.addEventListener('click', () => {
+        body.classList.toggle('sidebar-collapsed');
+        localStorage.setItem('sidebarCollapsed', body.classList.contains('sidebar-collapsed'));
+    });
+
     // === Dark/Light Mode ===
     const themeToggle = document.getElementById('themeToggle');
     const html = document.documentElement;
@@ -458,6 +566,10 @@
 
     // === Dropdown Persistence ===
     function toggleShopSettings() {
+        if (document.body.classList.contains('sidebar-collapsed')) {
+            document.body.classList.remove('sidebar-collapsed');
+            localStorage.setItem('sidebarCollapsed', 'false');
+        }
         const menu = document.getElementById('shopSettingsMenu');
         const btn = document.getElementById('shopSettingsBtn');
         const chevron = btn.querySelector('.chevron');
@@ -472,6 +584,10 @@
     }
 
     function toggleWebsiteSettings() {
+        if (document.body.classList.contains('sidebar-collapsed')) {
+            document.body.classList.remove('sidebar-collapsed');
+            localStorage.setItem('sidebarCollapsed', 'false');
+        }
         const menu = document.getElementById('websiteSettingsMenu');
         const btn = document.getElementById('websiteSettingsBtn');
         const chevron = btn.querySelector('.ws-chevron');

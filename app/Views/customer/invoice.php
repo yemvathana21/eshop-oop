@@ -68,7 +68,7 @@
 <!-- Modern Thermal Receipt View -->
 <div id="receipt">
     <div class="receipt-header">
-        <div class="receipt-logo">E-SHOP</div>
+        <div class="receipt-logo">GENERAL ONLINE STORE</div>
         <div class="receipt-subtitle">Thank you for your visit</div>
     </div>
 
@@ -78,6 +78,9 @@
         <p><span>Receipt #</span> <span><?= htmlspecialchars($order['invoice_number']) ?></span></p>
         <p><span>Date</span> <span><?= date('M d, Y H:i', strtotime($order['created_at'])) ?></span></p>
         <p><span>Customer</span> <span><?= htmlspecialchars($order['user_name']) ?></span></p>
+        <?php if (!empty($order['shipping_phone'])): ?>
+        <p><span>Phone</span> <span><?= htmlspecialchars($order['shipping_phone']) ?></span></p>
+        <?php endif; ?>
     </div>
 
     <table class="receipt-table">
@@ -121,7 +124,7 @@
 
     <div class="receipt-footer">
         <p>Items once sold are non-refundable.</p>
-        <p>www.e-shop.com</p>
+        <p>www.generalonlinestore.com</p>
         <div style="margin-top: 10px; font-weight: 600; color: #000;">SEE YOU AGAIN!</div>
     </div>
 </div>
@@ -140,8 +143,8 @@
             <div class="flex justify-between items-start">
                 <div>
                     <div class="flex items-center space-x-2 mb-2">
-                        <div class="bg-blue-600 text-white w-8 h-8 rounded-lg flex items-center justify-center font-bold">E</div>
-                        <span class="text-xl font-bold text-gray-800">E-Shop</span>
+                        <div class="bg-blue-600 text-white w-8 h-8 rounded-lg flex items-center justify-center font-bold">G</div>
+                        <span class="text-xl font-bold text-gray-800">General Online Store</span>
                     </div>
                     <p class="text-gray-500 text-sm">Your trusted online store</p>
                 </div>
@@ -164,6 +167,9 @@
                 <div>
                     <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Ship To</p>
                     <p class="font-bold text-gray-900"><?= htmlspecialchars($order['shipping_name']) ?></p>
+                    <?php if (!empty($order['shipping_phone'])): ?>
+                    <p class="text-gray-700 text-sm font-medium"><i class="fas fa-phone-alt mr-1 text-[10px] text-gray-400"></i><?= htmlspecialchars($order['shipping_phone']) ?></p>
+                    <?php endif; ?>
                     <p class="text-gray-600 text-sm"><?= htmlspecialchars($order['shipping_address']) ?></p>
                     <?php if (!empty($order['shipping_method'])): ?>
                     <p class="text-gray-500 text-xs mt-1">via <?= htmlspecialchars($order['shipping_method']) ?></p>
@@ -255,6 +261,7 @@ function downloadPDF() {
     const invoiceNumber = <?= json_encode($order['invoice_number']) ?>;
     const orderDate = <?= json_encode(date('M d, Y H:i', strtotime($order['created_at']))) ?>;
     const customerName = <?= json_encode($order['user_name']) ?>;
+    const shippingPhone = <?= json_encode($order['shipping_phone'] ?? '') ?>;
     const totalPrice = <?= json_encode(number_format($order['total_price'], 2, '.', '')) ?>;
     const items = <?= json_encode(array_map(fn($i) => [
         'name' => $i['product_name'] . (!empty($i['color_name']) || !empty($i['size_name']) ? ' (' . trim(($i['color_name'] ?? '') . ' ' . ($i['size_name'] ?? '')) . ')' : ''),
@@ -275,7 +282,7 @@ function downloadPDF() {
     // Content Styling
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(22);
-    doc.text('E-SHOP', receiptWidth / 2, 15, { align: 'center' });
+    doc.text('GENERAL ONLINE STORE', receiptWidth / 2, 15, { align: 'center' });
     
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(9);
@@ -299,6 +306,12 @@ function downloadPDF() {
     currY += 5;
     doc.text('Customer:', 5, currY);
     doc.text(customerName, 75, currY, { align: 'right' });
+
+    if (shippingPhone) {
+        currY += 5;
+        doc.text('Phone:', 5, currY);
+        doc.text(shippingPhone, 75, currY, { align: 'right' });
+    }
 
     currY += 5;
     doc.setLineWidth(0.1);
@@ -344,7 +357,7 @@ function downloadPDF() {
     doc.setFontSize(8);
     doc.setFont('helvetica', 'normal');
     doc.text('Items once sold are non-refundable.', receiptWidth / 2, currY, { align: 'center' });
-    doc.text('www.e-shop.com', receiptWidth / 2, currY + 5, { align: 'center' });
+    doc.text('www.generalonlinestore.com', receiptWidth / 2, currY + 5, { align: 'center' });
     doc.setFont('helvetica', 'bold');
     doc.text('SEE YOU AGAIN!', receiptWidth / 2, currY + 12, { align: 'center' });
 

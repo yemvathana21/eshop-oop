@@ -46,10 +46,23 @@
             <?php endforeach; ?>
         </div>
 
-        <div class="flex items-center justify-between pt-3 border-t border-gray-100 dark:border-gray-700">
+        <div class="flex items-center justify-between pt-3 border-t border-gray-100 dark:border-gray-700 mb-4">
             <span class="font-bold text-gray-900 dark:text-white">Total</span>
             <span class="font-bold text-blue-600 dark:text-blue-400 text-lg">$<?= number_format($order['total_price'], 2) ?></span>
         </div>
+
+        <?php if (!empty($order['shipping_name'])): ?>
+        <div class="mt-6 pt-6 border-t border-gray-100 dark:border-gray-700">
+            <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Shipping Details</h3>
+            <div class="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4">
+                <p class="font-bold text-sm text-gray-900 dark:text-white"><?= htmlspecialchars($order['shipping_name']) ?></p>
+                <?php if (!empty($order['shipping_phone'])): ?>
+                <p class="text-gray-600 dark:text-gray-400 text-sm mt-1"><i class="fas fa-phone mr-2 text-xs"></i><?= htmlspecialchars($order['shipping_phone']) ?></p>
+                <?php endif; ?>
+                <p class="text-gray-600 dark:text-gray-400 text-sm mt-1 leading-relaxed"><i class="fas fa-map-marker-alt mr-2 text-xs"></i><?= htmlspecialchars($order['shipping_address']) ?></p>
+            </div>
+        </div>
+        <?php endif; ?>
     </div>
 
     <div class="flex flex-col sm:flex-row items-center justify-center gap-3">

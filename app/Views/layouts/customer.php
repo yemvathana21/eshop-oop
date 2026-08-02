@@ -1,23 +1,24 @@
 <?php
 $navCategories = [];
 $navTree = [];
-if (class_exists('App\Models\Category')) {
-    $catModel = new \App\Models\Category();
-    $navCategories = $catModel->all();
-    $navTree = $catModel->getTree();
-}
+$catModel = new \App\Models\Product\Category();
+$navCategories = $catModel->all();
+$navTree = $catModel->getTree();
 $currentLang = \App\Core\Lang\Language::current();
 $userId = \App\Core\Session::getUserId();
 $cartKey = $userId ? 'cart_' . $userId : 'cart_guest';
 $cart = \App\Core\Session::get($cartKey, []);
 $count = array_sum(array_column($cart, 'quantity'));
+
+$settingModel = new \App\Models\Setting\Setting();
+$siteSettings = $settingModel->all();
 ?>
 <!DOCTYPE html>
 <html lang="<?= $currentLang ?>" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $data['title'] ?? 'E-Shop' ?></title>
+    <title><?= $data['title'] ?? 'General Online Store' ?></title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -55,13 +56,14 @@ $count = array_sum(array_column($cart, 'quantity'));
 <body class="bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 min-h-screen flex flex-col transition-colors duration-300">
 
     <!-- Header Section -->
-    <header class="bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 sticky top-0 z-50 transition-colors duration-300 shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <header class="sticky top-0 z-50 transition-colors duration-300 border-none">
+        <div class="bg-white dark:bg-gray-900">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-20 gap-8">
                 <!-- Logo -->
                 <a href="<?= BASE_URL ?>" class="flex items-center space-x-2 flex-shrink-0">
-                    <div class="bg-blue-600 text-white w-10 h-10 rounded-lg flex items-center justify-center font-bold text-xl shadow-lg shadow-blue-500/30">E</div>
-                    <span class="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">E-Shop</span>
+                    <div class="bg-blue-600 text-white w-10 h-10 rounded-lg flex items-center justify-center font-bold text-xl">G</div>
+                    <span class="text-2xl font-bold text-gray-900 dark:text-white tracking-tight"><?= htmlspecialchars($siteSettings['store_name'] ?? 'General Online Store') ?></span>
                 </a>
 
                 <!-- Search Bar -->
@@ -70,7 +72,7 @@ $count = array_sum(array_column($cart, 'quantity'));
                         <input type="text" name="search" value="<?= htmlspecialchars($_GET['search'] ?? '') ?>"
                             placeholder="Search Product"
                             class="w-full bg-gray-100 dark:bg-gray-800 border-none rounded-xl py-2.5 pl-4 pr-12 text-sm focus:ring-2 focus:ring-blue-500 transition-all">
-                        <button type="submit" class="absolute right-2 top-1/2 -translate-y-1/2 bg-blue-600 text-white p-1.5 rounded-lg hover:bg-blue-700 transition shadow-sm">
+                        <button type="submit" class="absolute right-2 top-1/2 -translate-y-1/2 bg-blue-600 text-white p-1.5 rounded-lg hover:bg-blue-700 transition">
                             <i class="fas fa-search text-xs"></i>
                         </button>
                     </form>
@@ -85,7 +87,7 @@ $count = array_sum(array_column($cart, 'quantity'));
                             <?= strtoupper($currentLang) ?>
                             <i class="fas fa-chevron-down text-[10px] text-gray-400"></i>
                         </button>
-                        <div class="absolute top-full right-0 mt-1 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 py-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 min-w-[130px]">
+                        <div class="absolute top-full right-0 mt-1 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 py-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 min-w-[130px]">
                             <a href="<?= BASE_URL ?>lang?lang=en" class="flex items-center gap-2 px-3 py-2 text-sm <?= $currentLang === 'en' ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 font-semibold' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700' ?> transition">
                                 <span>🇺🇸</span> <?= t('english') ?>
                             </a>
@@ -112,16 +114,31 @@ $count = array_sum(array_column($cart, 'quantity'));
                     </a>
 
                     <?php if (\App\Core\Session::isLoggedIn('customer')): ?>
+                        <?php
+                        $cmModel = new \App\Models\Contact\ContactMessage();
+                        $unreadReplies = $cmModel->countUnreadRepliesForCustomer($userId, \App\Core\Session::get('customer_user_email'));
+                        ?>
                         <div class="relative group">
-                            <button class="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition">
+                            <button class="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition relative">
                                 <div class="w-8 h-8 bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400 rounded-full flex items-center justify-center text-xs font-bold">
                                     <?= strtoupper(substr(\App\Core\Session::getUserName('customer'), 0, 1) ?: 'U') ?>
                                 </div>
                                 <span class="max-w-[100px] truncate hidden lg:inline"><?= htmlspecialchars(\App\Core\Session::getUserName('customer')) ?></span>
+                                <?php if ($unreadReplies > 0): ?>
+                                    <span class="absolute top-1 right-1 w-2 h-2 bg-blue-600 rounded-full ring-2 ring-white dark:ring-gray-900"></span>
+                                <?php endif; ?>
                             </button>
-                            <div class="absolute top-full right-0 w-48 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                            <div class="absolute top-full right-0 w-48 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
                                 <a href="<?= BASE_URL ?>account/dashboard" class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700 hover:text-blue-600 dark:hover:text-blue-400 transition">
-                                    <i class="fas fa-user w-4 text-center text-gray-400"></i> <?= t('my_profile') ?>
+                                    <i class="fas fa-user-circle w-4 text-center text-gray-400"></i> <?= t('my_account') ?>
+                                </a>
+                                <a href="<?= BASE_URL ?>account/messages" class="flex items-center justify-between px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700 hover:text-blue-600 dark:hover:text-blue-400 transition">
+                                    <div class="flex items-center gap-3">
+                                        <i class="fas fa-envelope w-4 text-center text-gray-400"></i> <?= t('customer_messages') ?>
+                                    </div>
+                                    <?php if ($unreadReplies > 0): ?>
+                                        <span class="bg-blue-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full"><?= $unreadReplies ?></span>
+                                    <?php endif; ?>
                                 </a>
                                 <a href="<?= BASE_URL ?>my-orders" class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700 hover:text-blue-600 dark:hover:text-blue-400 transition">
                                     <i class="fas fa-receipt w-4 text-center text-gray-400"></i> <?= t('my_orders') ?>
@@ -148,7 +165,7 @@ $count = array_sum(array_column($cart, 'quantity'));
         </div>
 
         <!-- Navigation Bar (Desktop) -->
-        <div class="bg-slate-900 text-white hidden lg:block border-t border-slate-800 shadow-md">
+        <div class="bg-slate-900 text-white hidden lg:block border-none relative z-10 mt-[-1px]">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex items-center justify-between h-12">
                     <div class="flex items-center gap-0">
@@ -162,11 +179,11 @@ $count = array_sum(array_column($cart, 'quantity'));
                             </a>
 
                             <?php if (!empty($tcat['children'])): ?>
-                            <div class="absolute left-0 right-0 w-full bg-[#f9f9f9] text-gray-800 shadow-2xl border-b border-gray-200 py-10 px-8 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
+                            <div class="absolute left-0 right-0 w-full bg-[#f9f9f9] text-gray-800 py-10 px-8 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
                                 <div class="max-w-7xl mx-auto grid grid-cols-4 xl:grid-cols-5 gap-y-10 gap-x-12">
                                     <?php foreach ($tcat['children'] as $mcat): ?>
                                     <div class="space-y-4">
-                                        <a href="<?= BASE_URL ?>shop?category=<?= htmlspecialchars($mcat['slug']) ?>" class="block font-bold text-gray-900 uppercase tracking-widest text-[11px] border-b border-gray-300 pb-2 mb-2 hover:text-blue-600 transition">
+                                        <a href="<?= BASE_URL ?>shop?category=<?= htmlspecialchars($mcat['slug']) ?>" class="block font-bold text-gray-900 uppercase tracking-widest text-[11px] pb-2 mb-2 hover:text-blue-600 transition">
                                             <?= htmlspecialchars($mcat['name']) ?>
                                         </a>
                                         <ul class="space-y-2">
@@ -186,9 +203,9 @@ $count = array_sum(array_column($cart, 'quantity'));
                         </div>
                         <?php endforeach; ?>
 
-                        <a href="#" class="px-5 py-3.5 text-[11px] font-bold uppercase tracking-widest hover:bg-slate-800 transition duration-300"><?= t('about_us') ?></a>
-                        <a href="#" class="px-5 py-3.5 text-[11px] font-bold uppercase tracking-widest hover:bg-slate-800 transition duration-300"><?= t('faq') ?></a>
-                        <a href="#" class="px-5 py-3.5 text-[11px] font-bold uppercase tracking-widest hover:bg-slate-800 transition duration-300"><?= t('contact_us') ?></a>
+                        <a href="<?= BASE_URL ?>about" class="px-5 py-3.5 text-[11px] font-bold uppercase tracking-widest hover:bg-slate-800 transition duration-300"><?= t('about_us') ?></a>
+                        <a href="<?= BASE_URL ?>faq" class="px-5 py-3.5 text-[11px] font-bold uppercase tracking-widest hover:bg-slate-800 transition duration-300"><?= t('faq') ?></a>
+                        <a href="<?= BASE_URL ?>contact" class="px-5 py-3.5 text-[11px] font-bold uppercase tracking-widest hover:bg-slate-800 transition duration-300"><?= t('contact_us') ?></a>
                     </div>
 
                     <div class="flex items-center text-[10px] text-slate-400 font-bold uppercase tracking-widest italic">
@@ -200,7 +217,7 @@ $count = array_sum(array_column($cart, 'quantity'));
         </div>
 
         <!-- Mobile Menu -->
-        <div id="mobileMenu" class="hidden lg:hidden border-t border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 overflow-y-auto max-h-[calc(100vh-80px)]">
+        <div id="mobileMenu" class="hidden lg:hidden bg-white dark:bg-gray-900 overflow-y-auto max-h-[calc(100vh-80px)]">
             <div class="px-4 py-4 space-y-4">
                 <form action="<?= BASE_URL ?>shop" method="GET" class="relative">
                     <input type="text" name="search" placeholder="<?= t('search_products') ?>" class="w-full bg-gray-100 dark:bg-gray-800 border-none rounded-lg py-2 pl-3 pr-10 text-sm">
@@ -251,9 +268,9 @@ $count = array_sum(array_column($cart, 'quantity'));
                     </div>
                     <?php endforeach; ?>
 
-                    <a href="#" class="block py-2 px-3 text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-800 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg text-sm font-semibold"><?= t('about_us') ?></a>
-                    <a href="#" class="block py-2 px-3 text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-800 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg text-sm font-semibold"><?= t('faq') ?></a>
-                    <a href="#" class="block py-2 px-3 text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-800 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg text-sm font-semibold"><?= t('contact_us') ?></a>
+                    <a href="<?= BASE_URL ?>about" class="block py-2 px-3 text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-800 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg text-sm font-semibold"><?= t('about_us') ?></a>
+                    <a href="<?= BASE_URL ?>faq" class="block py-2 px-3 text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-800 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg text-sm font-semibold"><?= t('faq') ?></a>
+                    <a href="<?= BASE_URL ?>contact" class="block py-2 px-3 text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-800 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg text-sm font-semibold"><?= t('contact_us') ?></a>
                 </div>
 
                 <hr class="border-gray-100 dark:border-gray-800">
@@ -263,8 +280,9 @@ $count = array_sum(array_column($cart, 'quantity'));
                         <a href="<?= BASE_URL ?>login" class="flex items-center justify-center py-2.5 px-4 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 rounded-lg text-sm font-semibold"><?= t('login') ?></a>
                         <a href="<?= BASE_URL ?>register" class="flex items-center justify-center py-2.5 px-4 bg-blue-600 text-white rounded-lg text-sm font-semibold"><?= t('register') ?></a>
                     <?php else: ?>
-                        <a href="<?= BASE_URL ?>profile" class="flex items-center justify-center py-2.5 px-4 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-semibold"><?= t('my_profile') ?></a>
-                        <a href="<?= BASE_URL ?>my-orders" class="flex items-center justify-center py-2.5 px-4 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-semibold"><?= t('my_orders') ?></a>
+                        <a href="<?= BASE_URL ?>account/dashboard" class="flex items-center justify-center py-2.5 px-4 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-semibold"><?= t('my_account') ?></a>
+                        <a href="<?= BASE_URL ?>account/messages" class="flex items-center justify-center py-2.5 px-4 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-semibold"><?= t('customer_messages') ?></a>
+                        <a href="<?= BASE_URL ?>my-orders" class="col-span-2 flex items-center justify-center py-2.5 px-4 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-semibold"><?= t('my_orders') ?></a>
                         <a href="<?= BASE_URL ?>logout" class="col-span-2 flex items-center justify-center py-2.5 px-4 text-red-600 font-semibold"><?= t('logout') ?></a>
                     <?php endif; ?>
                 </div>
@@ -302,14 +320,20 @@ $count = array_sum(array_column($cart, 'quantity'));
             <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
                 <div class="col-span-2 md:col-span-1">
                     <a href="<?= BASE_URL ?>" class="flex items-center space-x-2 mb-4">
-                        <div class="bg-blue-600 text-white w-9 h-9 rounded-lg flex items-center justify-center font-bold text-lg">E</div>
-                        <span class="text-xl font-bold text-white">E-Shop</span>
+                        <div class="bg-blue-600 text-white w-9 h-9 rounded-lg flex items-center justify-center font-bold text-lg">G</div>
+                        <span class="text-xl font-bold text-white"><?= htmlspecialchars($siteSettings['store_name'] ?? 'General Online Store') ?></span>
                     </a>
                     <p class="text-sm text-gray-400 leading-relaxed"><?= t('footer_tagline') ?></p>
                     <div class="flex gap-3 mt-4">
-                        <a href="#" class="w-9 h-9 bg-white/10 hover:bg-blue-600 rounded-lg flex items-center justify-center transition text-gray-400 hover:text-white"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#" class="w-9 h-9 bg-white/10 hover:bg-blue-400 rounded-lg flex items-center justify-center transition text-gray-400 hover:text-white"><i class="fab fa-twitter"></i></a>
-                        <a href="#" class="w-9 h-9 bg-white/10 hover:bg-pink-600 rounded-lg flex items-center justify-center transition text-gray-400 hover:text-white"><i class="fab fa-instagram"></i></a>
+                        <?php if(!empty($siteSettings['facebook_url'])): ?>
+                            <a href="<?= $siteSettings['facebook_url'] ?>" target="_blank" class="w-9 h-9 bg-white/10 hover:bg-blue-600 rounded-lg flex items-center justify-center transition text-gray-400 hover:text-white"><i class="fab fa-facebook-f"></i></a>
+                        <?php endif; ?>
+                        <?php if(!empty($siteSettings['telegram_url'])): ?>
+                            <a href="<?= $siteSettings['telegram_url'] ?>" target="_blank" class="w-9 h-9 bg-white/10 hover:bg-sky-500 rounded-lg flex items-center justify-center transition text-gray-400 hover:text-white"><i class="fab fa-telegram-plane"></i></a>
+                        <?php endif; ?>
+                        <?php if(!empty($siteSettings['tiktok_url'])): ?>
+                            <a href="<?= $siteSettings['tiktok_url'] ?>" target="_blank" class="w-9 h-9 bg-white/10 hover:bg-pink-600 rounded-lg flex items-center justify-center transition text-gray-400 hover:text-white"><i class="fab fa-tiktok"></i></a>
+                        <?php endif; ?>
                     </div>
                 </div>
                 <div>
@@ -332,15 +356,15 @@ $count = array_sum(array_column($cart, 'quantity'));
                 <div>
                     <h4 class="text-white font-semibold text-sm mb-4"><?= t('contact') ?></h4>
                     <ul class="space-y-2.5 text-sm">
-                        <li class="flex items-center gap-2"><i class="fas fa-envelope text-gray-500 text-xs w-4"></i> support@eshop.com</li>
-                        <li class="flex items-center gap-2"><i class="fas fa-phone text-gray-500 text-xs w-4"></i> +1 (555) 123-4567</li>
-                        <li class="flex items-center gap-2"><i class="fas fa-location-dot text-gray-500 text-xs w-4"></i> <?= t('address') ?></li>
+                        <li class="flex items-center gap-2"><i class="fas fa-envelope text-gray-500 text-xs w-4"></i> <?= htmlspecialchars($siteSettings['store_email'] ?? 'support@generalstore.com') ?></li>
+                        <li class="flex items-center gap-2"><i class="fas fa-phone text-gray-500 text-xs w-4"></i> <?= htmlspecialchars($siteSettings['store_phone'] ?? '+1 (555) 123-4567') ?></li>
+                        <li class="flex items-center gap-2"><i class="fas fa-location-dot text-gray-500 text-xs w-4"></i> <?= htmlspecialchars($siteSettings['store_address'] ?? t('address')) ?></li>
                     </ul>
                 </div>
             </div>
             <hr class="border-gray-800 my-8">
             <div class="flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-gray-500">
-                <p>&copy; <?= date('Y') ?> Ecommerce Website PHP - Developed By Group-D</p>
+                <p>&copy; <?= date('Y') ?> <?= htmlspecialchars($siteSettings['store_name'] ?? 'General Online Store') ?> - Developed By Group-D</p>
                 <div class="flex items-center gap-4">
                     <a href="#" class="hover:text-blue-500 transition"><i class="fab fa-facebook-f text-lg"></i></a>
                     <a href="#" class="hover:text-blue-400 transition"><i class="fab fa-twitter text-lg"></i></a>

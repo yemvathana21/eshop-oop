@@ -27,6 +27,21 @@
                 <span><?= t('dashboard') ?></span>
             </a>
 
+            <a href="<?= BASE_URL ?>account/messages"
+               class="flex items-center justify-between px-3 py-2.5 rounded-xl transition-all duration-200 <?= $currentSection === 'messages' ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-semibold shadow-sm' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-200' ?>">
+                <div class="flex items-center gap-3">
+                    <i class="fas fa-envelope w-5 text-center text-base"></i>
+                    <span><?= t('customer_messages') ?></span>
+                </div>
+                <?php
+                $cmModel = new \App\Models\Contact\ContactMessage();
+                $unreadReplies = $cmModel->countUnreadRepliesForCustomer(\App\Core\Session::getUserId(), \App\Core\Session::get('customer_user_email'));
+                if ($unreadReplies > 0):
+                ?>
+                    <span class="bg-blue-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full"><?= $unreadReplies ?></span>
+                <?php endif; ?>
+            </a>
+
             <!-- Profile group -->
             <p class="text-[11px] font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500 px-3 pt-4 pb-1"><?= t('profile') ?></p>
 
@@ -45,88 +60,19 @@
             <!-- Security group -->
             <p class="text-[11px] font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500 px-3 pt-4 pb-1"><?= t('security') ?></p>
 
-            <a href="<?= BASE_URL ?>account/security#phone"
+            <a href="<?= BASE_URL ?>account/security"
                class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 <?= $currentSection === 'security' ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-semibold shadow-sm' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-200' ?>">
-                <i class="fas fa-mobile-screen w-5 text-center"></i>
-                <span><?= t('activate_phone') ?></span>
+                <i class="fas fa-shield-halved w-5 text-center"></i>
+                <span><?= t('security') ?></span>
             </a>
 
-            <a href="<?= BASE_URL ?>account/security#password"
-               class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 <?= $currentSection === 'security' ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-semibold shadow-sm' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-200' ?>">
-                <i class="fas fa-key w-5 text-center"></i>
-                <span><?= t('change_password') ?></span>
-            </a>
-
-            <!-- Devices -->
-            <p class="text-[11px] font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500 px-3 pt-4 pb-1"><?= t('devices') ?></p>
-
-            <a href="<?= BASE_URL ?>account/devices"
-               class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 <?= $currentSection === 'devices' ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-semibold shadow-sm' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-200' ?>">
-                <i class="fas fa-laptop w-5 text-center"></i>
-                <span><?= t('devices') ?></span>
-            </a>
-
-            <a href="<?= BASE_URL ?>account/passkeys"
-               class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 <?= $currentSection === 'passkeys' ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-semibold shadow-sm' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-200' ?>">
-                <i class="fas fa-fingerprint w-5 text-center"></i>
-                <span><?= t('passkeys') ?></span>
-            </a>
-
-            <!-- Connected Accounts -->
-            <p class="text-[11px] font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500 px-3 pt-4 pb-1"><?= t('connected_accounts') ?></p>
-
-            <a href="<?= BASE_URL ?>account/connected"
-               class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 <?= $currentSection === 'connected' ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-semibold shadow-sm' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-200' ?>">
-                <i class="fab fa-facebook w-5 text-center"></i>
-                <span>Facebook</span>
-            </a>
-
-            <a href="<?= BASE_URL ?>account/connected"
-               class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-200">
-                <i class="fab fa-google w-5 text-center"></i>
-                <span>Google</span>
-            </a>
-
-            <a href="<?= BASE_URL ?>account/connected"
-               class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-200">
-                <i class="fab fa-telegram w-5 text-center"></i>
-                <span>Telegram</span>
-            </a>
-
-            <a href="<?= BASE_URL ?>account/connected"
-               class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-200">
-                <i class="fab fa-apple w-5 text-center"></i>
-                <span>Apple</span>
-            </a>
-
-            <!-- Privacy & Data group -->
-            <p class="text-[11px] font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500 px-3 pt-4 pb-1"><?= t('privacy_data') ?></p>
-
-            <a href="<?= BASE_URL ?>account/privacy"
-               class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 <?= $currentSection === 'privacy' ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-semibold shadow-sm' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-200' ?>">
-                <i class="fas fa-lock w-5 text-center"></i>
-                <span><?= t('privacy') ?></span>
-            </a>
-
-            <a href="<?= BASE_URL ?>account/privacy#delete"
-               class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20">
-                <i class="fas fa-trash-can w-5 text-center"></i>
-                <span><?= t('delete_account') ?></span>
-            </a>
-
-            <!-- Billing & Membership group -->
-            <p class="text-[11px] font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500 px-3 pt-4 pb-1"><?= t('billing_membership') ?></p>
-
-            <a href="<?= BASE_URL ?>account/membership"
-               class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 <?= $currentSection === 'membership' ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-semibold shadow-sm' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-200' ?>">
-                <i class="fas fa-circle-info w-5 text-center"></i>
-                <span><?= t('membership_info') ?></span>
-            </a>
+            <!-- Addresses group -->
+            <p class="text-[11px] font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500 px-3 pt-4 pb-1"><?= t('addresses') ?></p>
 
             <a href="<?= BASE_URL ?>account/addresses"
                class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 <?= $currentSection === 'addresses' ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-semibold shadow-sm' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-200' ?>">
-                <i class="fas fa-credit-card w-5 text-center"></i>
-                <span><?= t('billing_address') ?></span>
+                <i class="fas fa-map-location-dot w-5 text-center"></i>
+                <span><?= t('my_addresses') ?></span>
             </a>
 
             <hr class="border-gray-100 dark:border-gray-700 my-3">

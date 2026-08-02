@@ -121,7 +121,7 @@ class Database {
         // 3f. Create Cambodia address tables if missing
         $addrCheck = $this->connection->query("SHOW TABLES LIKE 'provinces'")->rowCount();
         if ($addrCheck === 0) {
-            $addrFile = ROOT_PATH . 'config' . DIRECTORY_SEPARATOR . 'cambodia_addresses.sql';
+            $addrFile = ROOT_PATH . 'database' . DIRECTORY_SEPARATOR . 'seeds' . DIRECTORY_SEPARATOR . 'cambodia_addresses.sql';
             if (file_exists($addrFile)) {
                 $this->connection->exec(file_get_contents($addrFile));
             }
@@ -211,10 +211,11 @@ class Database {
         }
 
         // 5b. Add columns to orders if missing
-        $orderCols = ['shipping_name', 'shipping_address', 'shipping_method', 'shipping_cost', 'payment_method'];
+        $orderCols = ['shipping_name', 'shipping_phone', 'shipping_address', 'shipping_method', 'shipping_cost', 'payment_method'];
         $orderDefs = [
             'shipping_name' => "VARCHAR(255) DEFAULT NULL AFTER status",
-            'shipping_address' => "TEXT DEFAULT NULL AFTER shipping_name",
+            'shipping_phone' => "VARCHAR(20) DEFAULT NULL AFTER shipping_name",
+            'shipping_address' => "TEXT DEFAULT NULL AFTER shipping_phone",
             'shipping_method' => "VARCHAR(50) DEFAULT NULL AFTER shipping_address",
             'shipping_cost' => "DECIMAL(10,2) DEFAULT 0.00 AFTER shipping_method",
             'payment_method' => "VARCHAR(50) DEFAULT NULL AFTER shipping_cost",
@@ -296,17 +297,78 @@ class Database {
                 ('nextday', 'Next Day Delivery', 'Tomorrow', 9.99, 1, 3)
             ");
         }
+
+        // 10. Create settings table if missing
+        $settingsCheck = $this->connection->query("SHOW TABLES LIKE 'settings'")->rowCount();
+        if ($settingsCheck === 0) {
+            $this->connection->exec("CREATE TABLE IF NOT EXISTS `settings` (
+                `id` INT AUTO_INCREMENT PRIMARY KEY,
+                `setting_key` VARCHAR(100) NOT NULL UNIQUE,
+                `setting_value` TEXT NULL,
+                `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+
+            // Seed default settings
+            $stmt = $this->connection->prepare("INSERT INTO settings (setting_key, setting_value) VALUES (?, ?)");
+            $defaultSettings = [
+                ['store_name', 'General Online Store'],
+                ['store_email', 'contact@generalstore.com'],
+                ['store_phone', '+855 12 345 678'],
+                ['store_address', '123 Street, Phnom Penh, Cambodia'],
+                ['store_map', 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3908.770663730876!2d104.9192!3d11.5621!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMTHCsDMzJzQzLjYiTiAxMDTCsDU1JzA5LjEiRQ!5e0!3m2!1sen!2skh!4v1625000000000!5m2!1sen!2skh'],
+                ['facebook_url', 'https://facebook.com/generalstore'],
+                ['telegram_url', 'https://t.me/generalstore'],
+                ['tiktok_url', 'https://tiktok.com/@generalstore']
+            ];
+            foreach ($defaultSettings as $s) {
+                $stmt->execute($s);
+            }
+        }
+
+        // 11. Create contact_messages table if missing
+        $cmCheck = $this->connection->query("SHOW TABLES LIKE 'contact_messages'")->rowCount();
+        if ($cmCheck === 0) {
+            $this->connection->exec("CREATE TABLE IF NOT EXISTS `contact_messages` (
+                `id` INT AUTO_INCREMENT PRIMARY KEY,
+                `user_id` INT DEFAULT NULL,
+                `name` VARCHAR(255) NOT NULL,
+                `email` VARCHAR(255) NOT NULL,
+                `subject` VARCHAR(255) DEFAULT NULL,
+                `message` TEXT NOT NULL,
+                `status` ENUM('unread', 'read', 'replied') DEFAULT 'unread',
+                `reply_message` TEXT DEFAULT NULL,
+                `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+        } else {
+            // Check if user_id column exists
+            try {
+                $this->connection->query("SELECT user_id FROM contact_messages LIMIT 1");
+            } catch (\PDOException $e) {
+                $this->connection->exec("ALTER TABLE contact_messages ADD COLUMN user_id INT DEFAULT NULL AFTER id");
+                $this->connection->exec("ALTER TABLE contact_messages ADD CONSTRAINT fk_cm_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL");
+            }
+        }
+
+        // 11b. Add is_customer_viewed column to contact_messages if missing
+        try {
+            $this->connection->query("SELECT is_customer_viewed FROM contact_messages LIMIT 1");
+        } catch (PDOException $e) {
+            $this->connection->exec("ALTER TABLE contact_messages ADD COLUMN is_customer_viewed TINYINT(1) DEFAULT 0 AFTER reply_message");
+        }
     }
 
     private function seedInitialData() {
         // Seed an admin user and some default products
         $stmt = $this->connection->prepare("SELECT id FROM users WHERE email = ?");
-        $stmt->execute(['admin@eshop.com']);
+        $stmt->execute(['admin@store.com']);
         if ($stmt->rowCount() === 0) {
             // Create admin (password: admin123)
             $adminPass = password_hash('admin123', PASSWORD_BCRYPT);
             $stmtInsert = $this->connection->prepare("INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)");
-            $stmtInsert->execute(['System Admin', 'admin@eshop.com', $adminPass, 'admin']);
+            $stmtInsert->execute(['System Admin', 'admin@store.com', $adminPass, 'admin']);
 
             // Create customer (password: customer123)
             $customerPass = password_hash('customer123', PASSWORD_BCRYPT);

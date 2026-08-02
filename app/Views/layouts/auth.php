@@ -1,10 +1,14 @@
-<?php $currentLang = \App\Core\Lang\Language::current(); ?>
+<?php
+$currentLang = \App\Core\Lang\Language::current();
+$settingModel = new \App\Models\Setting\Setting();
+$siteSettings = $settingModel->all();
+?>
 <!DOCTYPE html>
 <html lang="<?= $currentLang ?>" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $data['title'] ?? 'E-Shop' ?></title>
+    <title><?= $data['title'] ?? 'General Online Store' ?></title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -26,8 +30,8 @@
     <div class="w-full max-w-md p-8">
         <div class="text-center mb-8">
             <a href="<?= BASE_URL ?>" class="inline-flex items-center space-x-2">
-                <div class="bg-blue-600 text-white w-12 h-12 rounded-xl flex items-center justify-center font-bold text-2xl">E</div>
-                <span class="text-3xl font-bold text-gray-800 dark:text-white">E-Shop</span>
+                <div class="bg-blue-600 text-white w-12 h-12 rounded-xl flex items-center justify-center font-bold text-2xl">G</div>
+                <span class="text-3xl font-bold text-gray-800 dark:text-white"><?= htmlspecialchars($siteSettings['store_name'] ?? 'General Online Store') ?></span>
             </a>
         </div>
 

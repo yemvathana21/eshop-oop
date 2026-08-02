@@ -26,4 +26,4 @@
 <p class="text-center text-sm text-gray-500 dark:text-gray-400 mt-6">
     <?= t('no_account') ?> <a href="<?= BASE_URL ?>register" class="text-blue-600 dark:text-blue-400 hover:underline font-medium"><?= t('create_one') ?></a>
 </p>
-<p class="text-center text-xs text-gray-400 dark:text-gray-500 mt-3">Admin: admin@eshop.com / admin123</p>
+<p class="text-center text-xs text-gray-400 dark:text-gray-500 mt-3">Admin: admin@store.com / admin123</p>

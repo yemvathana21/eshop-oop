@@ -4,9 +4,9 @@ $userId = \App\Core\Session::getUserId();
 $cartKey = $userId ? 'cart_' . $userId : 'cart_guest';
 $cart = \App\Core\Session::get($cartKey, []);
 $count = array_sum(array_column($cart, 'quantity'));
-$userModel = new \App\Models\User();
+$userModel = new \App\Models\User\User();
 $user = $userModel->findById($userId);
-$prefModel = new \App\Models\UserPreference();
+$prefModel = new \App\Models\User\UserPreference();
 $prefs = $prefModel->findByUserId($userId);
 $savedTheme = $prefs['theme'] ?? 'system';
 $isDark = $savedTheme === 'dark' || $savedTheme === 'amoled';
@@ -16,7 +16,7 @@ $isDark = $savedTheme === 'dark' || $savedTheme === 'amoled';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $data['title'] ?? t('my_account') . ' - E-Shop' ?></title>
+    <title><?= $data['title'] ?? t('my_account') . ' - General Online Store' ?></title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -74,8 +74,8 @@ $isDark = $savedTheme === 'dark' || $savedTheme === 'amoled';
                         <i class="fas fa-bars text-xl"></i>
                     </button>
                     <a href="<?= BASE_URL ?>" class="flex items-center space-x-2 flex-shrink-0">
-                        <div class="bg-blue-600 text-white w-9 h-9 rounded-lg flex items-center justify-center font-bold text-lg shadow-lg shadow-blue-500/30">E</div>
-                        <span class="text-xl font-bold text-gray-900 dark:text-white tracking-tight">E-Shop</span>
+                        <div class="bg-blue-600 text-white w-9 h-9 rounded-lg flex items-center justify-center font-bold text-lg shadow-lg shadow-blue-500/30">G</div>
+                        <span class="text-xl font-bold text-gray-900 dark:text-white tracking-tight">General Online Store</span>
                     </a>
                 </div>
                 <div class="flex items-center gap-2">

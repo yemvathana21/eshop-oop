@@ -1,86 +1,147 @@
-<!-- Hero Section -->
-<section class="relative bg-[#2b3445] min-h-[500px] flex items-center overflow-hidden">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 relative z-10 w-full">
-        <div class="grid md:grid-cols-2 gap-8 items-center">
-            <div class="text-white space-y-6 animate-fade-in">
-                <h4 class="text-blue-400 font-bold tracking-widest uppercase text-sm">Welcome to Ecommerce PHP</h4>
-                <h1 class="text-5xl md:text-6xl font-extrabold leading-tight">Shop Online for Latest <span class="text-blue-500">Women Accessories</span></h1>
-                <div class="space-y-2">
-                    <p class="text-2xl font-semibold text-gray-300">50% Discount on All Products</p>
-                    <p class="text-gray-400 max-w-md">Lorem ipsum dolor sit amet, an labores explicari qui, eu nostrum copiosae argumentum has.</p>
-                </div>
-                <div class="flex gap-4 pt-4">
-                    <a href="<?= BASE_URL ?>shop" class="bg-blue-600 hover:bg-blue-700 text-white px-10 py-4 rounded-lg font-bold transition transform hover:scale-105 shadow-xl">
-                        Shop Now
-                    </a>
+<!-- Hero Slider Section -->
+<section class="relative min-h-[600px] flex items-center overflow-hidden bg-gray-900 mt-[-1px]">
+    <!-- Slider Container -->
+    <div id="heroSlider" class="relative w-full h-full min-h-[600px]">
+        <!-- Slide 1 -->
+        <div class="hero-slide active transition-all duration-1000 ease-in-out opacity-100 absolute inset-0 w-full h-full flex items-center">
+            <!-- Background Image with Overlay -->
+            <div class="absolute inset-0 z-0">
+                <img src="https://images.unsplash.com/photo-1483985988355-763728e1935b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80" class="w-full h-full object-cover" alt="Women Fashion">
+                <div class="absolute inset-0 bg-gradient-to-r from-slate-900 via-slate-900/80 to-transparent"></div>
+            </div>
+
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 relative z-10 w-full">
+                <div class="text-white space-y-6 animate-fade-in max-w-2xl">
+                    <h4 class="text-blue-400 font-bold tracking-widest uppercase text-sm"><?= t('hero_welcome') ?></h4>
+                    <h1 class="text-5xl md:text-6xl font-extrabold leading-tight"><?= t('hero_slide1_title') ?></h1>
+                    <div class="space-y-2">
+                        <p class="text-2xl font-semibold text-gray-300"><?= t('hero_slide1_subtitle') ?></p>
+                        <p class="text-gray-400 text-lg"><?= t('hero_slide1_desc') ?></p>
+                    </div>
+                    <div class="flex gap-4 pt-4">
+                        <a href="<?= BASE_URL ?>shop" class="bg-blue-600 hover:bg-blue-700 text-white px-10 py-4 rounded-lg font-bold transition transform hover:scale-105 shadow-xl">
+                            <?= t('shop_now') ?>
+                        </a>
+                    </div>
                 </div>
             </div>
-            <div class="hidden md:block relative animate-float">
-                <div class="relative bg-white/5 backdrop-blur-md rounded-full p-10 border border-white/10">
-                    <img src="https://dummyimage.com/500x500/2b3445/fff&text=E-Shop+Promo" class="w-full max-w-md mx-auto drop-shadow-2xl rounded-full">
+        </div>
+
+        <!-- Slide 2 -->
+        <div class="hero-slide transition-all duration-1000 ease-in-out opacity-0 absolute inset-0 w-full h-full invisible flex items-center">
+            <!-- Background Image with Overlay -->
+            <div class="absolute inset-0 z-0">
+                <img src="https://images.unsplash.com/photo-1558002038-1055907df827?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80" class="w-full h-full object-cover" alt="Smart Home">
+                <div class="absolute inset-0 bg-gradient-to-r from-slate-900 via-slate-900/80 to-transparent"></div>
+            </div>
+
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 relative z-10 w-full">
+                <div class="text-white space-y-6 max-w-2xl">
+                    <h4 class="text-blue-400 font-bold tracking-widest uppercase text-sm"><?= t('hero_welcome') ?></h4>
+                    <h1 class="text-5xl md:text-6xl font-extrabold leading-tight"><?= t('hero_slide2_title') ?></h1>
+                    <div class="space-y-2">
+                        <p class="text-2xl font-semibold text-gray-300"><?= t('hero_slide2_subtitle') ?></p>
+                        <p class="text-gray-400 text-lg"><?= t('hero_slide2_desc') ?></p>
+                    </div>
+                    <div class="flex gap-4 pt-4">
+                        <a href="<?= BASE_URL ?>shop" class="bg-blue-600 hover:bg-blue-700 text-white px-10 py-4 rounded-lg font-bold transition transform hover:scale-105 shadow-xl">
+                            <?= t('shop_now') ?>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3 -->
+        <div class="hero-slide transition-all duration-1000 ease-in-out opacity-0 absolute inset-0 w-full h-full invisible flex items-center">
+            <!-- Background Image with Overlay -->
+            <div class="absolute inset-0 z-0">
+                <img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80" class="w-full h-full object-cover" alt="Fashion Collection">
+                <div class="absolute inset-0 bg-gradient-to-r from-slate-900 via-slate-900/80 to-transparent"></div>
+            </div>
+
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 relative z-10 w-full">
+                <div class="text-white space-y-6 max-w-2xl">
+                    <h4 class="text-blue-400 font-bold tracking-widest uppercase text-sm"><?= t('hero_welcome') ?></h4>
+                    <h1 class="text-5xl md:text-6xl font-extrabold leading-tight"><?= t('hero_slide3_title') ?></h1>
+                    <div class="space-y-2">
+                        <p class="text-2xl font-semibold text-gray-300"><?= t('hero_slide3_subtitle') ?></p>
+                        <p class="text-gray-400 text-lg"><?= t('hero_slide3_desc') ?></p>
+                    </div>
+                    <div class="flex gap-4 pt-4">
+                        <a href="<?= BASE_URL ?>shop" class="bg-blue-600 hover:bg-blue-700 text-white px-10 py-4 rounded-lg font-bold transition transform hover:scale-105 shadow-xl">
+                            <?= t('shop_now') ?>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2">
-        <div class="w-3 h-3 rounded-full bg-blue-600"></div>
-        <div class="w-3 h-3 rounded-full bg-gray-600"></div>
-        <div class="w-3 h-3 rounded-full bg-gray-600"></div>
+    <!-- Navigation Dots -->
+    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-3 z-20">
+        <button onclick="goToSlide(0)" class="slider-dot w-3 h-3 rounded-full bg-blue-600 transition-all duration-300 ring-4 ring-blue-600/20"></button>
+        <button onclick="goToSlide(1)" class="slider-dot w-3 h-3 rounded-full bg-gray-600 transition-all duration-300 hover:bg-gray-400"></button>
+        <button onclick="goToSlide(2)" class="slider-dot w-3 h-3 rounded-full bg-gray-600 transition-all duration-300 hover:bg-gray-400"></button>
     </div>
 </section>
 
 <!-- Trust Badges -->
-<section class="bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 py-16 transition-colors">
+<section class="bg-white dark:bg-gray-950 py-16 transition-colors">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-8">
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8">
             <!-- Easy Returns -->
-            <div class="flex flex-col items-center text-center group">
-                <div class="w-14 h-14 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-blue-600 group-hover:text-white transition-all duration-300 shadow-sm">
-                    <i class="fas fa-rotate-left text-xl"></i>
+            <div class="text-center group">
+                <div class="w-16 h-16 bg-blue-50 dark:bg-blue-900/20 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition duration-300">
+                    <i class="fas fa-arrow-rotate-left text-blue-600 text-xl"></i>
                 </div>
-                <h4 class="font-bold text-gray-900 dark:text-white text-sm mb-1">Easy Returns</h4>
-                <p class="text-xs text-gray-500 dark:text-gray-400 leading-tight px-2">Return any item before 15 days!</p>
+                <h4 class="text-sm font-bold text-gray-900 dark:text-white mb-1"><?= t('trust_easy_returns') ?></h4>
+                <p class="text-[11px] text-gray-500 leading-tight"><?= t('trust_easy_returns_desc') ?></p>
             </div>
+
             <!-- Free Shipping -->
-            <div class="flex flex-col items-center text-center group">
-                <div class="w-14 h-14 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-emerald-600 group-hover:text-white transition-all duration-300 shadow-sm">
-                    <i class="fas fa-truck text-xl"></i>
+            <div class="text-center group">
+                <div class="w-16 h-16 bg-green-50 dark:bg-green-900/20 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition duration-300">
+                    <i class="fas fa-truck text-green-600 text-xl"></i>
                 </div>
-                <h4 class="font-bold text-gray-900 dark:text-white text-sm mb-1">Free Shipping</h4>
-                <p class="text-xs text-gray-500 dark:text-gray-400 leading-tight px-2">Enjoy free shipping inside US.</p>
+                <h4 class="text-sm font-bold text-gray-900 dark:text-white mb-1"><?= t('trust_free_shipping') ?></h4>
+                <p class="text-[11px] text-gray-500 leading-tight"><?= t('trust_free_shipping_desc') ?></p>
             </div>
+
             <!-- Fast Shipping -->
-            <div class="flex flex-col items-center text-center group">
-                <div class="w-14 h-14 bg-orange-50 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-orange-600 group-hover:text-white transition-all duration-300 shadow-sm">
-                    <i class="fas fa-bolt text-xl"></i>
+            <div class="text-center group">
+                <div class="w-16 h-16 bg-orange-50 dark:bg-orange-900/20 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition duration-300">
+                    <i class="fas fa-bolt-lightning text-orange-500 text-xl"></i>
                 </div>
-                <h4 class="font-bold text-gray-900 dark:text-white text-sm mb-1">Fast Shipping</h4>
-                <p class="text-xs text-gray-500 dark:text-gray-400 leading-tight px-2">Items are shipped within 24 hours.</p>
+                <h4 class="text-sm font-bold text-gray-900 dark:text-white mb-1"><?= t('trust_fast_shipping') ?></h4>
+                <p class="text-[11px] text-gray-500 leading-tight"><?= t('trust_fast_shipping_desc') ?></p>
             </div>
+
             <!-- Satisfaction -->
-            <div class="flex flex-col items-center text-center group">
-                <div class="w-14 h-14 bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-purple-600 group-hover:text-white transition-all duration-300 shadow-sm">
-                    <i class="fas fa-face-smile text-xl"></i>
+            <div class="text-center group">
+                <div class="w-16 h-16 bg-purple-50 dark:bg-purple-900/20 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition duration-300">
+                    <i class="fas fa-smile text-purple-600 text-xl"></i>
                 </div>
-                <h4 class="font-bold text-gray-900 dark:text-white text-sm mb-1">Satisfaction</h4>
-                <p class="text-xs text-gray-500 dark:text-gray-400 leading-tight px-2">We guarantee you with our quality satisfaction.</p>
+                <h4 class="text-sm font-bold text-gray-900 dark:text-white mb-1"><?= t('trust_satisfaction') ?></h4>
+                <p class="text-[11px] text-gray-500 leading-tight"><?= t('trust_satisfaction_desc') ?></p>
             </div>
+
             <!-- Secure Checkout -->
-            <div class="flex flex-col items-center text-center group">
-                <div class="w-14 h-14 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-300 shadow-sm">
-                    <i class="fas fa-shield-check text-xl"></i>
+            <div class="text-center group">
+                <div class="w-16 h-16 bg-indigo-50 dark:bg-indigo-900/20 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition duration-300">
+                    <i class="fas fa-shield-halved text-indigo-600 text-xl"></i>
                 </div>
-                <h4 class="font-bold text-gray-900 dark:text-white text-sm mb-1">Secure Checkout</h4>
-                <p class="text-xs text-gray-500 dark:text-gray-400 leading-tight px-2">Providing Secure Checkout Options for all</p>
+                <h4 class="text-sm font-bold text-gray-900 dark:text-white mb-1"><?= t('trust_secure_checkout') ?></h4>
+                <p class="text-[11px] text-gray-500 leading-tight"><?= t('trust_secure_checkout_desc') ?></p>
             </div>
+
             <!-- Money Back -->
-            <div class="flex flex-col items-center text-center group">
-                <div class="w-14 h-14 bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-red-600 group-hover:text-white transition-all duration-300 shadow-sm">
-                    <i class="fas fa-hand-holding-dollar text-xl"></i>
+            <div class="text-center group">
+                <div class="w-16 h-16 bg-red-50 dark:bg-red-900/20 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition duration-300">
+                    <i class="fas fa-hand-holding-dollar text-red-600 text-xl"></i>
                 </div>
-                <h4 class="font-bold text-gray-900 dark:text-white text-sm mb-1">Money Back</h4>
-                <p class="text-xs text-gray-500 dark:text-gray-400 leading-tight px-2">Offer money back guarantee on our products</p>
+                <h4 class="text-sm font-bold text-gray-900 dark:text-white mb-1"><?= t('trust_money_back') ?></h4>
+                <p class="text-[11px] text-gray-500 leading-tight"><?= t('trust_money_back_desc') ?></p>
             </div>
         </div>
     </div>
@@ -151,15 +212,60 @@
 </section>
 
 <style>
-    @keyframes float {
-        0%, 100% { transform: translateY(0); }
-        50% { transform: translateY(-20px); }
-    }
-    .animate-float { animation: float 6s ease-in-out infinite; }
-
     @keyframes fade-in {
         from { opacity: 0; transform: translateX(-30px); }
         to { opacity: 1; transform: translateX(0); }
     }
     .animate-fade-in { animation: fade-in 1s ease-out forwards; }
+
+    .hero-slide {
+        transition: opacity 1s ease-in-out, visibility 1s;
+    }
+    .hero-slide.active {
+        opacity: 1 !important;
+        visibility: visible !important;
+        z-index: 10;
+    }
 </style>
+
+<script>
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.hero-slide');
+    const dots = document.querySelectorAll('.slider-dot');
+    let slideInterval;
+
+    function showSlide(n) {
+        slides.forEach(slide => {
+            slide.classList.remove('active');
+            slide.classList.add('opacity-0', 'invisible');
+        });
+        dots.forEach(dot => {
+            dot.classList.remove('bg-blue-600', 'ring-4', 'ring-blue-600/20');
+            dot.classList.add('bg-gray-600');
+        });
+
+        currentSlide = (n + slides.length) % slides.length;
+        slides[currentSlide].classList.add('active');
+        slides[currentSlide].classList.remove('opacity-0', 'invisible');
+
+        dots[currentSlide].classList.add('bg-blue-600', 'ring-4', 'ring-blue-600/20');
+        dots[currentSlide].classList.remove('bg-gray-600');
+    }
+
+    function nextSlide() {
+        showSlide(currentSlide + 1);
+    }
+
+    function goToSlide(n) {
+        showSlide(n);
+        resetInterval();
+    }
+
+    function resetInterval() {
+        clearInterval(slideInterval);
+        slideInterval = setInterval(nextSlide, 5000);
+    }
+
+    // Initialize
+    resetInterval();
+</script>

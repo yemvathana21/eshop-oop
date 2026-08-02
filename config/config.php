@@ -14,7 +14,7 @@ if (php_sapi_name() === 'cli') {
     $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
     $dir = dirname($scriptName);
     $dir = ($dir === '\\' || $dir === '/') ? '' : $dir;
-    // Ensure we handle subdirectory setups (like localhost/e-shop) or virtual hosts (like e-shop.test)
+    // Ensure we handle subdirectory setups (like localhost/eshop-oop) or virtual hosts (like generalstore.test)
     if (strpos($dir, '/public') !== false) {
         $base_url = $protocol . $domainName . str_replace('/public', '', $dir);
     } else {
